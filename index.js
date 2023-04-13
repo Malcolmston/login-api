@@ -41,8 +41,11 @@ app.get('/', (req, res) => {
 
 
 app.post("/login", async (req, res) => {
-	var { username, password } = JSON.parse(Object.keys(req.body)[0])
+	console.log( req.body )
+	
+	var { username, password } = req.body || JSON.parse(Object.keys(req.body)[0])
 
+	
 	if (username == undefined || password == undefined) {
 		res.json([{
 			valid: false,
@@ -73,7 +76,7 @@ app.post("/login", async (req, res) => {
 		} else {
 			res.json([{
 				valid: false,
-				message: "this account does not exist"
+				message: "this account does not exist or the password was incorect"
 			}])
 		}
 	}
@@ -82,7 +85,7 @@ app.post("/login", async (req, res) => {
 
 
 app.post("/signup", async (req, res) => {
-	var { username, password } = JSON.parse(Object.keys(req.body)[0])
+	var { username, password } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined && (username.length > 0 || password.length > 0)) {
 		res.json([{
@@ -107,7 +110,7 @@ app.post("/signup", async (req, res) => {
 		res.json([{
 
 			valid: false,
-			message: "this account already exists"
+			message: "this account already exists or the password was incorect"
 
 		}])
 	} else {
@@ -121,7 +124,7 @@ app.post("/signup", async (req, res) => {
 })
 
 app.post("/remove", async (req, res) => {
-	var { username, password } = JSON.parse(Object.keys(req.body)[0])
+	var { username, password } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
 		res.json([{
@@ -161,12 +164,17 @@ app.post("/remove", async (req, res) => {
 				message: "This account was unable to be removed"
 			}])
 		}
+	}else{
+		res.json([{
+				valid: true,
+				message: "This account dose not exsist"
+			}])
 	}
 })
 
 
 app.post('/renameUsername', async (req, res) => {
-	var { username, new_username } = JSON.parse(Object.keys(req.body)[0])
+	var { username, new_username } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || new_username == undefined) {
 		res.json([{
@@ -221,7 +229,7 @@ app.post('/renameUsername', async (req, res) => {
 
 
 app.post('/renamePassword', async (req, res) => {
-	var { username, new_password } = JSON.parse(Object.keys(req.body)[0])
+	var { username, new_password } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || new_password == undefined) {
 		res.json([{
@@ -269,7 +277,7 @@ app.post('/renamePassword', async (req, res) => {
 })
 
 app.post('/aplyName', async (req, res) => {
-	var { username, fname, lname } = JSON.parse(Object.keys(req.body)[0])
+	var { username, fname, lname } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || fname == undefined || lname == undefined) {
 		res.json([{
@@ -323,7 +331,7 @@ app.post('/aplyName', async (req, res) => {
 
 
 app.post('/aplyIcon', async (req, res) => {
-	var { username, url, ImageNumber } = JSON.parse(Object.keys(req.body)[0])
+	var { username, url, ImageNumber } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 
 	let bool = await Basic.account(username)
@@ -377,47 +385,6 @@ app.post('/aplyIcon', async (req, res) => {
 })
 
 
-app.post('/getmyAccount', async (req, res) => {
-	var { username } = JSON.parse(Object.keys(req.body)[0])
-
-
-	let bool = await Basic.account(username)
-
-	let del = await Basic.isDeleted(username)
-
-
-
-	if (bool) {
-		let a = await Basic.getAccount(username)
-
-		let { id, firstName, lastName, email, iconid, type, createdAt, updatedAt } = a
-
-
-		if (a == null) { } else {
-			res.json([{
-				valid: true,
-
-				id: id,
-				firstName: firstName || "",
-				lastName: lastName || "",
-				email: email || "",
-				username: username || "",
-				icon: iconid || "",
-				type: type || "",
-				createdAt: createdAt.toString() || "",
-				updatedAt: updatedAt.toString() || ""
-
-
-			}])
-
-		}
-
-	} else if (del) {
-
-	} else {
-
-	}
-})
 
 //Request URL: http://localhost:3000/user/34/books/8989
 app.get('/user/:username', async (req, res) => {
@@ -522,7 +489,7 @@ app.get('/user_admin/:username/', async (req, res) => {
 
 
 app.post("/admin/login", async (req, res) => {
-	var { username, password } = JSON.parse(Object.keys(req.body)[0])
+	var { username, password } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
 		res.json([{
@@ -562,7 +529,7 @@ app.post("/admin/login", async (req, res) => {
 })
 
 app.post('/admin/fname', async (req, res) => {
-	var { username, fname, type } = JSON.parse(Object.keys(req.body)[0])
+	var { username, fname, type } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 
 	if (username == undefined || fname == undefined) {
@@ -617,7 +584,7 @@ app.post('/admin/fname', async (req, res) => {
 })
 
 app.post('/admin/lname', async (req, res) => {
-	var { username, lname, type } = JSON.parse(Object.keys(req.body)[0])
+	var { username, lname, type } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 
 	if (username == undefined || lname == undefined) {
@@ -672,7 +639,7 @@ app.post('/admin/lname', async (req, res) => {
 })
 
 app.post('/admin/username', async (req, res) => {
-	var { username, new_username } = JSON.parse(Object.keys(req.body)[0])
+	var { username, new_username } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 
 	if (username == undefined || new_username == undefined) {
@@ -728,7 +695,7 @@ app.post('/admin/username', async (req, res) => {
 
 
 app.post('/admin/soft/remove', async (req, res) => {
-	var { your_username, your_password, other_username } = JSON.parse(Object.keys(req.body)[0])
+	var { your_username, your_password, other_username } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 
 	if (your_username == undefined || your_password == undefined || other_username == undefined) {
@@ -776,7 +743,7 @@ app.post('/admin/soft/remove', async (req, res) => {
 })
 
 app.post('/admin/hard/remove', async (req, res) => {
-	var { your_username, your_password, other_username } = JSON.parse(Object.keys(req.body)[0])
+	var { your_username, your_password, other_username } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 
 	if (your_username == undefined || your_password == undefined || other_username == undefined) {
@@ -810,7 +777,7 @@ app.post('/admin/hard/remove', async (req, res) => {
 })
 
 app.post('/admin/restore', async (req, res) => {
-	var { your_username, your_password, other_username } = JSON.parse(Object.keys(req.body)[0])
+	var { your_username, your_password, other_username } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
 
 	if (your_username == undefined || your_password == undefined || other_username == undefined) {
@@ -828,7 +795,7 @@ app.post('/admin/restore', async (req, res) => {
 	if (del) {
 		let x = await Admin.restore(other_username, your_username, your_password)
 
-		
+
 		if (!x) {
 			res.json([{
 				valid: false,
@@ -859,12 +826,12 @@ app.post('/admin/restore', async (req, res) => {
 
 
 app.post("/admin/create", async (req, res) => {
-	var { username, password, type} = JSON.parse(Object.keys(req.body)[0])
+	var { username, password, type } =  req.body || JSON.parse(Object.keys(req.body)[0])
 
-	if (username == undefined || password == undefined || type != "admin" || type != "guest"  ) {
+	if (username == undefined || password == undefined) {
 		res.json([{
 			valid: false,
-			username: "you must input peramaters for this to work"
+			message: "you must input peramaters for this to work"
 		}])
 
 		return;
@@ -873,41 +840,20 @@ app.post("/admin/create", async (req, res) => {
 	let a = await Admin.validate(username, password)
 	let b = await Basic.validate(username, password)
 
+	let reg = (/[a-zA-Z0-9!@#$%^&*]{6,16}$/)
 
-	if( !a && !b ){
-		let del = await Admin.isDeleted(username, type )
-
-		if( del){
-			res.json([{
-				valid: false,
-				message: "this account has been removed"
-
-			}])
-		}else {
-			let i = Admin.create(username,password, type )
-
-			res.json([{
-			valid: true,
-			message: "this account has been secsesfull created"
-		}])
-		}
-	}else {
+	if (!reg.test(password) && type == "admin") {
 		res.json([{
 			valid: false,
-			message: "this account already exists"
-
+			message: "the given password dose not match the given values"
 		}])
+
+		return;
 	}
-	
-	
 
-	if (bool) {
-		res.json([{
-			valid: true,
-			message: "you have logged in",
-		}])
-	} else {
-		//if( bool && ! )
+	if (!a && !b) {
+		let del = await Admin.isDeleted(username, type)
+
 		if (del) {
 			res.json([{
 				valid: false,
@@ -915,11 +861,21 @@ app.post("/admin/create", async (req, res) => {
 
 			}])
 		} else {
+			let i = await Admin.create(username, password, type)
+
+
 			res.json([{
-				valid: false,
-				message: "this account does not exist"
+				valid: true,
+				message: "this account has been secsesfull created"
 			}])
 		}
+
+	} else {
+		res.json([{
+			valid: false,
+			message: "this account already exists"
+
+		}])
 	}
 
 })
