@@ -74,16 +74,16 @@ The log in app is a meshing of javascript, swift, and sqlite. I Usesed Node to c
  
 ## Permisions
 
-| Permission           	| Basic 	| Admin 	|   	|   	|
-|----------------------	|-------	|-------	|---	|---	|
-| Create               	| ✓     	| ✓     	|   	|   	|
-| Soft Remove          	| ✓     	| ✓     	|   	|   	|
-| Hard Remove          	|       	| ✓     	|   	|   	|
-| recover              	|       	| ✓     	|   	|   	|
-| vue all accounts     	|       	| ✓     	|   	|   	|
-| set account name     	| ✓     	| ✓     	|   	|   	|
-| set account username 	| ✓     	| ✓     	|   	|   	|
-| set account password 	| ✓     	| ✓     	|   	|   	|
+| Permission           	| Basic 	| Admin 	|
+|----------------------	|-------	|-------	|
+| Create               	| ✓     	| ✓     	|
+| Soft Remove          	| ✓     	| ✓     	|
+| Hard Remove          	|       	| ✓     	|
+| recover              	|       	| ✓     	|
+| vue all accounts     	|       	| ✓     	|
+| set account name     	| ✓     	| ✓     	|
+| set account username 	| ✓     	| ✓     	|
+| set account password 	| ✓     	| ✓     	|
 
 ------
 
@@ -173,26 +173,72 @@ curl -X POST https://login-api.malcolm69.repl.co/aplyIcon -H "Content-Type: appl
 
 getting a user by there username
 ```shell 
-# the url and ImageNumber are optinal. you may post a url or a ImageNumber 
 curl -X GET https://login-api.malcolm69.repl.co/user/a
 ```
 ----
 ### admin commands
 
+admin login 
+```shell
+curl -X POST https://login-api.malcolm69.repl.co/admin/login -H "Content-Type: application/json" -d "{\"username\": \"a\", \"password\": \"b\"}"
+```
+
+aplying or changing the first name 
+```shell 
+curl -X POST https://login-api.malcolm69.repl.co/admin/fname -H "Content-Type: application/json" -d "{\"username\": \"a\", \"fname\": \"b\"}"
+```
+
+aplying or changing the last name 
+```shell 
+curl -X POST https://login-api.malcolm69.repl.co/admin/lname -H "Content-Type: application/json" -d "{\"username\": \"a\", \"lname\": \"b\"}"
+```
+
+re-setting username
+```shell 
+curl -X POST https://login-api.malcolm69.repl.co/admin/username -H "Content-Type: application/json" -d "{\"username\": \"a\", \"new_username\": \"b\"}"
+```
+
+soft remove
+```shell 
+curl -X POST https://login-api.malcolm69.repl.co/admin/soft/remove -H "Content-Type: application/json" -d "{\"your_username\": \"a\", \"your_password\": \"b\", \"other_username\": \"b\"}"
+```
+
+hard remove
+```shell 
+curl -X POST https://login-api.malcolm69.repl.co/admin/hard/remove -H "Content-Type: application/json" -d "{\"your_username\": \"a\", \"your_password\": \"b\", \"other_username\": \"b\"}"
+```
+
+restore 
+```shell 
+curl -X POST https://login-api.malcolm69.repl.co/admin/restore -H "Content-Type: application/json" -d "{\"your_username\": \"a\", \"your_password\": \"b\", \"other_username\": \"b\"}"
+```
+
+
+admin account creator
+```shell
+# type should be either basic or admin
+curl -X POST https://login-api.malcolm69.repl.co/signup -H "Content-Type: application/json" -d "{\"username\":\"a\", \"password\": \"a\", \"type\": \"a\"}"
+```
+
+getting a user by there username for admin
+```shell 
+curl -X GET https://login-api.malcolm69.repl.co/user_admin/{}/
+```
 
 
 ## given images
-![](images/1.svg)
-![](images/2.svg)
-![](images/3.svg)
-![](images/4.svg)
-![](images/5.svg)
-![](images/6.svg)
-![](images/7.svg)
-![](images/8.svg)
-![](images/9.svg)
-![](images/10.svg)
-![](images/11.svg)
-![](images/12.svg)
-![](images/13.svg)
+
+<img src="images/1.svg" alt="1" width="100" height="100">
+<img src="images/2.svg" alt="2" width="100" height="100">
+<img src="images/3.svg" alt="3" width="100" height="100">
+<img src="images/4.svg" alt="4" width="100" height="100">
+<img src="images/5.svg" alt="5" width="100" height="100">
+<img src="images/6.svg" alt="6" width="100" height="100">
+<img src="images/7.svg" alt="7" width="100" height="100">
+<img src="images/8.svg" alt="8" width="100" height="100">
+<img src="images/9.svg" alt="9" width="100" height="100">
+<img src="images/10.svg" alt="10" width="100" height="100">
+<img src="images/11.svg" alt="11" width="100" height="100">
+<img src="images/12.svg" alt="12" width="100" height="100">
+<img src="images/13.svg" alt="13" width="100" height="100">
 
