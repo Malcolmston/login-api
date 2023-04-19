@@ -11,7 +11,8 @@ const sequelize = new Sequelize("uses", "", "", {
 	dialect: "sqlite",
 	storage: "uses.sqlite",
 	benchmark: true,
-	standardConformingStrings: true
+	standardConformingStrings: true,
+	logging: false
 });
 
 
@@ -253,7 +254,7 @@ class Basic_Account extends Account {
 	 * @returns {promises} 
 	 */
 	async icon(username, url, id) {
-		let bool = await this.Account(username, "basic", pwd)
+		let bool = await this.Account(username, "basic")
 
 		if (bool === null) return false
 
