@@ -20,22 +20,16 @@
 	<body>
 	<h1>Time to log in</h1>
 
-		<form c>
-			<div class="mb-3">
+		<form action="/login" method="post" class='login'>
 			<label for="username">Your username</label>
 			<input type="text" name="username" placeholder ="username:"/> 
-			</div>
 			
 			<br>
-			
+
 			<label for="password">Your password</label>
 			<input type="password" name="password" placeholder ="password:" id="password"/>
-
 			<br>
-			
-			
-			
-			
+		
 
 			<div class="form-check form-switch">
   <input class="form-check-input" type="checkbox" role="switch" id="show" name='show'/>
@@ -46,10 +40,35 @@
 			
 		</form>
 
+	<form action="/signup" method="post" class='signup'>
+			<label for="username">Your username</label>
+			<input type="text" name="username" placeholder ="username:"/> 
+			
+			<br>
+
+			<label for="password">Your password</label>
+			<input type="password" name="password" placeholder ="password:" id="password" onchange="changeReg(this.value)"/>
+			<br>
+
+		<label for="conferm_password">Conferm your password</label>
+			<input type="password" name="conferm_password" placeholder ="password:" id="conferm_password" required/>
+
+	<br>
+		<input type="submit" value="sign up"/>
+	</div>
+
+			
+		</form>
+
 		<script>
-			const box = document.getElementById('show');
-			const lable = document.getElementById("psw");
-			const password = document.getElementById("password");
+			const box = document.querySelectorAll('#show')[0];
+			const lable = document.querySelectorAll("#psw")[0];
+			const password = document.querySelectorAll("#password")[0];
+
+			const password1 = document.querySelectorAll("#password")[1];
+			const converm_password = document.querySelectorAll("#password")[0];
+
+			const forms = document.querySelectorAll("form")
 
 			//this handles the hide vs show passowd in form. It will also place the curser at the end of the line
 			box.addEventListener("change",function(element) {
@@ -69,6 +88,16 @@
 					}
 				})
 
+			password1.addEventListener("keyup", function(element) {
+				if( element.value == converm_password.value  ){
+					
+				}else{
+					
+				}
+			})
+			
+
+			
 		</script>
 		
 	</body>
