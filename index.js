@@ -41,8 +41,9 @@ app.get('/', (req, res) => {
 })
 
 
-app.post("/login", async (req, res) => {
-	
+app.post("/login", async (req, res, next) => {
+	var url = req.rawHeaders;
+
 	var { username, password } = req.body //|| //JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
@@ -64,11 +65,34 @@ app.post("/login", async (req, res) => {
 
 	let del = await Basic.isDeleted(username)
 
+	console.log( url )
+	if( url.indexOf('https://login-api.malcolm69.repl.co') >= 0){
+		
+		if (bool) {
+			req.session.username = username
+			req.session.loged_in = true
+		res.status(200).render('home')
+		}else {
+		//if( bool && ! )
+		if (del) {
+			req.session.loged_in = false
+			res.status(404).render('homePage')
+		} else {
+			req.session.loged_in = false
+			res.status(401).render('homePage')
+		}
+	}
+		
+	}else{
+	
 	if (bool) {
+		
 		res.json([{
 			valid: true,
-			message: "you have logged in",
+			message: "you have logged in"
 		}])
+		
+		
 	} else {
 		//if( bool && ! )
 		if (del) {
@@ -83,6 +107,7 @@ app.post("/login", async (req, res) => {
 				message: "this account does not exist or the password was incorect"
 			}])
 		}
+	}
 	}
 
 })
