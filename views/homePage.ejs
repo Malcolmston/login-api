@@ -22,12 +22,12 @@
 
 		<form action="/login" method="post" class='login'>
 			<label for="username">Your username</label>
-			<input type="text" name="username" placeholder ="username:"/> 
+			<input type="text" name="username" placeholder ="username:" required/> 
 			
 			<br>
 
 			<label for="password">Your password</label>
-			<input type="password" name="password" placeholder ="password:" id="password"/>
+			<input type="password" name="password" placeholder ="password:" id="password" required/>
 			<br>
 		
 
@@ -37,21 +37,19 @@
 				<label id="psw">show your password</label>
 </div>
 
+			<input type="submit" value="login"/>
 			
 		</form>
 
 	<form action="/signup" method="post" class='signup'>
 			<label for="username">Your username</label>
-			<input type="text" name="username" placeholder ="username:"/> 
+			<input type="text" name="username" placeholder ="username:" required/> 
 			
 			<br>
 
 			<label for="password">Your password</label>
-			<input type="password" name="password" placeholder ="password:" id="password" onchange="changeReg(this.value)"/>
+			<input type="password" name="password" placeholder ="password:" id="password" required/>
 			<br>
-
-		<label for="conferm_password">Conferm your password</label>
-			<input type="password" name="conferm_password" placeholder ="password:" id="conferm_password" required/>
 
 	<br>
 		<input type="submit" value="sign up"/>
@@ -65,9 +63,7 @@
 			const lable = document.querySelectorAll("#psw")[0];
 			const password = document.querySelectorAll("#password")[0];
 
-			const password1 = document.querySelectorAll("#password")[1];
-			const converm_password = document.querySelectorAll("#password")[0];
-
+		
 			const forms = document.querySelectorAll("form")
 
 			//this handles the hide vs show passowd in form. It will also place the curser at the end of the line
@@ -88,13 +84,7 @@
 					}
 				})
 
-			password1.addEventListener("keyup", function(element) {
-				if( element.value == converm_password.value  ){
-					
-				}else{
-					
-				}
-			})
+		
 			
 
 			
