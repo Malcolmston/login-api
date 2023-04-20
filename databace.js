@@ -11,7 +11,8 @@ const sequelize = new Sequelize("uses", "", "", {
 	dialect: "sqlite",
 	storage: "uses.sqlite",
 	benchmark: true,
-	standardConformingStrings: true
+	standardConformingStrings: true,
+	logging: false
 });
 
 
@@ -189,7 +190,8 @@ class Basic_Account extends Account {
 
 
 		let res = await this.Account(username, "basic")
-		let a = await this.password_simi(password, pwd)
+		let a = await this.password_simi(password, res.password)
+
 
 		
 		if (a) {
@@ -252,7 +254,7 @@ class Basic_Account extends Account {
 	 * @returns {promises} 
 	 */
 	async icon(username, url, id) {
-		let bool = await this.Account(username, "basic", pwd)
+		let bool = await this.Account(username, "basic")
 
 		if (bool === null) return false
 
@@ -373,8 +375,6 @@ class Admin_Account extends Account {
 
 
 	async validate(username, password) {
-		let pwd = await this.password_hide(password)
-
 
 		let del = await this.isDeleted(username)
 
@@ -384,7 +384,7 @@ class Admin_Account extends Account {
 
 
 		let res = await this.Account(username, "admin")
-		let a = await this.password_simi(password, pwd)
+		let a = await this.password_simi(password, res.password)
 
 		if (a) {
 			if (res == null) {
@@ -521,7 +521,7 @@ class Admin_Account extends Account {
 		let reg = (/[a-zA-Z0-9!@#$%^&*]{6,16}$/)
 
 
-		if (reg.test(password)) {
+		if (reg.test(password) || type == 'basic') {
 
 			let a = await Users.create({
 				username: username,
