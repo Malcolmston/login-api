@@ -72,11 +72,13 @@ app.post("/login", async (req, res, next) => {
 			req.session.username = username
 			req.session.loged_in = true
 		res.status(200).render('home')
-		}else {
+		}else
 		//if( bool && ! )
 		if (del) {
 			req.session.loged_in = false
-			res.status(404).render('homePage')
+			res.status(404).render('homePage', {
+				
+			})
 		} else {
 			req.session.loged_in = false
 			res.status(401).render('homePage')
