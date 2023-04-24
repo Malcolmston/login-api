@@ -127,6 +127,8 @@ https://replit.com/@malcolm69/login-api#index.js
     
 ## code guide
 
+you must send the commends with a type as json or html to acsess either type of data
+
 ### basic commands
 login 
 ```shell
