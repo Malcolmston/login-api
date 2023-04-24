@@ -32,8 +32,11 @@ const Basic = new Basic_Account()
 
 
 app.get('/', (req, res) => {
-   let {username, loged_in} = req.session
+	let { username, loged_in } = req.session
 	res.render("homePage", {
+		error: {
+			message: ""
+		},
 		username: username,
 		loged_in: loged_in
 	})
@@ -42,15 +45,15 @@ app.get('/', (req, res) => {
 
 
 app.post("/login", async (req, res, next) => {
-	var url = req.rawHeaders;
 
-	var { username, password } = req.body //|| //JSON.parse(Object.keys(req.body)[0])
+	var { username, password, type } = req.body //|| //JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 password =  JSON.parse(Object.keys(req.body)[0]).password
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		password = JSON.parse(Object.keys(req.body)[0]).password
+		type = JSON.parse(Object.keys(req.body)[0]).type
 	}
-	
+
 	if (username == undefined || password == undefined) {
 		res.json([{
 			valid: false,
@@ -65,27 +68,7 @@ app.post("/login", async (req, res, next) => {
 
 	let del = await Basic.isDeleted(username)
 
-	console.log( url )
-	if( url.indexOf('https://login-api.malcolm69.repl.co') >= 0){
-		
-		if (bool) {
-			req.session.username = username
-			req.session.loged_in = true
-		res.status(200).render('home')
-		}else
-		//if( bool && ! )
-		if (del) {
-			req.session.loged_in = false
-			res.status(404).render('homePage', {
-				
-			})
-		} else {
-			req.session.loged_in = false
-			res.status(401).render('homePage')
-		}
-	}
-		
-	}else{
+	if (type == "json") {
 	
 	if (bool) {
 		
@@ -110,20 +93,50 @@ app.post("/login", async (req, res, next) => {
 			}])
 		}
 	}
+
+	} else {
+		if (bool) {
+			req.session.username = username
+			req.session.loged_in = true
+			res.status(200).render('home')
+		} else
+			//if( bool && ! )
+			if (del) {
+				req.session.loged_in = false
+				res.status(404).render('homePage', {
+					error: {
+						message: "this account has been removed"
+					},
+					username: req.session.username,
+					loged_in: req.session.loged_in
+				})
+			} else {
+				req.session.loged_in = false
+				res.status(401).render('homePage', {
+					error: {
+						message: "this account does not exist or the password was incorect"
+					},
+					username: req.session.username,
+					loged_in: req.session.loged_in
+				})
+			}
+
+
 	}
 
 })
 
 
 app.post("/signup", async (req, res) => {
-	var { username, password } =  req.body 
+	var { username, password, type} = req.body
 
 	if (username == undefined || password == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 password =  JSON.parse(Object.keys(req.body)[0]).password
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		password = JSON.parse(Object.keys(req.body)[0]).password
+		type = JSON.parse(Object.keys(req.body)[0]).type
 	}
 
-	
+
 	if (username == undefined || password == undefined && (username.length > 0 || password.length > 0)) {
 		res.json([{
 			valid: false,
@@ -137,38 +150,69 @@ app.post("/signup", async (req, res) => {
 	let bool = await Basic.account(username)
 	let del = await Basic.isDeleted(username)
 
-	if (del) {
-		res.json([{
-			valid: false,
-			message: "this account has been removed"
+	if (type == "html") {
 
-		}])
-	} else if (bool) {
-		res.json([{
+		if (bool) {
+			req.session.username = username
+			req.session.loged_in = true
 
-			valid: false,
-			message: "this account already exists or the password was incorect"
+			res.status(200).render('home')
+		} else if (del) {
+				req.session.loged_in = false
+				res.status(404).render('homePage', {
+					error: {
+						message: "this account has been removed"
+					},
+					username: req.session.username,
+					loged_in: req.session.loged_in
+				})
+			} else {
+				req.session.loged_in = false
+				res.status(401).render('homePage', {
+					error: {
+						message: "this account does not exist or the password was incorect"
+					},
+					username: req.session.username,
+					loged_in: req.session.loged_in
+				})
+			}
 
-		}])
 	} else {
-		let i = await Basic.create(username, password)
 
-		res.json([{
-			valid: true,
-			message: "this account has been secsesfull created"
-		}])
+
+		if (del) {
+			res.json([{
+				valid: false,
+				message: "this account has been removed"
+
+			}])
+		} else if (bool) {
+			res.json([{
+
+				valid: false,
+				message: "this account already exists or the password was incorect"
+
+			}])
+		} else {
+			let i = await Basic.create(username, password)
+
+			res.json([{
+				valid: true,
+				message: "this account has been secsesfull created"
+			}])
+		}
 	}
 })
 
 app.post("/remove", async (req, res) => {
-	var { username, password } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, password } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 password =  JSON.parse(Object.keys(req.body)[0]).password
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		password = JSON.parse(Object.keys(req.body)[0]).password
 	}
 
-	
+
 	if (username == undefined || password == undefined) {
 		res.json([{
 			valid: false,
@@ -207,24 +251,24 @@ app.post("/remove", async (req, res) => {
 				message: "This account was unable to be removed"
 			}])
 		}
-	}else{
+	} else {
 		res.json([{
-				valid: true,
-				message: "This account dose not exsist"
-			}])
+			valid: true,
+			message: "This account dose not exsist"
+		}])
 	}
 })
 
 
 app.post('/renameUsername', async (req, res) => {
-	var { username, new_username } =  req.body// || JSON.parse(Object.keys(req.body)[0])
+	var { username, new_username } = req.body// || JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || new_username == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 new_username =  JSON.parse(Object.keys(req.body)[0]).new_username
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		new_username = JSON.parse(Object.keys(req.body)[0]).new_username
 	}
 
-	
+
 	if (username == undefined || new_username == undefined) {
 		res.json([{
 			valid: false,
@@ -278,14 +322,14 @@ app.post('/renameUsername', async (req, res) => {
 
 
 app.post('/renamePassword', async (req, res) => {
-	var { username, new_password } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, new_password } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
-		if (username == undefined || new_password == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 new_password =  JSON.parse(Object.keys(req.body)[0]).new_password
+	if (username == undefined || new_password == undefined) {
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		new_password = JSON.parse(Object.keys(req.body)[0]).new_password
 	}
 
-	
+
 	if (username == undefined || new_password == undefined) {
 		res.json([{
 			valid: false,
@@ -332,14 +376,14 @@ app.post('/renamePassword', async (req, res) => {
 })
 
 app.post('/aplyName', async (req, res) => {
-	var { username, fname, lname } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, fname, lname } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
-			if (username == undefined || fname == undefined || lname == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 fname =  JSON.parse(Object.keys(req.body)[0]).fname
-				lname =  JSON.parse(Object.keys(req.body)[0]).lname
+	if (username == undefined || fname == undefined || lname == undefined) {
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		fname = JSON.parse(Object.keys(req.body)[0]).fname
+		lname = JSON.parse(Object.keys(req.body)[0]).lname
 	}
-	
+
 	if (username == undefined || fname == undefined || lname == undefined) {
 		res.json([{
 			valid: false,
@@ -392,15 +436,15 @@ app.post('/aplyName', async (req, res) => {
 
 
 app.post('/aplyIcon', async (req, res) => {
-	var { username, url, ImageNumber } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, url, ImageNumber } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
 
-			if(username == undefined || url == undefined || ImageNumber == undefined ){
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 url =  JSON.parse(Object.keys(req.body)[0]).url
-				ImageNumber =  JSON.parse(Object.keys(req.body)[0]).ImageNumber
+	if (username == undefined || url == undefined || ImageNumber == undefined) {
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		url = JSON.parse(Object.keys(req.body)[0]).url
+		ImageNumber = JSON.parse(Object.keys(req.body)[0]).ImageNumber
 	}
-	
+
 	let bool = await Basic.account(username)
 
 	let del = await Basic.isDeleted(username)
@@ -498,7 +542,7 @@ app.get('/user/:username', async (req, res) => {
 app.get('/user_admin/:username/', async (req, res) => {
 	let { username } = req.params
 
-	
+
 	let bool = await Admin.account(username)
 
 	let del = await Admin.isDeleted(username, "admin")
@@ -556,14 +600,14 @@ app.get('/user_admin/:username/', async (req, res) => {
 
 
 app.post("/admin/login", async (req, res) => {
-	var { username, password } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, password } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 password =  JSON.parse(Object.keys(req.body)[0]).password
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		password = JSON.parse(Object.keys(req.body)[0]).password
 	}
 
-	
+
 	if (username == undefined || password == undefined) {
 		res.json([{
 			valid: false,
@@ -602,14 +646,14 @@ app.post("/admin/login", async (req, res) => {
 })
 
 app.post('/admin/fname', async (req, res) => {
-	var { username, fname, type } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, fname, type } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
-if (username == undefined || fname == undefined || type == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 fname =  JSON.parse(Object.keys(req.body)[0]).fname
-	type =  JSON.parse(Object.keys(req.body)[0]).type
+	if (username == undefined || fname == undefined || type == undefined) {
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		fname = JSON.parse(Object.keys(req.body)[0]).fname
+		type = JSON.parse(Object.keys(req.body)[0]).type
 	}
-	
+
 	if (username == undefined || fname == undefined) {
 		res.json([{
 			valid: false,
@@ -662,14 +706,14 @@ if (username == undefined || fname == undefined || type == undefined) {
 })
 
 app.post('/admin/lname', async (req, res) => {
-	var { username, lname, type } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, lname, type } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
-if (username == undefined || lname == undefined || type == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 lname =  JSON.parse(Object.keys(req.body)[0]).lname
-	type =  JSON.parse(Object.keys(req.body)[0]).type
+	if (username == undefined || lname == undefined || type == undefined) {
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		lname = JSON.parse(Object.keys(req.body)[0]).lname
+		type = JSON.parse(Object.keys(req.body)[0]).type
 	}
-	
+
 	if (username == undefined || lname == undefined) {
 		res.json([{
 			valid: false,
@@ -722,13 +766,13 @@ if (username == undefined || lname == undefined || type == undefined) {
 })
 
 app.post('/admin/username', async (req, res) => {
-	var { username, new_username } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, new_username } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
-if (username == undefined || new_username == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-		 new_username =  JSON.parse(Object.keys(req.body)[0]).new_username
+	if (username == undefined || new_username == undefined) {
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		new_username = JSON.parse(Object.keys(req.body)[0]).new_username
 	}
-	
+
 	if (username == undefined || new_username == undefined) {
 		res.json([{
 			valid: false,
@@ -782,12 +826,12 @@ if (username == undefined || new_username == undefined) {
 
 
 app.post('/admin/soft/remove', async (req, res) => {
-	var { your_username, your_password, other_username } =  req.body || JSON.parse(Object.keys(req.body)[0])
+	var { your_username, your_password, other_username } = req.body || JSON.parse(Object.keys(req.body)[0])
 
-	if (your_username == undefined || your_password == undefined || other_username == undefined)  {
-	 your_username =  JSON.parse(Object.keys(req.body)[0]).your_username
-	your_password =  JSON.parse(Object.keys(req.body)[0]).your_password
-	other_username =  JSON.parse(Object.keys(req.body)[0]).other_username
+	if (your_username == undefined || your_password == undefined || other_username == undefined) {
+		your_username = JSON.parse(Object.keys(req.body)[0]).your_username
+		your_password = JSON.parse(Object.keys(req.body)[0]).your_password
+		other_username = JSON.parse(Object.keys(req.body)[0]).other_username
 
 	}
 
@@ -836,15 +880,15 @@ app.post('/admin/soft/remove', async (req, res) => {
 })
 
 app.post('/admin/hard/remove', async (req, res) => {
-	var { your_username, your_password, other_username } =  req.body || JSON.parse(Object.keys(req.body)[0])
+	var { your_username, your_password, other_username } = req.body || JSON.parse(Object.keys(req.body)[0])
 
-	if (your_username == undefined || your_password == undefined || other_username == undefined)  {
-	 your_username =  JSON.parse(Object.keys(req.body)[0]).your_username
-	your_password =  JSON.parse(Object.keys(req.body)[0]).your_password
-	other_username =  JSON.parse(Object.keys(req.body)[0]).other_username
+	if (your_username == undefined || your_password == undefined || other_username == undefined) {
+		your_username = JSON.parse(Object.keys(req.body)[0]).your_username
+		your_password = JSON.parse(Object.keys(req.body)[0]).your_password
+		other_username = JSON.parse(Object.keys(req.body)[0]).other_username
 
 	}
-	
+
 
 	if (your_username == undefined || your_password == undefined || other_username == undefined) {
 		res.json([{
@@ -877,15 +921,15 @@ app.post('/admin/hard/remove', async (req, res) => {
 })
 
 app.post('/admin/restore', async (req, res) => {
-	var { your_username, your_password, other_username } =  req.body || JSON.parse(Object.keys(req.body)[0])
+	var { your_username, your_password, other_username } = req.body || JSON.parse(Object.keys(req.body)[0])
 
-	if (your_username == undefined || your_password == undefined || other_username == undefined)  {
-	 your_username =  JSON.parse(Object.keys(req.body)[0]).your_username
-	your_password =  JSON.parse(Object.keys(req.body)[0]).your_password
-	other_username =  JSON.parse(Object.keys(req.body)[0]).other_username
+	if (your_username == undefined || your_password == undefined || other_username == undefined) {
+		your_username = JSON.parse(Object.keys(req.body)[0]).your_username
+		your_password = JSON.parse(Object.keys(req.body)[0]).your_password
+		other_username = JSON.parse(Object.keys(req.body)[0]).other_username
 
 	}
-	
+
 
 	if (your_username == undefined || your_password == undefined || other_username == undefined) {
 		res.json([{
@@ -933,16 +977,16 @@ app.post('/admin/restore', async (req, res) => {
 
 
 app.post("/admin/create", async (req, res) => {
-	var { username, password, type } =  req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, password, type } = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
-		if (username == undefined || password == undefined || type == undefined) {
-	 username =  JSON.parse(Object.keys(req.body)[0]).username
-	password =  JSON.parse(Object.keys(req.body)[0]).password
-	type =  JSON.parse(Object.keys(req.body)[0]).type
+	if (username == undefined || password == undefined || type == undefined) {
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		password = JSON.parse(Object.keys(req.body)[0]).password
+		type = JSON.parse(Object.keys(req.body)[0]).type
 
 	}
 
-	
+
 	if (username == undefined || password == undefined) {
 		res.json([{
 			valid: false,
