@@ -1,0 +1,12 @@
+
+# all replit file stuff
+.replit
+.breakpoints
+*.nix
+
+# the database sqlite
+*.sqlite
+
+
+# Dependency directories
+node_modules/
