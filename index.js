@@ -205,7 +205,7 @@ app.post("/signup", async (req, res) => {
 })
 
 app.post("/remove", async (req, res) => {
-	var { username, password } = req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, password, type} = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
 		username = JSON.parse(Object.keys(req.body)[0]).username
