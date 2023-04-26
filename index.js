@@ -26,6 +26,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(sessionMiddleware);
 
+//looks inside the images folder 
+app.use('/images', express.static('images'))
 
 const Admin = new Admin_Account()
 const Basic = new Basic_Account()
