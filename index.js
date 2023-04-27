@@ -26,6 +26,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(sessionMiddleware);
 
+//looks inside the images folder 
+app.use('/images', express.static('images'))
 
 const Admin = new Admin_Account()
 const Basic = new Basic_Account()
@@ -205,7 +207,7 @@ app.post("/signup", async (req, res) => {
 })
 
 app.post("/remove", async (req, res) => {
-	var { username, password } = req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, password, type} = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
 		username = JSON.parse(Object.keys(req.body)[0]).username
