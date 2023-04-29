@@ -10,3 +10,9 @@
 
 # Dependency directories
 node_modules/
+
+.cache/
+
+.config/
+
+.DS_Store
