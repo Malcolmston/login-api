@@ -2,7 +2,8 @@
 
 const parts = {
 	Basic_Account,
-	Admin_Account
+	Admin_Account,
+	AppIcons
 } = require("./databace.js")
 
 const fs = require('fs')
@@ -28,11 +29,14 @@ app.use(sessionMiddleware);
 
 //looks inside the images folder 
 app.use('/images', express.static('images'))
+app.use('/files',express.static('files'))
+
+
 
 const Admin = new Admin_Account()
 const Basic = new Basic_Account()
-
-
+const Icons = new AppIcons()
+/*
 app.get('/', (req, res) => {
 	let { username, loged_in } = req.session
 	res.render("homePage", {
@@ -44,7 +48,17 @@ app.get('/', (req, res) => {
 	})
 
 })
+*/
 
+app.get('/', async (req, res) => {
+	var a = await Icons.getImages
+
+	console.log( a[0] )
+	res.render("test", {
+		images:  a
+	})
+
+})
 
 app.post("/login", async (req, res, next) => {
 
@@ -439,6 +453,11 @@ app.post('/aplyName', async (req, res) => {
 
 app.post('/aplyIcon', async (req, res) => {
 	var { username, url, ImageNumber } = req.body //|| JSON.parse(Object.keys(req.body)[0])
+
+		if (url == undefined || ImageNumber == undefined) {
+		username = JSON.parse(Object.keys(req.body)[0]).username
+		ImageNumber = JSON.parse(Object.keys(req.body)[0]).ImageNumber
+	}
 
 
 	if (username == undefined || url == undefined || ImageNumber == undefined) {
