@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-
+const path = require("path");
+const fs = require('fs')
 
 const sqlite3 = require("sqlite3");
 const { Sequelize, DataTypes, Op, QueryTypes, where } = require("sequelize");
@@ -14,6 +15,36 @@ const sequelize = new Sequelize("uses", "", "", {
 	standardConformingStrings: true,
 	logging: false
 });
+
+const Icons = sequelize.define("icons", {
+	id: {
+		type: Sequelize.INTEGER,
+		autoIncrement: true,
+		primaryKey: true,
+	},
+
+	icon: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: true,
+	},
+
+	path: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		unique: true,
+	},
+
+
+
+	file: {
+		type: DataTypes.BLOB,
+		allowNull: true,
+		unique: false,
+	}
+
+
+})
 
 
 
@@ -55,23 +86,14 @@ const Users = sequelize.define('Users', {
 		unique: false,
 	},
 
-	icon: {
-		type: DataTypes.TEXT,
-		allowNull: true,
-		unique: false,
-	},
 
-	iconid: {
-		type: DataTypes.INTEGER,
-		allowNull: true,
-		unique: false,
-	},
 
 	type: {
 		type: DataTypes.TEXT,
 		allowNull: false,
 		unique: false,
-	}
+	},
+
 },
 	{
 		timestamps: true,
@@ -81,11 +103,42 @@ const Users = sequelize.define('Users', {
 	});
 
 
+Users.hasOne(Icons);
+Icons.belongsTo(Users);
 
-class Account {
+
+Users.sync()
+
+
+
+
+
+class Account   {
 	constructor() {
 
 	}
+getFileBuffer(fullPath){
+	let filepath = path.resolve(__dirname, fullPath);
+		let profilePicture = Buffer.from(fs.readFileSync(filepath));
+
+	return profilePicture
+}
+	
+	allInfolder(folder = "images"){
+		let directoryPath = path.join(__dirname, folder);
+
+		
+		return new Promise((resolve, reject) => {
+			fs.readdir(directoryPath, function (err, files) {
+    //handling error
+    if (err) {
+        reject(err)
+    } 
+   resolve(files)
+});
+		})
+	}
+
 
 	Account(username, type) {
 
@@ -129,6 +182,85 @@ class Account {
 			});
 		});
 	}
+}
+
+
+class AppIcons extends Account {
+constructor() {
+		super()
+	}
+
+	async exsist(image) {
+		
+		let a = await Icons.findOne({
+			where: {icon: image}
+		})
+
+		return a !== null 
+	}
+
+
+	/**
+	 * this function will eiter retiver or create the given image file
+	 *  @param {String} image this usese a complex string of a file in the images folder 
+	 * @returns {promises} return a sequelize object of the file that is chosen or created
+	 */
+	async addFile(image) {
+		let profilePicture = this.getFileBuffer(`images/${image}.svg`)
+
+
+		const [user, created] = await Icons.findOrCreate({
+			where: {
+				icon: image,
+				path: `images/${image}.svg`
+			}
+		})
+
+		if (created) {
+			user.file = profilePicture
+
+			await user.save();
+		}
+		return user
+	}
+
+	async addBolck(...images) {
+		let arr = []
+
+		let r = this
+		arr = images.map( async (x, index) => {
+			let profilePicture = r.getFileBuffer(`images/${x}`)
+
+
+			
+			if( !(await r.exsist( (index+1).toString() )  ) ){
+				
+			return {
+			icon: (index+1).toString(),
+			path: `images/${index+1}.svg`,
+			file: profilePicture
+				}
+			}else{
+				return false
+			}
+		
+		})
+
+
+		arr = (await  Promise.all(arr)).filter(x=>x)
+
+		let res = await Icons.bulkCreate(arr)
+
+		return res
+	}
+
+	async addAll(){
+		let all = await this.allInfolder()
+
+
+		return await this.addBolck(...all)
+	}
+
 }
 
 
@@ -193,7 +325,7 @@ class Basic_Account extends Account {
 		let a = await this.password_simi(password, res.password)
 
 
-		
+
 		if (a) {
 			if (res == null) {
 				return false;
@@ -570,7 +702,7 @@ class Admin_Account extends Account {
 	}
 
 	async restore(username, Yusername, Ypassword) {
-		let c1 =  await this.findBy(username, "basic")
+		let c1 = await this.findBy(username, "basic")
 		let c2 = await this.validate(Yusername, Ypassword)
 
 		if (!c1 && !c2) {
@@ -609,7 +741,7 @@ class Admin_Account extends Account {
 
 	async getAll() {
 
-		let all = await Users.findAll({paranoid: false})
+		let all = await Users.findAll({ paranoid: false })
 
 		return all;
 	}
@@ -640,17 +772,25 @@ let arr = all.map( (x,i) => {  return ( JSON.parse(JSON.stringify(x, null, 2) ))
 	await sequelize.sync({ force: false });
 
 
+	//
+	//	console.log( (await a.addFile('2')) )
 
 	let b = new Admin_Account()
 	let a = new Basic_Account()
+	let c = new AppIcons()
 
+	//let user1 = await a.create("a", "a")
+	let user2 = await a.create("b", "b")
+
+	//let icon1 = await c.addFile('3')
+	let icon2 = await c.addAll()//.addFile('7')
+
+
+	//await user1.setIcon(icon1);
+	//await user2.setIcon(icon2);
 	
-	a.create("a", "a").then(() => {
-		b.create('Malcolm', 'MalcolmStoneAdmin22', "admin").then(() => {
-			b.name("Malcolm", "Malcolm", "Stone").then(console.log)
-		})
-	})
- 
+
+
 
 
 
