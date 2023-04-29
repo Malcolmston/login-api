@@ -1,0 +1,11 @@
+svg {
+	width: 100px;
+	height: 100px;
+}
+
+
+
+.col:hover {
+	background-color: lightgray;
+}
+
