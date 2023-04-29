@@ -1,18 +1,8 @@
-
-# all replit file stuff
-.replit
 .breakpoints
-*.nix
-
-# the database sqlite
-*.sqlite
-
-
 # Dependency directories
+*.sqlite
+# the database sqlite
+*.nix
+.replit
+# all replit file stuff
 node_modules/
-
-.cache/
-
-.config/
-
-.DS_Store
