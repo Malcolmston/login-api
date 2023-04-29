@@ -103,8 +103,8 @@ const Users = sequelize.define('Users', {
 	});
 
 
-Users.hasOne(Icons);
-Icons.belongsTo(Users);
+Icons.hasOne(Users);
+Users.belongsTo(Icons);
 
 
 Users.sync()
@@ -259,6 +259,10 @@ constructor() {
 
 
 		return await this.addBolck(...all)
+	}
+
+    get getImages(){
+		return Icons.findAll()
 	}
 
 }
@@ -748,37 +752,13 @@ class Admin_Account extends Account {
 }
 
 
-/*
-module.exports = {
-	Basic_Account,
-	Admin_Account
-};
-	
-	
-	
-	
-	
-let arr = all.map( (x,i) => {  return ( JSON.parse(JSON.stringify(x, null, 2) )) })
-	
-	
-			return arr  //jsonToCsv(all.map( (x,i) => {  return JSON.parse( JSON.stringify(x, null, 2) ) }) )
-	}
-	*/
-
-
-
 
 (async function() {
 	await sequelize.sync({ force: false });
 
+	
 
-	//
-	//	console.log( (await a.addFile('2')) )
-
-	let b = new Admin_Account()
-	let a = new Basic_Account()
-	let c = new AppIcons()
-
+	/*
 	//let user1 = await a.create("a", "a")
 	let user2 = await a.create("b", "b")
 
@@ -788,9 +768,24 @@ let arr = all.map( (x,i) => {  return ( JSON.parse(JSON.stringify(x, null, 2) ))
 
 	//await user1.setIcon(icon1);
 	//await user2.setIcon(icon2);
+	*/
+
+
+
 	
+	let a = new Basic_Account()
+    let b = new Admin_Account()
 
+	let c = new AppIcons()
 
+	 await c.addAll()
+	
+	a.create("a", "a").then(() => {
+		b.create('Malcolm', 'MalcolmStoneAdmin22', "admin").then(() => {
+			b.name("Malcolm", "Malcolm", "Stone").then(console.log)
+		})
+	})
+ 
 
 
 
@@ -803,7 +798,8 @@ let arr = all.map( (x,i) => {  return ( JSON.parse(JSON.stringify(x, null, 2) ))
 
 module.exports = {
 	Basic_Account,
-	Admin_Account
+	Admin_Account,
+	AppIcons
 };
 
 
