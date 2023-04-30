@@ -9,3 +9,11 @@ svg {
 	background-color: lightgray;
 }
 
+.col:active {
+	background-color: lightgray;
+}
+
+
+.col.selected {
+	background-color: lightgray;
+}
