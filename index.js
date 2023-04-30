@@ -36,7 +36,8 @@ app.use('/files',express.static('files'))
 const Admin = new Admin_Account()
 const Basic = new Basic_Account()
 const Icons = new AppIcons()
-/*
+
+
 app.get('/', (req, res) => {
 	let { username, loged_in } = req.session
 	res.render("homePage", {
@@ -48,18 +49,7 @@ app.get('/', (req, res) => {
 	})
 
 })
-*/
 
-app.get('/', async (req, res) => {
-	var a = await Icons.getImages
-
-	console.log( a[0] )
-	res.render("home", {
-		images:  a,
-		username: "a"
-	})
-
-})
 
 app.post("/login", async (req, res, next) => {
 
@@ -115,8 +105,14 @@ app.post("/login", async (req, res, next) => {
 		if (bool) {
 			req.session.username = username
 			req.session.loged_in = true
-			res.status(200).render('home')
-		} else
+			var a = await Icons.getImages
+
+		    res.status(200).render("home", {
+				images:  a,
+				username: req.session.username
+		})
+
+		} else {
 			//if( bool && ! )
 			if (del) {
 				req.session.loged_in = false
@@ -140,7 +136,7 @@ app.post("/login", async (req, res, next) => {
 
 
 	}
-
+}
 })
 
 
@@ -453,66 +449,82 @@ app.post('/aplyName', async (req, res) => {
 
 
 app.post('/aplyIcon', async (req, res) => {
-	var { username, url, ImageNumber } = req.body //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, ImageNumber, type} = req.body //|| JSON.parse(Object.keys(req.body)[0])
 
-		if (url == undefined || ImageNumber == undefined) {
+
+		if (username == undefined || ImageNumber == undefined) {
 		username = JSON.parse(Object.keys(req.body)[0]).username
 		ImageNumber = JSON.parse(Object.keys(req.body)[0]).ImageNumber
+		type = JSON.parse(Object.keys(req.body)[0]).type
 	}
 
 
-	if (username == undefined || url == undefined || ImageNumber == undefined) {
-		username = JSON.parse(Object.keys(req.body)[0]).username
-		url = JSON.parse(Object.keys(req.body)[0]).url
-		ImageNumber = JSON.parse(Object.keys(req.body)[0]).ImageNumber
+	if (username == undefined || ImageNumber == undefined) {
+		username = Object.keys(req.body)[0].username
+		ImageNumber = Object.keys(req.body)[0].ImageNumber
 	}
 
 	let bool = await Basic.account(username)
 
 	let del = await Basic.isDeleted(username)
 
-	if (ImageNumber != undefined) {
 
-		let buf = fs.readFileSync(`./images/${ImageNumber}.svg`)
-
-
-
-		url = 'http://data:image/svg+xml;base64,' + buf.toString('base64');
-
-
-
-	}
-
-	if (bool) {
-		let x = await Basic.icon(username, url, ImageNumber || null)
-		if (!x) {
-			res.json([{
-				valid: false,
-				message: `something went wrong with the account ${username}`
-
-			}])
+	if (type == "json") {
+		if (bool) {
+			let x = await Basic.icon(username, ImageNumber || null)
+			if (!x) {
+				res.json([{
+					valid: false,
+					message: `something went wrong with the account ${username}`
+	
+				}])
+			} else {
+				res.json([{
+					valid: true,
+					message: `the account ${username} now has an icon.`
+	
+				}])
+			}
+	
 		} else {
-			res.json([{
-				valid: true,
-				message: `the account ${username} now has an icon.`
+			if (del) {
+				res.json([{
+					valid: false,
+					message: `the account you are trying to rename has been deleted`
+	
+				}])
+			} else {
+				res.json([{
+					valid: false,
+					message: `the account you are trying to rename dose not exist`
+	
+				}])
+			}
+		}
+	}else {
+		var a = await Icons.getImages
 
-			}])
+		if (bool ) {
+			
+
+			let x = await Basic.icon(username, ImageNumber || null)
+		
+			if(x) {
+				res.status(200).render("home", {
+					images:  a,
+					username: req.session.username
+			})
+			}
+		   
+
+		}else {
+			res.sendStatus(403).render("home", {
+				images:  a,
+				username: req.session.username
+		})
+
 		}
 
-	} else {
-		if (del) {
-			res.json([{
-				valid: false,
-				message: `the account you are trying to rename has been deleted`
-
-			}])
-		} else {
-			res.json([{
-				valid: false,
-				message: `the account you are trying to rename dose not exist`
-
-			}])
-		}
 	}
 
 })
