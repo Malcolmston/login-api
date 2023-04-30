@@ -1,4 +1,4 @@
-// npm install sqlite3 bcrypt ejs express express-session sequelize
+// npm install sqlite3 bcrypt ejs express express-session sequelize path 
 
 const parts = {
 	Basic_Account,
@@ -54,8 +54,9 @@ app.get('/', async (req, res) => {
 	var a = await Icons.getImages
 
 	console.log( a[0] )
-	res.render("test", {
-		images:  a
+	res.render("home", {
+		images:  a,
+		username: "a"
 	})
 
 })

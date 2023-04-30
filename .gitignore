@@ -5,4 +5,7 @@
 *.nix
 .replit
 # all replit file stuff
-node_modules/
+node_modules/*
+
+*.json
+views/test.ejs
