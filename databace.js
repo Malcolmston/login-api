@@ -402,6 +402,17 @@ class Basic_Account extends Account {
 
 	}
 
+	async get_icon(username, type) {
+		let bool = await this.Account(username, "basic")
+
+		if (bool === null) return false
+
+
+		return await bool.getIcon();
+
+
+	}
+
 
 	async create(username, password) {
 		let bool = await this.account(username)
@@ -588,19 +599,41 @@ class Admin_Account extends Account {
 	* @param {String} url is the url of a img that you want as the cantact image for a user
 	* @returns {promises} 
 	*/
-	async icon(username, url) {
+	async icon(username, id) {
 		let bool = await this.Account(username, "admin")
 
 		if (bool === null) return false
 
-		bool.set({
-			icon: url,
-		});
 
-		return await bool.save();
+		const img = await Icons.findByPk(id);
+
+		return await bool.setIcon(img);
+	}
+//https://sequelize.org/docs/v6/core-concepts/assocs/#foohasonebar
+	async get_icon(username) {
+		let bool = await this.Account(username, "admin")
+
+		if (bool === null) return false
+
+
+		return await bool.getIcon();
 
 
 	}
+
+	async apply_icon(username, type) {
+		let bool = await this.Account(username, type)
+
+		if (bool === null) return false
+
+
+		const img = await Icons.findByPk(id);
+
+		return await bool.setIcon(img);
+	}
+
+	
+
 
 	// checks the Basic table
 	async check(username, password) {
