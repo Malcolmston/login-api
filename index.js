@@ -401,14 +401,14 @@ app.post("/renamePassword", async (req, res) => {
 app.post("/aplyName", async (req, res) => {
 	var { username, fname, lname, type} = req.body; //|| JSON.parse(Object.keys(req.body)[0])
 
-	if (username == undefined || fname == undefined || lname == undefined) {
+	if (username == undefined ) {
 		username = JSON.parse(Object.keys(req.body)[0]).username;
 		fname = JSON.parse(Object.keys(req.body)[0]).fname;
 		lname = JSON.parse(Object.keys(req.body)[0]).lname;
 		type = JSON.parse(Object.keys(req.body)[0]).type;
 	}
 
-	if (username == undefined || fname == undefined || lname == undefined) {
+	if (username == undefined) {
 		res.json([
 			{
 				valid: false,
@@ -422,6 +422,8 @@ app.post("/aplyName", async (req, res) => {
 	let bool = await Basic.account(username);
 
 	let del = await Basic.isDeleted(username);
+
+	if (type == "json") {
 
 	if (bool) {
 		let x = Basic.name(username, fname, lname);
@@ -458,6 +460,31 @@ app.post("/aplyName", async (req, res) => {
 			]);
 		}
 	}
+}else {
+	if( bool ){
+		var a = await Icons.getImages;
+		let x = Basic.name(username, fname, lname);
+
+		if(!x){
+			
+			res.status(400).render("home", {
+				images: a,
+				username: req.session.username,
+			});
+		}else{
+			res.status(200).render("home", {
+				images: a,
+				username: req.session.username,
+			});
+		}
+	}else{
+
+		res.status(400).render("home", {
+			images: a,
+			username: req.session.username,
+		});
+	}
+}
 });
 
 app.post("/aplyIcon", async (req, res) => {
