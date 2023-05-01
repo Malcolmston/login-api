@@ -17,3 +17,12 @@ svg {
 .col.selected {
 	background-color: lightgray;
 }
+
+
+.show {
+	display: block;
+}
+
+.hide {
+	display: none;
+}
