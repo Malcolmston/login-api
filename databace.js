@@ -95,7 +95,7 @@ const Users = sequelize.define(
 	}
 );
 
-Icons.hasOne(Users);
+Icons.hasMany(Users);
 Users.belongsTo(Icons);
 
 Users.sync();
@@ -367,7 +367,7 @@ class Basic_Account extends Account {
 
 		const img = await Icons.findByPk(id);
 
-		return await bool.setIcon(img);
+		return await img.addUsers([bool]);
 	}
 
 	async get_icon(username) {
@@ -375,7 +375,7 @@ class Basic_Account extends Account {
 
 		if (bool === null) return false;
 
-		return await bool.getIcon();
+		return await bool.getIcons();
 	}
 
 	async create(username, password) {
@@ -580,8 +580,8 @@ class Admin_Account extends Account {
 		if (bool === null) return false;
 
 		const img = await Icons.findByPk(id);
-
-		return await bool.setIcon(img);
+	
+		return await img.addUsers([bool]);
 	}
 
 		/**
