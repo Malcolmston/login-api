@@ -389,17 +389,15 @@ class Basic_Account extends Account {
 	 * @param {String} url is the url of a img that you want as the cantact image for a user
 	 * @returns {promises} 
 	 */
-	async icon(username, url, id) {
+	async icon(username, id) {
 		let bool = await this.Account(username, "basic")
 
 		if (bool === null) return false
 
-		bool.set({
-			icon: url,
-			iconid: id
-		});
 
-		return await bool.save();
+		const img = await Icons.findByPk(id);
+
+		return await bool.setIcon(img);
 
 
 	}
