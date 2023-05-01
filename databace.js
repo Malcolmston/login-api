@@ -402,7 +402,7 @@ class Basic_Account extends Account {
 
 	}
 
-	async get_icon(username, type) {
+	async get_icon(username) {
 		let bool = await this.Account(username, "basic")
 
 		if (bool === null) return false
@@ -632,7 +632,7 @@ class Admin_Account extends Account {
 		return await bool.setIcon(img);
 	}
 
-	
+
 
 
 	// checks the Basic table
