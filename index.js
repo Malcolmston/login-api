@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
 	});
 });
 
-app.post("/login", async (req, res, next) => {
+app.post("/login", async (req, res) => {
 	var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || password == undefined) {
@@ -399,12 +399,13 @@ app.post("/renamePassword", async (req, res) => {
 });
 
 app.post("/aplyName", async (req, res) => {
-	var { username, fname, lname } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, fname, lname, type} = req.body; //|| JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || fname == undefined || lname == undefined) {
 		username = JSON.parse(Object.keys(req.body)[0]).username;
 		fname = JSON.parse(Object.keys(req.body)[0]).fname;
 		lname = JSON.parse(Object.keys(req.body)[0]).lname;
+		type = JSON.parse(Object.keys(req.body)[0]).type;
 	}
 
 	if (username == undefined || fname == undefined || lname == undefined) {
