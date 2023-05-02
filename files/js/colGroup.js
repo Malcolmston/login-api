@@ -106,6 +106,10 @@ const appendAlert = (message, type) => {
   
 
   alertPlaceholder.append(wrapper)
+
+  setTimeout(() => {
+    wrapper.remove()
+  }, 4000)
 }
 
 
