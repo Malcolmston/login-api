@@ -29,7 +29,7 @@
     </svg>
 
 
-    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+    <ul class="nav nav-pills mb-5" id="pills-tab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Home</button>
       </li>
@@ -41,11 +41,11 @@
       </li>
 
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-usename-tab" data-bs-toggle="pill" data-bs-target="#pills-name" type="button" role="tab" aria-controls="pills-usename" aria-selected="false">Reset your usename</button>
+        <button class="nav-link" id="pills-usename-tab" data-bs-toggle="pill" data-bs-target="#pills-username" type="button" role="tab" aria-controls="pills-usename" aria-selected="false">Reset your usename</button>
       </li>
 
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-password-tab" data-bs-toggle="pill" data-bs-target="#pills-name" type="button" role="tab" aria-controls="pills-password" aria-selected="false">Reset your password</button>
+        <button class="nav-link" id="pills-password-tab" data-bs-toggle="pill" data-bs-target="#pills-password" type="button" role="tab" aria-controls="pills-password" aria-selected="false">Reset your password</button>
       </li>
   
     </ul>
@@ -53,6 +53,7 @@
 
     <div class="tab-content" id="pills-tabContent">
       <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">Home</div>
+
       <div class="tab-pane fade" id="pills-icon" role="tabpanel" aria-labelledby="pills-icon-tab" tabindex="0">
         <div class="container text-center">
             <% for(let col = 0; col < (images.length/3) ; col++){ %>
@@ -81,176 +82,181 @@
             
           </form>
       
-    </div>
-
+   
+        </div>
       </div>
-      <div class="tab-pane fade" id="pills-name" role="tabpanel" aria-labelledby="pills-name-tab" tabindex="0">
-        <select class="form-select name" aria-label="Default select example">
-          <option selected aria-disabled="true" disabled>Open this select menu</option>
-          <option value="fname">set my first name</option>
-          <option value="lname">set my last name</option>
-          <option value="both">set both my first and my last name</option>
-          <option value="display"> I want to be referred to as</option>
-        </select>
+        <div class="tab-pane fade" id="pills-name" role="tabpanel" aria-labelledby="pills-name-tab" tabindex="0">
+          <select class="form-select name" aria-label="Default select example">
+            <option selected aria-disabled="true" disabled>Open this select menu</option>
+            <option value="fname">set my first name</option>
+            <option value="lname">set my last name</option>
+            <option value="both">set both my first and my last name</option>
+            <option value="display"> I want to be referred to as</option>
+          </select>
+      
+  
+        <br>
+        <br>
+        <br>
+        <br>
+  
+        <fieldset>
+    <form action="/aplyName" method="post" class='row needs-validation fname hide' novalidate>
+      <input type="hidden" name="username"  required  value= <%= username %> /> 
+  
+      <div class="row">
+        <div class="col">
+          <input type="text" class="form-control" placeholder="First name" aria-label="fname" name="fname" required minlength="3" />
+  
+          <div class="invalid-feedback">
+            Please provide a first name with at least 3 characters
+          </div>
+          
+        </div>
+        
       </div>
-
-      <br>
-      <br>
-      <br>
-      <br>
-
-<fieldset>
-  <form action="/aplyName" method="post" class='row needs-validation fname hide' novalidate>
-    <input type="hidden" name="username"  required  value= <%= username %> /> 
-
+  
+  
+  
+    <input type="submit" value="submit"  class="btn btn-primary"/>
+  
+      
+    </form>
+  
+  
+    <form action="/aplyName" method="post" class='row needs-validation lname hide' novalidate>
+      <input type="hidden" name="username"  required  value= <%= username %> /> 
+    
+          <div class="row">
+         
+            <div class="col">
+              <input type="text" class="form-control" placeholder="Last name" aria-label="lname" name="lname" required minlength="2" >
+              <div class="invalid-feedback">
+                Please provide a last name with at least 2 characters
+              </div>
+            </div>
+          </div>
+    
+          <input type="submit" value="submit"  class="btn btn-primary" />
+        </form>
+  
+  
+  <form action="/aplyName" method="post" class='row needs-validation both hide' novalidate>
+  <input type="hidden" name="username"  required  value= <%= username %> /> 
+  
     <div class="row">
       <div class="col">
         <input type="text" class="form-control" placeholder="First name" aria-label="fname" name="fname" required minlength="3" />
-
+  
         <div class="invalid-feedback">
           Please provide a first name with at least 3 characters
         </div>
-        
       </div>
-      
+  
+  
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Last name" aria-label="lname" name="lname" required minlength="2" >
+        <div class="invalid-feedback">
+          Please provide a last name with at least 2 characters
+        </div>
+      </div>
     </div>
-
-
-
-  <input type="submit" value="submit"  class="btn btn-primary"/>
-
-    
+  
+    <input type="submit" value="submit"  class="btn btn-primary" />
   </form>
-
-
-  <form action="/aplyName" method="post" class='row needs-validation lname hide' novalidate>
+  
+  <form action="/aplyName" method="post" class='row needs-validation display hide' novalidate>
     <input type="hidden" name="username"  required  value= <%= username %> /> 
   
-        <div class="row">
-       
-          <div class="col">
-            <input type="text" class="form-control" placeholder="Last name" aria-label="lname" name="lname" required minlength="2" >
-            <div class="invalid-feedback">
-              Please provide a last name with at least 2 characters
-            </div>
-          </div>
-        </div>
+    <div class="row">
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Display name" aria-label="fname" name="fname" required minlength="1" maxlength="40"/>
   
-        <input type="submit" value="submit"  class="btn btn-primary" />
-      </form>
-
-
-<form action="/aplyName" method="post" class='row needs-validation both hide' novalidate>
-<input type="hidden" name="username"  required  value= <%= username %> /> 
-
-  <div class="row">
-    <div class="col">
-      <input type="text" class="form-control" placeholder="First name" aria-label="fname" name="fname" required minlength="3" />
-
-      <div class="invalid-feedback">
-        Please provide a first name with at least 3 characters
-      </div>
-    </div>
-
-
-    <div class="col">
-      <input type="text" class="form-control" placeholder="Last name" aria-label="lname" name="lname" required minlength="2" >
-      <div class="invalid-feedback">
-        Please provide a last name with at least 2 characters
-      </div>
-    </div>
-  </div>
-
-  <input type="submit" value="submit"  class="btn btn-primary" />
-</form>
-
-<form action="/aplyName" method="post" class='row needs-validation display hide' novalidate>
-  <input type="hidden" name="username"  required  value= <%= username %> /> 
-
-  <div class="row">
-    <div class="col">
-      <input type="text" class="form-control" placeholder="Display name" aria-label="fname" name="fname" required minlength="1" maxlength="40"/>
-
-      <div class="invalid-feedback">
-        Please provide a Display Name with at least 1 character and a maximum length of 40 characters
+        <div class="invalid-feedback">
+          Please provide a Display Name with at least 1 character and a maximum length of 40 characters
+        </div>
+        
       </div>
       
     </div>
+  
+  
+  
+  <input type="submit" value="submit"  class="btn btn-primary"/>
+  
     
-  </div>
-
-
-
-<input type="submit" value="submit"  class="btn btn-primary"/>
-
+  </form>
   
-</form>
-
-
-</fieldset>
-
-
-
-    </div>
-
-      <div class="tab-pane fade" id="pills-usename" role="tabpanel" aria-labelledby="pills-usename-tab" tabindex="0">
-
   
-        <div class="hstack gap-2">
-          <div class="p-2" aria-disabled="false" >
-                <div class="p-3 m-1 border-1 bd-example">
-         <form class="row g-2 needs-validation needs-feedback" novalidate>
-          <div class="col-mb-3">
-            <label for="validationDefault01" class="form-label">Username</label>
-            <input type="text" class="form-control" id="validUsername"  required>
-            
-            <div class="invalid-feedback">
-              Please enter a Username.
-            </div>
-            
-          </div>
-          <div class="col-mb-3">
-            <label for="validationDefault02" class="form-label">Password</label>
-            <input type="password" class="form-control" id="validPassword" required>
-            
-             <div class="invalid-feedback">
-              Please enter a Password.
-            </div>
-          </div>
-          
-           <button class="btn btn-primary" type="submit">Check form   <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> </button>
-        </form>
-          </div>
-          </div>
-          
-          <div class="vr"></div>
-          
-           <div class="p-2">
-          <div class="p-3 m-1 border-1 bd-example" aria-disabled="true">
-         <form class="row g-2 needs-validation" novalidate>
-        
-         <div class="input-group mb-3" >
-              <div class="input-group-text">
-                <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input">
+        </fieldset>
+  
+
+        </div>
+
+        <div class="hstack gap-2 tab-pane fade" id="pills-username" role="tabpanel" aria-labelledby="pills-usename-tab" tabindex="0">
+          <div class="hstack gap-2">
+            <div class="p-2" aria-disabled="false" >
+                  <div class="p-3 m-1 border-1 bd-example">
+           <form class="row g-2 needs-validation needs-feedback" novalidate>
+            <div id="liveAlertPlaceholder"></div>
+  
+            <div class="col-mb-3">
+              <label for="validationDefault01" class="form-label">Username</label>
+              <input type="text" class="form-control" id="validUsername"  required>
+              
+              <div class="invalid-feedback">
+                Please enter a Username.
               </div>
-              <input type="text" class="form-control" aria-label="Text input with checkbox">
+              
+            </div>
+            <div class="col-mb-3">
+              <label for="validationDefault02" class="form-label">Password</label>
+              <input type="password" class="form-control" id="validPassword" required>
+              
+               <div class="invalid-feedback">
+                Please enter a Password.
+              </div>
             </div>
             
+             <button class="btn btn-primary" type="submit">Check form   <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> </button>
+          </form>
+            </div>
+            </div>
             
-           <button class="btn btn-primary" type="submit">Check form   <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> </button>
-        </form>
-        
-        
-          </div>
-          </div>
+            <div class="vr"></div>
+            
+             <div class="p-2">
+            <div class="p-3 m-1 border-1 bd-example" aria-disabled="true">
+           <form class="row g-2 needs-validation" novalidate>
           
-          </div>
+           <div class="input-group mb-3" >
+                <div class="input-group-text">
+                  <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input">
+                </div>
+                <input type="text" class="form-control" aria-label="Text input with checkbox">
+              </div>
+              
+              
+             <button class="btn btn-primary" type="submit">Check form   <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> </button>
+          </form>
+          
+          
+            </div>
+            </div>
+            
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pills-password" role="tabpanel" aria-labelledby="pills-password-tab" tabindex="0">
+
+        </div>
 
       </div>
- 
-      <div class="tab-pane fade" id="pills-password" role="tabpanel" aria-labelledby="pills-password-tab" tabindex="0">
-
-      </div>
+    
+    
+    </div>
+    
+     
  
 
       </div>
