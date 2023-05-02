@@ -20,12 +20,6 @@
 })()
 
 const allnameForms = document.querySelectorAll('[action="/aplyName"]')
-
-
-
-
-
-
 const ImageNumber = document.querySelector("[name='ImageNumber'] ") 
 const applyClick = document.querySelector(".applyClick")
 const helpText = document.querySelector(".helpText")
@@ -65,3 +59,36 @@ nameDP.addEventListener("change",function(){
       document.querySelector(`.${this.value}`).classList.replace('hide', 'show')
      
 })
+
+
+
+
+
+
+
+
+/**
+ * this function fetes data using a post method. 
+ * @param {String} url the url to fetch from
+ * @param {Object} data is what is being posted 
+ * @returns {Promise<JSON>} onse resolved it will fetch the response data
+ * @see  thanks too https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch for the following code
+ */
+async function postData(url = "", data = {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
+      "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: "follow", // manual, *follow, error
+    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  });
+  return response.json(); // parses JSON response into native JavaScript objects
+}
+
