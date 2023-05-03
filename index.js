@@ -27,9 +27,10 @@ app.use(sessionMiddleware);
 app.use("/images", express.static("images"));
 app.use("/files", express.static("files"));
 
-const Admin = new Admin_Account();
-const Basic = new Basic_Account();
-const Icons = new AppIcons();
+const Admin =  Admin_Account;
+const Basic =  Basic_Account;
+//const Basic = new Basic_Account();
+const Icons =  AppIcons
 
 app.get("/", (req, res) => {
 	let { username, loged_in } = req.session;
