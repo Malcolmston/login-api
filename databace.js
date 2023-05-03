@@ -184,9 +184,6 @@ class Account {
 class AppIcons extends Account {
 	static callAccount =  Account;
 
-	constructor() {
-		super();
-	}
 
 	static async exsist(image) {
 		let a = await Icons.findOne({
