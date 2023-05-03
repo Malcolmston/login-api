@@ -106,10 +106,13 @@ const appendAlert = (message, type) => {
   
 
   alertPlaceholder.append(wrapper)
+<<<<<<< Updated upstream
 
   setTimeout(() => {
     wrapper.remove()
   }, 4000)
+=======
+>>>>>>> Stashed changes
 }
 
 
