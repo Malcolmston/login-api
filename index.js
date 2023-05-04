@@ -272,11 +272,12 @@ app.post("/remove", async (req, res) => {
 });
 
 app.post("/renameUsername", async (req, res) => {
-	var { username, new_username } = req.body; // || JSON.parse(Object.keys(req.body)[0])
+	var { username, new_username, type } = req.body; // || JSON.parse(Object.keys(req.body)[0])
 
 	if (username == undefined || new_username == undefined) {
 		username = JSON.parse(Object.keys(req.body)[0]).username;
 		new_username = JSON.parse(Object.keys(req.body)[0]).new_username;
+		type = JSON.parse(Object.keys(req.body)[0]).type;
 	}
 
 	if (username == undefined || new_username == undefined) {
@@ -305,38 +306,64 @@ app.post("/renameUsername", async (req, res) => {
 
 	let del = await Basic.isDeleted(username);
 
-	if (bool) {
-		res.json([
-			{
-				valid: false,
-				message: "an account with that username alredy exists.",
-			},
-		]);
-	} else if (del) {
-		res.json([
-			{
-				valid: false,
-				message: "this account has been removed",
-			},
-		]);
-	} else {
-		let ans = await Basic.update_username(username, new_username);
-
-		if (!ans) {
+	if (type == "json") {
+		if (bool) {
 			res.json([
 				{
 					valid: false,
-					message: "this account was unable to be changed, try again later",
+					message: "an account with that username alredy exists.",
+				},
+			]);
+		} else if (del) {
+			res.json([
+				{
+					valid: false,
+					message: "this account has been removed",
 				},
 			]);
 		} else {
-			res.json([
-				{
-					valid: true,
-					message: `your account was named from ${username} to ${new_username}`,
-				},
-			]);
+			let ans = await Basic.update_username(username, new_username);
+
+			if (!ans) {
+				res.json([
+					{
+						valid: false,
+						message: "this account was unable to be changed, try again later",
+					},
+				]);
+			} else {
+				res.json([
+					{
+						valid: true,
+						message: `your account was named from ${username} to ${new_username}`,
+					},
+				]);
+			}
 		}
+	} else {
+
+		if (bool) {
+			let x= await Basic.update_username(username, new_username);
+			var a = await Icons.getImages;
+
+			if (x) {
+				res.status(200).render("home", {
+					images: a,
+					username: req.session.username,
+				});
+			} else {
+				res.sendStatus(403).render("home", {
+					images: a,
+					username: req.session.username,
+				});
+			}
+		} else {
+			res.sendStatus(403).render("home", {
+				images: a,
+				username: req.session.username,
+			});
+		}
+	
 	}
 });
 
@@ -399,9 +426,9 @@ app.post("/renamePassword", async (req, res) => {
 });
 
 app.post("/aplyName", async (req, res) => {
-	var { username, fname, lname, type} = req.body; //|| JSON.parse(Object.keys(req.body)[0])
+	var { username, fname, lname, type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
 
-	if (username == undefined ) {
+	if (username == undefined) {
 		username = JSON.parse(Object.keys(req.body)[0]).username;
 		fname = JSON.parse(Object.keys(req.body)[0]).fname;
 		lname = JSON.parse(Object.keys(req.body)[0]).lname;
@@ -424,67 +451,64 @@ app.post("/aplyName", async (req, res) => {
 	let del = await Basic.isDeleted(username);
 
 	if (type == "json") {
+		if (bool) {
+			let x = Basic.name(username, fname, lname);
 
-	if (bool) {
-		let x = Basic.name(username, fname, lname);
-
-		if (!x) {
-			res.json([
-				{
-					valid: false,
-					message: `something went wrong with the account ${username}`,
-				},
-			]);
+			if (!x) {
+				res.json([
+					{
+						valid: false,
+						message: `something went wrong with the account ${username}`,
+					},
+				]);
+			} else {
+				res.json([
+					{
+						valid: true,
+						message: `the account ${username} now has the name ${fname} ${lname} applyed to it.`,
+					},
+				]);
+			}
 		} else {
-			res.json([
-				{
-					valid: true,
-					message: `the account ${username} now has the name ${fname} ${lname} applyed to it.`,
-				},
-			]);
+			if (del) {
+				res.json([
+					{
+						valid: false,
+						message: `the account you are trying to rename has been deleted`,
+					},
+				]);
+			} else if (!bool) {
+				res.json([
+					{
+						valid: false,
+						message: `the account you are trying to rename dose not exist`,
+					},
+				]);
+			}
 		}
 	} else {
-		if (del) {
-			res.json([
-				{
-					valid: false,
-					message: `the account you are trying to rename has been deleted`,
-				},
-			]);
-		} else if (!bool) {
-			res.json([
-				{
-					valid: false,
-					message: `the account you are trying to rename dose not exist`,
-				},
-			]);
-		}
-	}
-}else {
-	if( bool ){
-		var a = await Icons.getImages;
-		let x = Basic.name(username, fname, lname);
+		if (bool) {
+			var a = await Icons.getImages;
+			let x = Basic.name(username, fname, lname);
 
-		if(!x){
-			
+			if (!x) {
+				res.status(400).render("home", {
+					images: a,
+					username: req.session.username,
+				});
+			} else {
+				res.status(200).render("home", {
+					images: a,
+					username: req.session.username,
+				});
+			}
+		} else {
 			res.status(400).render("home", {
 				images: a,
 				username: req.session.username,
 			});
-		}else{
-			res.status(200).render("home", {
-				images: a,
-				username: req.session.username,
-			});
 		}
-	}else{
-
-		res.status(400).render("home", {
-			images: a,
-			username: req.session.username,
-		});
 	}
-}
 });
 
 app.post("/aplyIcon", async (req, res) => {
