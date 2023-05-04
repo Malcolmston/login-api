@@ -55,6 +55,10 @@ const helpText = document.querySelector(".helpText")
 const nameDP = document.querySelector(".name")
 const form = document.querySelector('.needs-feedback')
 const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+const dissabled = document.querySelectorAll(".disabled")
+
+
+
 const clickedElements = []
 
 function selected( element ){
@@ -106,13 +110,10 @@ const appendAlert = (message, type) => {
   
 
   alertPlaceholder.append(wrapper)
-<<<<<<< Updated upstream
 
   setTimeout(() => {
     wrapper.remove()
   }, 4000)
-=======
->>>>>>> Stashed changes
 }
 
 
@@ -149,3 +150,14 @@ form.addEventListener('submit', event => {
       
       
 }, false)
+
+
+/**
+ * this function gets all element that have the disabled class and takes any input inside it and make it disabled.
+ * @param {HTMLFormElement} form the form that is selected
+ */
+dissabled.forEach(function(form){
+     Array.from(form.elements).forEach(element => {
+       element.disabled = true  
+     })
+})
