@@ -96,8 +96,6 @@ nameDP.addEventListener("change",function(){
 
 
 
-
-
 //https://getbootstrap.com/docs/5.3/components/alerts/ for the message popups
 
 const appendAlert = (message, type) => {
@@ -115,7 +113,6 @@ const appendAlert = (message, type) => {
     wrapper.remove()
   }, 4000)
 }
-
 
 form.addEventListener('submit', event => {
     let items = []
@@ -143,6 +140,15 @@ form.addEventListener('submit', event => {
       }).then(function(ele){
           if( ele[0].valid  ){
             appendAlert("you are logged in","success")
+
+
+Array.from(document.getElementById("userPet").elements).forEach(element => {
+  element.disabled = false  
+  document.getElementById("userPet").classList.remove("disabled")
+  document.getElementById("userTest").classList.add("disabled")
+})
+
+
           }else{
             appendAlert(ele[0].message,"danger")
           }
