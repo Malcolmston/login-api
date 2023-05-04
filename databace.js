@@ -101,15 +101,16 @@ Users.belongsTo(Icons);
 Users.sync();
 
 class Account {
-	constructor() {}
-	getFileBuffer(fullPath) {
+	// instance
+	static getFileBuffer(fullPath) {
 		let filepath = path.resolve(__dirname, fullPath);
 		let profilePicture = Buffer.from(fs.readFileSync(filepath));
 
 		return profilePicture;
 	}
 
-	allInfolder(folder = "images") {
+	// instance
+	static allInfolder(folder = "images") {
 		let directoryPath = path.join(__dirname, folder);
 
 		return new Promise((resolve, reject) => {
@@ -123,7 +124,8 @@ class Account {
 		});
 	}
 
-	Account(username, type) {
+	// instance
+	static Account(username, type) {
 		return new Promise(async function (resolve) {
 			let res = await Users.findOne({
 				where: {
@@ -136,7 +138,8 @@ class Account {
 		});
 	}
 
-	get Name() {
+	// instance
+	static get Name() {
 		//https://stackoverflow.com/questions/9719570/generate-random-password-string-with-requirements-in-javascript
 		return new Array(10)
 			.fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
@@ -154,7 +157,8 @@ class Account {
 			.join("");
 	}
 
-	password_hide(text) {
+	// instance
+	static password_hide(text) {
 		return new Promise(function (resolve, reject) {
 			bcrypt.genSalt(10, function (err, salt) {
 				bcrypt.hash(text, salt, function (err, hash) {
@@ -167,7 +171,8 @@ class Account {
 		});
 	}
 
-	password_simi(password, hash) {
+	// instance
+	static password_simi(password, hash) {
 		return new Promise((resolve, reject) => {
 			bcrypt.compare(password, hash, function (err, result) {
 				resolve(result);
@@ -177,11 +182,10 @@ class Account {
 }
 
 class AppIcons extends Account {
-	constructor() {
-		super();
-	}
+	static callAccount =  Account;
 
-	async exsist(image) {
+
+	static async exsist(image) {
 		let a = await Icons.findOne({
 			where: { icon: image },
 		});
@@ -192,10 +196,10 @@ class AppIcons extends Account {
 	/**
 	 * this function will eiter retiver or create the given image file
 	 *  @param {String} image this usese a complex string of a file in the images folder
-	 * @returns {promises} return a sequelize object of the file that is chosen or created
+	 * @returns {promises} return a sequelize object of the file callAccount is chosen or created
 	 */
-	async addFile(image) {
-		let profilePicture = this.getFileBuffer(`images/${image}.svg`);
+    static async addFile(image) {
+		let profilePicture = this.callAccount.getFileBuffer(`images/${image}.svg`);
 
 		const [user, created] = await Icons.findOrCreate({
 			where: {
@@ -212,12 +216,12 @@ class AppIcons extends Account {
 		return user;
 	}
 
-	async addBolck(...images) {
+	static async addBolck(...images) {
 		let arr = [];
 
 		let r = this;
 		arr = images.map(async (x, index) => {
-			let profilePicture = r.getFileBuffer(`images/${x}`);
+			let profilePicture = r.callAccount.getFileBuffer(`images/${x}`);
 
 			if (!(await r.exsist((index + 1).toString()))) {
 				return {
@@ -237,28 +241,26 @@ class AppIcons extends Account {
 		return res;
 	}
 
-	async addAll() {
-		let all = await this.allInfolder();
+	static async addAll() {
+		let all = await this.callAccount.allInfolder();
 
 		return await this.addBolck(...all);
 	}
 
-	get getImages() {
+	static get getImages() {
 		return Icons.findAll();
 	}
 }
 
-class Basic_Account extends Account {
-	constructor() {
-		super();
-	}
+class Basic_Account {
+	static callAccount =  Account;
 
 	/**
 	 * this function will get if an account is deleted
 	 * @param {String} username is the users username
 	 * @returns {promises} true if the account is deleted otherwise it will return true
 	 */
-	async isDeleted(username) {
+	 static async isDeleted(username) {
 		let pf = await Users.findOne({
 			where: {
 				username: username,
@@ -292,8 +294,8 @@ class Basic_Account extends Account {
 	 * @param {String} password is the users password
 	 * @returns {promises} returns true if the username and password are the same as the corresponding users username and password.
 	 */
-	async validate(username, password) {
-		let pwd = await this.password_hide(password);
+	  static async validate(username, password) {
+		let pwd = await this.callAccount.password_hide(password);
 
 		let del = await this.isDeleted(username);
 
@@ -301,10 +303,10 @@ class Basic_Account extends Account {
 			return false;
 		}
 
-		let res = await this.Account(username, "basic");
+		let res = await this.callAccount.Account(username, "basic");
 		if( res === null) return false;
 
-		let a = await this.password_simi(password, res.password);
+		let a = await this.callAccount.password_simi(password, res.password);
 
 		if (a) {
 				return true;
@@ -318,7 +320,8 @@ class Basic_Account extends Account {
 	 * @param {String} username is the users username
 	 * @returns {promises} returns true if the account exists, otherwise it returns false
 	 */
-	async account(username) {
+	//class spicivic static
+   static async account(username) {
 		let res = await Users.findOne({
 			where: {
 				username: username,
@@ -340,8 +343,8 @@ class Basic_Account extends Account {
 	 * @param {String} lname is the users last name
 	 * @returns {promises}
 	 */
-	async name(username, fname, lname) {
-		let bool = await this.Account(username, "basic");
+	static async name(username, fname, lname) {
+		let bool = await this.callAccount.Account(username, "basic");
 
 		if (bool === null) return false;
 
@@ -352,14 +355,15 @@ class Basic_Account extends Account {
 
 		return await bool.save();
 	}
+
 	/**
 	 * allows a user to create a icon image for there account.
 	 * @param {String} username is the users username
-	 * @param {String} url is the url of a img that you want as the cantact image for a user
+	 * @param {String} url is the url of a img callAccount you want as the cantact image for a user
 	 * @returns {promises}
 	 */
-	async icon(username, id) {
-		let bool = await this.Account(username, "basic");
+	static async icon(username, id) {
+		let bool = await this.callAccount.Account(username, "basic");
 
 		if (bool === null) return false;
 
@@ -368,20 +372,20 @@ class Basic_Account extends Account {
 		return await img.addUsers([bool]);
 	}
 
-	async get_icon(username) {
-		let bool = await this.Account(username, "basic");
+	static async get_icon(username) {
+		let bool = await this.callAccount.Account(username, "basic");
 
 		if (bool === null) return false;
 
 		return await bool.getIcons();
 	}
 
-	async create(username, password) {
+	static async create(username, password) {
 		let bool = await this.account(username);
 
 		if (bool) return;
 
-		let p = await this.password_hide(password);
+		let p = await this.callAccount.password_hide(password);
 
 		let a = await Users.create({
 			username: username,
@@ -392,7 +396,7 @@ class Basic_Account extends Account {
 		return a;
 	}
 
-	async remove(username, password) {
+	static async remove(username, password) {
 		let d = await this.validate(username, password);
 
 		if (d) {
@@ -406,7 +410,7 @@ class Basic_Account extends Account {
 		}
 	}
 
-	async update_username(username, c) {
+	static async update_username(username, c) {
 		let bool = await this.account(c);
 
 		if (bool) return false;
@@ -421,7 +425,7 @@ class Basic_Account extends Account {
 		return d;
 	}
 
-	async update_password(username, c) {
+	static async update_password(username, c) {
 		let e = await this.password_hide(c.toString());
 
 		let d = await Users.update(
@@ -434,24 +438,26 @@ class Basic_Account extends Account {
 		return d;
 	}
 
-	async getAccount(username) {
-		let a = (await this.Account(username, "basic")).toJSON();
+	static async getAccount(username) {
+		let a = (await this.callAccount.Account(username, "basic")).toJSON();
 
 		return a;
 	}
 }
 
-class Admin_Account extends Account {
+class Admin_Account  {
 	constructor() {
 		super();
 	}
+	static callAccount =  Account;
+	static basic =  Basic_Account;
 
 	/**
 	 * this function will get if an account is deleted
 	 * @param {String} username is the users username
 	 * @returns {promises} true if the account is deleted otherwise it will return true
 	 */
-	async isDeleted(username, type = "admin") {
+	static async isDeleted(username, type = "admin") {
 		let pf = await Users.findOne({
 			where: {
 				username: username,
@@ -479,15 +485,15 @@ class Admin_Account extends Account {
 		}
 	}
 
-	async validate(username, password) {
+	static async validate(username, password) {
 		let del = await this.isDeleted(username);
 
 		if (del) {
 			return false;
 		}
 
-		let res = await this.Account(username, "admin");
-		let a = await this.password_simi(password, res.password);
+		let res = await this.callAccount.Account(username, "admin");
+		let a = await this.callAccount.password_simi(password, res.password);
 
 		if (a) {
 			if (res == null) {
@@ -500,7 +506,7 @@ class Admin_Account extends Account {
 		}
 	}
 
-	async account(username) {
+	static async account(username) {
 		let res = await Users.findOne({
 			where: {
 				username: username,
@@ -522,8 +528,8 @@ class Admin_Account extends Account {
 	 * @param {String} lname is the users last name
 	 * @returns {promises} or false if no parermeters are given
 	 */
-	async name(username, fname = false, lname = false, type = "admin") {
-		let bool = await this.Account(username, type);
+	static async name(username, fname = false, lname = false, type = "admin") {
+		let bool = await this.callAccount.Account(username, type);
 
 		if (bool === null) return false;
 
@@ -551,11 +557,11 @@ class Admin_Account extends Account {
 	/**
 	 * allows a user to create a icon image for there account.
 	 * @param {String} username is the users username
-	 * @param {String} url is the url of a img that you want as the cantact image for a user
+	 * @param {String} url is the url of a img callAccount you want as the cantact image for a user
 	 * @returns {promises}
 	 */
-	async icon(username, id) {
-		let bool = await this.Account(username, "admin");
+	static async icon(username, id) {
+		let bool = await this.callAccount.Account(username, "admin");
 
 		if (bool === null) return false;
 
@@ -564,16 +570,16 @@ class Admin_Account extends Account {
 		return await bool.setIcon(img);
 	}
 	//https://sequelize.org/docs/v6/core-concepts/assocs/#foohasonebar
-	async get_icon(username) {
-		let bool = await this.Account(username, "admin");
+	static async get_icon(username) {
+		let bool = await this.callAccount.Account(username, "admin");
 
 		if (bool === null) return false;
 
 		return await bool.getIcon();
 	}
 
-	async apply_icon(username, type) {
-		let bool = await this.Account(username, type);
+	static async apply_icon(username, type) {
+		let bool = await this.callAccount.Account(username, type);
 
 		if (bool === null) return false;
 
@@ -587,13 +593,13 @@ class Admin_Account extends Account {
 	 * @param {String} username username of the account of thr Admin user
 	 * @param {String} password password of the account of thr Admin user
 	 * @param {String} image this usese a complex string of a file in the images folder
-	 * @returns {promises} return a sequelize object of the file that is chosen or created. if the given username and password are invalid then it will return false
+	 * @returns {promises} return a sequelize object of the file callAccount is chosen or created. if the given username and password are invalid then it will return false
 	 */
-		async addIcon(username, password, image) {
+	static async addIcon(username, password, image) {
 			let tv = await this.validate(username, password)
 
 			if(tv){
-			let profilePicture = this.getFileBuffer(`images/${image}.svg`);
+			let profilePicture = this.callAccount.getFileBuffer(`images/${image}.svg`);
 	
 			const [user, created] = await Icons.findOrCreate({
 				where: {
@@ -615,10 +621,10 @@ class Admin_Account extends Account {
 		}
 
 	// checks the Basic table
-	async check(username, password) {
-		let pwd = await this.password_hide(password);
+	static async check(username, password) {
+		let pwd = await this.callAccount.password_hide(password);
 
-		let a = await this.password_simi(password, pwd);
+		let a = await this.callAccount.password_simi(password, pwd);
 
 		if (a) {
 			let res = await Users.findOne({
@@ -638,28 +644,14 @@ class Admin_Account extends Account {
 		}
 	}
 
-	// checks the Basic table by the username and user type
-	async findBy(username, type) {
-		let res = await Users.findOne({
-			where: {
-				username: username,
-				type: type,
-			},
-		});
+	
 
-		if (res == null) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-
-	async create(username, password, type) {
-		let bool = await this.account(username);
+	static async create(username, password, type) {
+		let bool = await this.callAccount.account(username);
 
 		if (bool) return;
 
-		let p = await this.password_hide(password);
+		let p = await this.callAccount.password_hide(password);
 		let reg = /[a-zA-Z0-9!@#$%^&*]{6,16}$/;
 
 		if (reg.test(password) || type == "basic") {
@@ -675,7 +667,7 @@ class Admin_Account extends Account {
 		}
 	}
 
-	async soft_remove(username, password, Busername) {
+	static async soft_remove(username, password, Busername) {
 		let a = this.account(Busername);
 		if (a) {
 			let i = await this.check(username, password);
@@ -692,7 +684,7 @@ class Admin_Account extends Account {
 		}
 	}
 
-	async hard_remove(username, password, Busername) {
+	static async hard_remove(username, password, Busername) {
 		let a = this.account(Busername); //this.validate(Busername, Bpassword)
 		if (a) {
 			let i = await this.check(username, password);
@@ -712,8 +704,8 @@ class Admin_Account extends Account {
 		}
 	}
 
-	async restore(username, Yusername, Ypassword) {
-		let c1 = await this.findBy(username, "basic");
+	static async restore(username, Yusername, Ypassword) {
+		let c1 = await this.basic.account(username);
 		let c2 = await this.validate(Yusername, Ypassword);
 
 		if (!c1 && !c2) {
@@ -729,7 +721,7 @@ class Admin_Account extends Account {
 		}
 	}
 
-	async update_username(username, c) {
+	static async update_username(username, c) {
 		let d = await Users.update(
 			{ username: c },
 			{
@@ -740,8 +732,8 @@ class Admin_Account extends Account {
 		return d;
 	}
 
-	async update_password(username, c) {
-		let e = await this.password_hide(c.toString());
+	static async update_password(username, c) {
+		let e = await this.callAccount.password_hide(c.toString());
 
 		let d = await Users.update(
 			{ password: e },
@@ -753,7 +745,7 @@ class Admin_Account extends Account {
 		return d;
 	}
 
-	async getAll() {
+	static async getAll() {
 		let all = await Users.findAll({ paranoid: false });
 
 		return all;
@@ -775,10 +767,10 @@ class Admin_Account extends Account {
 	//await user2.setIcon(icon2);
 	*/
 
-	let a = new Basic_Account();
-	let b = new Admin_Account();
+	let a =  Basic_Account//();
+	let b = Admin_Account//();
 
-	let c = new AppIcons();
+	let c =  AppIcons
 
 	await c.addAll();
 
