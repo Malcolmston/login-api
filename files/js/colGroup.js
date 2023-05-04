@@ -54,7 +54,18 @@ const applyClick = document.querySelector(".applyClick")
 const helpText = document.querySelector(".helpText")
 const nameDP = document.querySelector(".name")
 const form = document.querySelector('.needs-feedback')
+//alertt box for the first message alert form in username re-naming
 const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+
+//alertt box for the second message alert form in username re-naming
+const alertBox = document.getElementById('alertPlaceholder')
+
+const fromThing = document.getElementById('userPet')
+
+const dissabled = document.querySelectorAll(".disabled")
+
+
+
 const clickedElements = []
 
 function selected( element ){
@@ -92,11 +103,9 @@ nameDP.addEventListener("change",function(){
 
 
 
-
-
 //https://getbootstrap.com/docs/5.3/components/alerts/ for the message popups
 
-const appendAlert = (message, type) => {
+const appendAlert = (message, type, location = alertPlaceholder) => {
   const wrapper = document.createElement('div')
   wrapper.innerHTML = 
     `<div class="alert alert-${type} alert-dismissible" role="alert">
@@ -105,16 +114,25 @@ const appendAlert = (message, type) => {
     </div>`
   
 
-  alertPlaceholder.append(wrapper)
-<<<<<<< Updated upstream
+    location.append(wrapper)
 
   setTimeout(() => {
     wrapper.remove()
   }, 4000)
-=======
->>>>>>> Stashed changes
 }
 
+
+fromThing.addEventListener('submit', event => {
+  let text = document.getElementById("text")
+  let user = document.getElementById("validUsername")
+
+  if( text.value == user.value ){
+    event.preventDefault()
+    event.stopPropagation()
+
+    appendAlert("you can not change your username to your current username","info",alertBox)
+  }
+})
 
 form.addEventListener('submit', event => {
     let items = []
@@ -142,6 +160,16 @@ form.addEventListener('submit', event => {
       }).then(function(ele){
           if( ele[0].valid  ){
             appendAlert("you are logged in","success")
+
+
+            Array.from(fromThing.elements).forEach(element => {
+  element.disabled = false  
+  fromThing.classList.remove("disabled")
+  document.getElementById("userTest").classList.add("disabled")
+            })
+
+//document.getElementById("validUsername").v
+
           }else{
             appendAlert(ele[0].message,"danger")
           }
@@ -149,3 +177,14 @@ form.addEventListener('submit', event => {
       
       
 }, false)
+
+
+/**
+ * this function gets all element that have the disabled class and takes any input inside it and make it disabled.
+ * @param {HTMLFormElement} form the form that is selected
+ */
+dissabled.forEach(function(form){
+     Array.from(form.elements).forEach(element => {
+       element.disabled = true  
+     })
+})
