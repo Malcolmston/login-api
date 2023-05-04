@@ -1,3 +1,4 @@
+
 svg {
 	width: 100px;
 	height: 100px;
@@ -19,6 +20,9 @@ svg {
 }
 
 
+/*
+show & hide are generan show and hide selecters.
+*/
 .show {
 	display: block;
 }
@@ -26,3 +30,25 @@ svg {
 .hide {
 	display: none;
 }
+
+
+
+/* 
+styling for the dissabled element
+*/
+
+.disabled {
+    
+    opacity: 0.5;
+    background-color: lightgray;
+    
+    border: dashed 1px black;
+}
+
+.disabled > * {
+    z-index: -1;
+    
+    background-color: lightgray;
+    
+}
+
