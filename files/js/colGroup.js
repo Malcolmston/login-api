@@ -114,6 +114,7 @@ const appendAlert = (message, type, location = alertPlaceholder) => {
     </div>`
   
 
+  alertPlaceholder.append(wrapper)
     location.append(wrapper)
 
   setTimeout(() => {
