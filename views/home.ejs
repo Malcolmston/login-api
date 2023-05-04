@@ -202,7 +202,7 @@
     
             <div class="col-mb-3">
               <label for="validationDefault01" class="form-label">Username</label>
-              <input type="text" class="form-control" id="validUsername"  required>
+              <input type="text" class="form-control" id="validUsername"  required onchange="document.getElementById('secondUsername').value = this.value;">
               
               <div class="invalid-feedback">
                 Please enter a Username.
@@ -227,13 +227,17 @@
             
              <div class="p-2">
             <div class="p-3 m-1 border-1 bd-example" aria-disabled="true">
-           <form class="row g-2 needs-validation disabled" novalidate id="userPet">
-          
+           <form  action="/renameUsername" method="post" class="row g-2 needs-validation disabled" novalidate id="userPet">
+            <div id="alertPlaceholder"></div>
+
            <div class="input-group mb-3" >
+            <input type="hidden" name="username" id="secondUsername">
+
                 <div class="input-group-text">
                   <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" id="checked" required onclick="document.getElementById('text').dissabled = document.getElementById('checked').checked ? false : true">
                 </div>
-                <input type="text" class="form-control" aria-label="Text input with checkbox" required id="text">
+                
+                <input type="text" class="form-control" aria-label="Text input with checkbox" required id="text" name="new_username">
               </div>
               
               
