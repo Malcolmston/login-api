@@ -243,7 +243,7 @@ class AppIcons extends Account {
 		return await this.addBolck(...all);
 	}
 
-	get getImages() {
+	 get getImages() {
 		return Icons.findAll();
 	}
 }
@@ -305,6 +305,7 @@ class Basic_Account extends Account {
 		if( res === null) return false;
 
 		let a = await this.password_simi(password, res.password);
+
 
 		if (a) {
 				return true;
@@ -781,12 +782,13 @@ class Admin_Account extends Account {
 	let c = new AppIcons();
 
 	await c.addAll();
-
+/*
 	a.create("a", "a").then(() => {
 		b.create("Malcolm", "MalcolmStoneAdmin22", "admin").then(() => {
 			b.name("Malcolm", "Malcolm", "Stone").then(console.log);
 		});
 	});
+	*/
 })();
 
 module.exports = {
