@@ -104,7 +104,6 @@ nameDP.addEventListener("change",function(){
 
 
 //https://getbootstrap.com/docs/5.3/components/alerts/ for the message popups
-
 const appendAlert = (message, type, location = alertPlaceholder) => {
   const wrapper = document.createElement('div')
   wrapper.innerHTML = 
@@ -122,6 +121,7 @@ const appendAlert = (message, type, location = alertPlaceholder) => {
 }
 
 
+
 fromThing.addEventListener('submit', event => {
   let text = document.getElementById("text")
   let user = document.getElementById("validUsername")
@@ -133,6 +133,7 @@ fromThing.addEventListener('submit', event => {
     appendAlert("you can not change your username to your current username","info",alertBox)
   }
 })
+
 
 form.addEventListener('submit', event => {
     let items = []
@@ -168,7 +169,6 @@ form.addEventListener('submit', event => {
   document.getElementById("userTest").classList.add("disabled")
             })
 
-//document.getElementById("validUsername").v
 
           }else{
             appendAlert(ele[0].message,"danger")
@@ -188,3 +188,19 @@ dissabled.forEach(function(form){
        element.disabled = true  
      })
 })
+
+
+
+
+
+const toastLiveExample = document.querySelector('.toast-container > #liveToast')
+const forms = document.querySelectorAll('form')
+  const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+
+// from https://getbootstrap.com/docs/5.0/components/toasts/
+  const toast = () => {
+    this.addEventListener('click', () => {
+      toastBootstrap.show()
+    })
+    
+    }
