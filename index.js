@@ -26,6 +26,9 @@ app.use(sessionMiddleware);
 //looks inside the images folder
 app.use("/images", express.static("images"));
 app.use("/files", express.static("files"));
+app.use("/ejsPages", express.static("ejsPages"));
+
+
 
 const Admin = new Admin_Account();
 const Basic = new Basic_Account();
@@ -48,12 +51,16 @@ const Icons = new AppIcons();
 	app.post("/login", async (req, res) => {
 		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 	
-		if (username == undefined || password == undefined) {
-			username = JSON.parse(Object.keys(req.body)[0]).username;
-			password = JSON.parse(Object.keys(req.body)[0]).password;
-			type = JSON.parse(Object.keys(req.body)[0]).type;
-		}
-	
+		console.log({ username, password, type })
+
+
+			if (username == undefined || password == undefined) {
+				username = JSON.parse(Object.keys(req.body)[0]).username;
+				password = JSON.parse(Object.keys(req.body)[0]).password;
+				type = JSON.parse(Object.keys(req.body)[0]).type;
+			}
+		
+		
 		if (username == undefined || password == undefined) {
 			res.json([
 				{
@@ -71,6 +78,7 @@ const Icons = new AppIcons();
 	
 		if (type == "json") {
 			if (bool) {
+				
 				res.json([
 					{
 						valid: true,
@@ -293,23 +301,25 @@ const Icons = new AppIcons();
 			return;
 		}
 	
-		if (username.trim() == new_username.trim()) {
-			res.json([
-				{
-					valid: false,
-					message: "you can not set your username to your current username",
-				},
-			]);
-	
-			return;
-		}
+		
 	
 		let bool = await Basic.account(new_username);
 	
 		let del = await Basic.isDeleted(username);
 	
 		if (type == "json") {
-			if (bool) {
+			if (username.trim() == new_username.trim()) {
+				res.json([
+					{
+						valid: false,
+						message: "you can not set your username to your current username",
+					},
+				]);
+		
+				return;
+			}
+
+			if (!bool) {
 				res.json([
 					{
 						valid: false,
@@ -344,22 +354,33 @@ const Icons = new AppIcons();
 			}
 		} else {
 	
-			if (bool) {
-				let x= await Basic.update_username(username, new_username);
+			if (username.trim() == new_username.trim()) {
+				
+				res.sendStatus(400).render("home", {
+					images: allIcons,
+					username: req.session.username,
+				});
+
+				return;
+			}
+
+			if (!bool) {
+				let x = await Basic.update_username(username, new_username);
 	
+				
 				if (x) {
 					res.status(200).render("home", {
 						images: allIcons,
 						username: req.session.username,
 					});
 				} else {
-					res.sendStatus(403).render("home", {
+					res.status(403).render("home", {
 						images: allIcons,
 						username: req.session.username,
 					});
 				}
 			} else {
-				res.sendStatus(403).render("home", {
+				res.status(403).render("home", {
 					images: allIcons,
 					username: req.session.username,
 				});
@@ -367,9 +388,9 @@ const Icons = new AppIcons();
 		
 		}
 	});
-	
+
 	app.post("/renamePassword", async (req, res) => {
-		var { username, new_password } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
+		var { username, new_password, type } = req.body; // || JSON.parse(Object.keys(req.body)[0])
 	
 		if (username == undefined || new_password == undefined) {
 			username = JSON.parse(Object.keys(req.body)[0]).username;
@@ -391,40 +412,70 @@ const Icons = new AppIcons();
 	
 		let del = await Basic.isDeleted(username);
 	
-		if (bool) {
-			let ans = await Basic.update_password(username, new_password);
-	
-			if (!ans) {
+		if (type == "json") {
+		
+			if (!bool) {
+				let ans = await Basic.update_password(username, new_password);
+		
+				if (!ans) {
+					res.json([
+						{
+							valid: false,
+							message: "this account was unable to be changed, try again later",
+						},
+					]);
+				} else {
+					res.json([
+						{
+							valid: true,
+							message: "your accounts password has been changed",
+						},
+					]);
+				}
+			} else if (del) {
 				res.json([
 					{
 						valid: false,
-						message: "this account was unable to be changed, try again later",
+						message: "the account you are trying to rename has been deleted",
 					},
 				]);
 			} else {
 				res.json([
 					{
-						valid: true,
-						message: "your accounts password has been changed",
+						valid: false,
+						message: "the account you are trying to rename dose not exist",
 					},
 				]);
 			}
-		} else if (del) {
-			res.json([
-				{
-					valid: false,
-					message: "the account you are trying to rename has been deleted",
-				},
-			]);
+
 		} else {
-			res.json([
-				{
-					valid: false,
-					message: "the account you are trying to rename dose not exist",
-				},
-			]);
+	
+	
+			if (!bool) {
+				let x = await Basic.update_password(username, new_password);
+	
+				
+				if (x) {
+					res.status(200).render("home", {
+						images: allIcons,
+						username: req.session.username,
+					});
+				} else {
+					res.status(403).render("home", {
+						images: allIcons,
+						username: req.session.username,
+					});
+				}
+			} else {
+				res.status(403).render("home", {
+					images: allIcons,
+					username: req.session.username,
+				});
+			}
+		
 		}
 	});
+	
 	
 	app.post("/aplyName", async (req, res) => {
 		var { username, fname, lname, type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
