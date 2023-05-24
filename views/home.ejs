@@ -55,203 +55,40 @@
       <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">Home</div>
 
       <div class="tab-pane fade" id="pills-icon" role="tabpanel" aria-labelledby="pills-icon-tab" tabindex="0">
-        <div class="container text-center">
-            <% for(let col = 0; col < (images.length/3) ; col++){ %>
-              <div class="row">
-             <% for(let row = 1; row < 4; row++){ %>
-               <div class="col" id= <%= (row+(col*2)+col)-1 %> onclick='selected(this)'>
-                 <% if(  (row+(col*2)+col) -1 != images.length-1 ) { %>
-                   <%- images[ (row+(col*2)+col) -1 ].file %>
-                     <% } else { %>
-                               <%- images[ (row+(col*2)+col) -1 ].file %>
-                       <% break; %>
-                    <% } %>
-                 </div>
-               <% } %>
-               </div>
-           <% } %> 
-      </div>
-
-      <h3 class="helpText">Select a image for your account</h3>
-      <form action="/aplyIcon" method="post" class='aplyIcon'>
-            <input type="hidden" name="ImageNumber" required /> 
-            <input type="hidden" name="username"  required  value= <%= username %> /> 
-      
-          <input type="submit" value="apply icon" disabled="on" class="applyClick" />
-      
-            
-          </form>
-      
-   
+        <%- include('../ejsPages/icon'); %>
         </div>
       </div>
         <div class="tab-pane fade" id="pills-name" role="tabpanel" aria-labelledby="pills-name-tab" tabindex="0">
-          <select class="form-select name" aria-label="Default select example">
-            <option selected aria-disabled="true" disabled>Open this select menu</option>
-            <option value="fname">set my first name</option>
-            <option value="lname">set my last name</option>
-            <option value="both">set both my first and my last name</option>
-            <option value="display"> I want to be referred to as</option>
-          </select>
-      
-  
-        <br>
-        <br>
-        <br>
-        <br>
-  
-        <fieldset>
-    <form action="/aplyName" method="post" class='row needs-validation fname hide' novalidate>
-      <input type="hidden" name="username"  required  value= <%= username %> /> 
-  
-      <div class="row">
-        <div class="col">
-          <input type="text" class="form-control" placeholder="First name" aria-label="fname" name="fname" required minlength="3" />
-  
-          <div class="invalid-feedback">
-            Please provide a first name with at least 3 characters
-          </div>
-          
-        </div>
-        
-      </div>
-  
-  
-  
-    <input type="submit" value="submit"  class="btn btn-primary"/>
-  
-      
-    </form>
-  
-  
-    <form action="/aplyName" method="post" class='row needs-validation lname hide' novalidate>
-      <input type="hidden" name="username"  required  value= <%= username %> /> 
-    
-          <div class="row">
-         
-            <div class="col">
-              <input type="text" class="form-control" placeholder="Last name" aria-label="lname" name="lname" required minlength="2" >
-              <div class="invalid-feedback">
-                Please provide a last name with at least 2 characters
-              </div>
-            </div>
-          </div>
-    
-          <input type="submit" value="submit"  class="btn btn-primary" />
-        </form>
-  
-  
-  <form action="/aplyName" method="post" class='row needs-validation both hide' novalidate>
-  <input type="hidden" name="username"  required  value= <%= username %> /> 
-  
-    <div class="row">
-      <div class="col">
-        <input type="text" class="form-control" placeholder="First name" aria-label="fname" name="fname" required minlength="3" />
-  
-        <div class="invalid-feedback">
-          Please provide a first name with at least 3 characters
-        </div>
-      </div>
-  
-  
-      <div class="col">
-        <input type="text" class="form-control" placeholder="Last name" aria-label="lname" name="lname" required minlength="2" >
-        <div class="invalid-feedback">
-          Please provide a last name with at least 2 characters
-        </div>
-      </div>
-    </div>
-  
-    <input type="submit" value="submit"  class="btn btn-primary" />
-  </form>
-  
-  <form action="/aplyName" method="post" class='row needs-validation display hide' novalidate>
-    <input type="hidden" name="username"  required  value= <%= username %> /> 
-  
-    <div class="row">
-      <div class="col">
-        <input type="text" class="form-control" placeholder="Display name" aria-label="fname" name="fname" required minlength="1" maxlength="40"/>
-  
-        <div class="invalid-feedback">
-          Please provide a Display Name with at least 1 character and a maximum length of 40 characters
-        </div>
-        
-      </div>
-      
-    </div>
-  
-  
-  
-  <input type="submit" value="submit"  class="btn btn-primary"/>
-  
-    
-  </form>
-  
-  
-        </fieldset>
-  
-
+          <%- include('../ejsPages/name'); %>
         </div>
 
         <div class="hstack gap-2 tab-pane fade" id="pills-username" role="tabpanel" aria-labelledby="pills-usename-tab" tabindex="0">
-          <div class="hstack gap-2">
-            <div class="p-2" aria-disabled="false" >
-                  <div class="p-3 m-1 border-1 bd-example">
-           <form class="row g-2 needs-validation needs-feedback" novalidate id="userTest">
-            <div id="liveAlertPlaceholder"></div>
-    
-            <div class="col-mb-3">
-              <label for="validationDefault01" class="form-label">Username</label>
-              <input type="text" class="form-control" id="validUsername"  required onchange="document.getElementById('secondUsername').value = this.value;">
-              
-              <div class="invalid-feedback">
-                Please enter a Username.
-              </div>
-              
-            </div>
-            <div class="col-mb-3">
-              <label for="validationDefault02" class="form-label">Password</label>
-              <input type="password" class="form-control" id="validPassword" required>
-              
-               <div class="invalid-feedback">
-                Please enter a Password.
-              </div>
-            </div>
-            
-             <button class="btn btn-primary" type="submit">Check form   <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> </button>
-          </form>
-            </div>
-            </div>
-            
-            <div class="vr"></div>
-            
-             <div class="p-2">
-            <div class="p-3 m-1 border-1 bd-example" aria-disabled="true">
-           <form  action="/renameUsername" method="post" class="row g-2 needs-validation disabled" novalidate id="userPet">
-            <div id="alertPlaceholder"></div>
-
-           <div class="input-group mb-3" >
-            <input type="hidden" name="username" id="secondUsername">
-
-                <div class="input-group-text">
-                  <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" id="checked" required onclick="document.getElementById('text').dissabled = document.getElementById('checked').checked ? false : true">
-                </div>
-                
-                <input type="text" class="form-control" aria-label="Text input with checkbox" required id="text" name="new_username">
-              </div>
-              
-              
-             <button class="btn btn-primary" type="submit">Check form   <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> </button>
-          </form>
-          
-          
-            </div>
-            </div>
-            
-            </div>
+          <%- include('../ejsPages/re-username'); %>
         </div>
 
         <div class="tab-pane fade" id="pills-password" role="tabpanel" aria-labelledby="pills-password-tab" tabindex="0">
+          <%- include('../ejsPages/re-password'); %>
+        </div>
+    
+    
+    
+    </div>
+    </div>
+    
+    
+    
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+  <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-body">
+  Are you sure you want to change your password?
+    <div class="mt-2 pt-2 border-top">
+      <button type="button" class="btn btn-primary btn-sm" onclick="sendPassowrd(text)">Do it</button>
+      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No thanks</button>
+    </div>
+  </div>
+  </div>
+</div>
+
 
         </div>
 
@@ -277,7 +114,6 @@
 
 
 	
-  <script src="files/js/colGroup.js"></script>
 	 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
   
   </body>

@@ -1,0 +1,31 @@
+    <div class="container text-center">
+        <% for(let col = 0; col < (images.length/3) ; col++){ %>
+          <div class="row">
+         <% for(let row = 1; row < 4; row++){ %>
+           <div class="col" id= <%= (row+(col*2)+col)-1 %> onclick='selected(this)'>
+             <% if(  (row+(col*2)+col) -1 != images.length-1 ) { %>
+               <%- images[ (row+(col*2)+col) -1 ].file %>
+                 <% } else { %>
+                           <%- images[ (row+(col*2)+col) -1 ].file %>
+                   <% break; %>
+                <% } %>
+             </div>
+           <% } %>
+           </div>
+       <% } %> 
+  </div>
+
+  <h3 class="helpText">Select a image for your account</h3>
+  <form action="/aplyIcon" method="post" class='aplyIcon'>
+        <input type="hidden" name="ImageNumber" required /> 
+        <input type="hidden" name="username"  required  value= <%= username %> /> 
+  
+      <input type="submit" value="apply icon" disabled="on" class="applyClick" />
+  
+        
+      </form>
+  
+
+
+
+      <script src="files/js/icon.js"></script>
