@@ -1,0 +1,15 @@
+.dot {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  
+  .true {
+      background-color: lime
+  }
+  
+  .false {
+      background-color: red
+  }
+  
