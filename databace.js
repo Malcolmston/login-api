@@ -661,7 +661,7 @@ class Admin_Account extends Account {
 		if (bool) return;
 
 		let p = await this.password_hide(password);
-		let reg = /[a-zA-Z0-9!@#$%^&*]{6,16}$/;
+		let reg = /[a-zA-Z0-9(\W|_)]{6,16}$/;
 
 		if (reg.test(password) || type == "basic") {
 			let a = await Users.create({
