@@ -176,6 +176,7 @@ class Account {
 	}
 }
 
+
 class AppIcons extends Account {
 	constructor() {
 		super();
@@ -661,7 +662,7 @@ class Admin_Account extends Account {
 		if (bool) return;
 
 		let p = await this.password_hide(password);
-		let reg = /[a-zA-Z0-9(\W|_)]{6,16}$/;
+		let reg = /[a-zA-Z0-9(\W|_)]{6,20}$/;
 
 		if (reg.test(password) || type == "basic") {
 			let a = await Users.create({
@@ -784,7 +785,7 @@ class Admin_Account extends Account {
 	await c.addAll();
 /*
 	a.create("a", "a").then(() => {
-		b.create("Malcolm", "MalcolmStoneAdmin22", "admin").then(() => {
+		b.create("Malcolm", "MalcolmStoneAdmin22$", "admin").then(() => {
 			b.name("Malcolm", "Malcolm", "Stone").then(console.log);
 		});
 	});
