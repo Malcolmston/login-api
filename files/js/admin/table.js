@@ -50,6 +50,26 @@ async function changeLname(e){
     }
 }
 
+async function changeUsername(e){
+    let username, new_username;
+
+    for (const child of e.target.parentElement.children ) {
+        if(child.className == "username"){ username = child.innerText } 
+      }
+
+      new_username = prompt("Enter a new username")
+
+      let info = (await postData('/admin/username', {username, new_username}))[0]
+    
+    if( info.valid ){
+        return appendAlert(info.message,"success", alertPlaceholder)
+    }else{
+        return appendAlert( info.message, "danger", alertPlaceholder)
+    }
+}
+
+
+
 fnames.forEach(function(fname){
     fname.addEventListener("click",changeFname)
 })
@@ -57,6 +77,11 @@ fnames.forEach(function(fname){
 
 lnames.forEach(function(lname){
     lname.addEventListener("click",changeLname)
+})
+
+
+usernames.forEach(function(username){
+    username.addEventListener("click",changeUsername)
 })
 
 
