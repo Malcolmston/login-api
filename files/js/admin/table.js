@@ -12,7 +12,7 @@ const createdAts = document.querySelectorAll(".createdAt")
 const updatedAts = document.querySelectorAll(".updatedAt")
 const deletedAts = document.querySelectorAll(".deletedAt")
 
-async function changeFname(e){//(username, first_name, account_type){
+async function changeFname(e){
     let username, fname, type;
 
     for (const child of e.target.parentElement.children ) {
@@ -31,10 +31,33 @@ async function changeFname(e){//(username, first_name, account_type){
     }
 }
 
+async function changeLname(e){
+    let username, lname, type;
+
+    for (const child of e.target.parentElement.children ) {
+        if(child.className == "username"){ username = child.innerText } 
+        if(child.className == "lname"){ lname = child.innerText }
+        if(child.className == "type"){ type = child.innerText  }
+
+      }
+
+      let info = (await postData('/admin/lname', {username, lname, type}))[0]
+    
+    if( info.valid ){
+        return appendAlert(info.message,"success", alertPlaceholder)
+    }else{
+        return appendAlert( info.message, "danger", alertPlaceholder)
+    }
+}
+
 fnames.forEach(function(fname){
     fname.addEventListener("click",changeFname)
 })
 
+
+lnames.forEach(function(lname){
+    lname.addEventListener("click",changeLname)
+})
 
 
 
