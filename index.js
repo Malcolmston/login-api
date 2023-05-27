@@ -891,7 +891,6 @@ function timeFormat (date){
 		if (username == undefined || fname == undefined || type == undefined) {
 			username = JSON.parse(Object.keys(req.body)[0]).username;
 			fname = JSON.parse(Object.keys(req.body)[0]).fname;
-			type = JSON.parse(Object.keys(req.body)[0]).type;
 		}
 	
 		if (username == undefined || fname == undefined) {
