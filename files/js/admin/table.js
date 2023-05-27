@@ -1,4 +1,4 @@
-import {postData, appendAlert} from '../helper.js'
+import {postData, appendAlert,findParent} from '../helper.js'
 
 const alertPlaceholder = document.querySelector(".alertPlaceholder")
 
@@ -11,6 +11,15 @@ const types = document.querySelectorAll(".type")
 const createdAts = document.querySelectorAll(".createdAt")
 const updatedAts = document.querySelectorAll(".updatedAt")
 const deletedAts = document.querySelectorAll(".deletedAt")
+const icons = document.querySelectorAll(".icon")
+
+
+function selectItem(){
+    let items = Array.from( document.querySelectorAll(".carousel-item") )
+    return items.map( (x,count) => x.classList.contains("active") ? {item: x, index: count} : false ).filter(x=>x)[0].index
+
+    
+}
 
 async function changeFname(e){
     let username, fname, type;
@@ -58,14 +67,62 @@ async function changeUsername(e){
       }
 
       new_username = prompt("Enter a new username")
+      if( new_username == undefined || new_username == null || new_username.length == 0 || new_username.trim().length == 0){ 
+        appendAlert( "you must put a new username", "warning", alertPlaceholder)
+        return
+    }
 
       let info = (await postData('/admin/username', {username, new_username}))[0]
     
     if( info.valid ){
-        return appendAlert(info.message,"success", alertPlaceholder)
+         appendAlert(info.message,"success", alertPlaceholder)
     }else{
-        return appendAlert( info.message, "danger", alertPlaceholder)
+         appendAlert( info.message, "danger", alertPlaceholder)
     }
+}
+
+async function changeIcon(e){
+
+
+    let alertPlaceholder_Icon = document.querySelector(".alertIcon")
+
+
+let myModal = new bootstrap.Modal('#Icon')
+let modalToggle = document.querySelector('#Icon'); 
+
+
+let submitButton = document.querySelector('#Submit')
+
+
+
+//active
+
+let username, ImageNumber;
+
+    for (const child of findParent(e.target, "TR").children ) {
+        if(child.className == "username"){ username = child.innerText } 
+      }
+
+      
+
+      myModal.show(modalToggle)
+
+
+      submitButton.addEventListener('click', async () => {
+        ImageNumber = selectItem()
+
+        
+        let info = (await postData('/aplyIcon', { username,  ImageNumber: ImageNumber+1, type: "json"}))[0]
+    
+        if( info.valid ){
+            return appendAlert(info.message,"success", alertPlaceholder_Icon)
+        }else{
+            return appendAlert( info.message, "danger", alertPlaceholder_Icon)
+        }
+
+    })
+
+   
 }
 
 
@@ -83,6 +140,11 @@ lnames.forEach(function(lname){
 usernames.forEach(function(username){
     username.addEventListener("click",changeUsername)
 })
+
+icons.forEach(function(icon){
+    icon.addEventListener("click",changeIcon)
+})
+
 
 
 

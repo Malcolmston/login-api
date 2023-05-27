@@ -42,4 +42,31 @@ const appendAlert = (message, type, location) => {
 
 
 
-  export {postData, appendAlert};
+
+
+/**
+ * 
+ * @param {HTMLElement} element an html element that has many parents 
+ * @param {String} tg tag name and must be uppercase
+ * @returns {undefined, HTMLElement} returns undefined once the function reaches the root element or returns the element if it can be found.
+ * @example let id = document.querySelector('#id')
+
+let arr = []
+
+
+id.addEventListener("click",function(e){
+    console.log( findParent(e.target, "BODY") )
+})
+ */
+
+  function findParent(element, tg){
+    if(   element.tagName ==  "HTML") return;
+    if( element.tagName == tg){
+         return element
+     }else {
+         return findParent( element.parentElement,tg )
+     }
+}
+
+
+export {postData, appendAlert, findParent};
