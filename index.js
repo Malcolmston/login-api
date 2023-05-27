@@ -34,6 +34,18 @@ const Admin = new Admin_Account();
 const Basic = new Basic_Account();
 const Icons = new AppIcons();
 
+
+function timeFormat (date){
+	if( typeof date == "object" ){
+		date = new Date(date)
+	}
+
+    return (date.getDay() <= 9 ? "0" + date.getDay()  : date.getDay()) + "/" +
+    (date.getMonth() <= 9 ? "0" + date.getMonth() : date.getMonth()) + "/" + 
+    date.getFullYear() 
+}
+
+
 (async function(){
 	const allIcons = await Icons.getImages;
 
@@ -51,8 +63,6 @@ const Icons = new AppIcons();
 	app.post("/login", async (req, res) => {
 		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 	
-		console.log({ username, password, type })
-
 
 			if (username == undefined || password == undefined) {
 				username = JSON.parse(Object.keys(req.body)[0]).username;
@@ -731,12 +741,15 @@ const Icons = new AppIcons();
 	});
 	
 	app.post("/admin/login", async (req, res) => {
-		var { username, password } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
+		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 	
-		if (username == undefined || password == undefined) {
-			username = JSON.parse(Object.keys(req.body)[0]).username;
-			password = JSON.parse(Object.keys(req.body)[0]).password;
-		}
+
+			if (username == undefined || password == undefined) {
+				username = JSON.parse(Object.keys(req.body)[0]).username;
+				password = JSON.parse(Object.keys(req.body)[0]).password;
+				type = JSON.parse(Object.keys(req.body)[0]).type;
+			}
+
 	
 		if (username == undefined || password == undefined) {
 			res.json([
@@ -753,6 +766,7 @@ const Icons = new AppIcons();
 	
 		let del = await Admin.isDeleted(username, "admin");
 	
+		if (type == "json") {
 		if (bool) {
 			res.json([
 				{
@@ -778,6 +792,97 @@ const Icons = new AppIcons();
 				]);
 			}
 		}
+	}else{
+		if (bool) {
+			var all = await Admin.getAll()
+			var array = []
+			req.session.username = username;
+			req.session.loged_in = true;
+
+
+			all.forEach(function(item){
+				
+				item['icon'] = "";
+				 
+
+
+				item = item.toJSON()
+
+				if(item.firstName == "" || item.firstName == null){
+					item.firstName = "none was given"
+				}
+
+				if(item.lastName == "" || item.lastName == null){
+					item.lastName = "none was given"
+				}
+
+				if(item.email == "" || item.email == null){
+					item.email = "none was given"
+				}
+
+
+				if(item.createdAt == item.updatedAt ){
+					item.updatedAt = "there have been no updates"
+
+					item.createdAt = timeFormat( item.createdAt )
+				}else{
+					item.createdAt = timeFormat( item.createdAt )
+					item.updatedAt = timeFormat( item.updatedAt )
+				}				
+				
+				if(item.deletedAt == "" || item.deletedAt == null ){
+					item.deletedAt = "none was given"//"this account has not been deleted"
+				}else{
+					item.deletedAt = timeFormat( item.deletedAt )
+				}
+				
+				array.push( item )
+
+		
+			})
+
+			
+			array.forEach(function(item){
+				let a = allIcons.filter( x => x.toJSON().id == item.iconId  )
+			    item['icon'] = a.map(x => x.toJSON().file )[0] 
+
+
+				if(item.createdAt == item.updatedAt ){
+					item.updatedAt = "there have been no updates"
+				}		
+			})
+
+			
+			
+			res.status(200).render("adminPage", {
+				images: allIcons,
+				items: array,
+				username: req.session.username,
+			});
+		} else {
+			//if( bool && ! )
+			if (del) {
+				req.session.loged_in = false;
+				res.status(404).render("homePage", {
+					error: {
+						message: "this account has been removed",
+					},
+					username: req.session.username,
+					loged_in: req.session.loged_in,
+				});
+			} else {
+				req.session.loged_in = false;
+				res.status(401).render("homePage", {
+					error: {
+						message: "this account does not exist or the password was incorect",
+					},
+					username: req.session.username,
+					loged_in: req.session.loged_in,
+				});
+			}
+		}
+
+	}
 	});
 	
 	app.post("/admin/fname", async (req, res) => {
@@ -786,7 +891,6 @@ const Icons = new AppIcons();
 		if (username == undefined || fname == undefined || type == undefined) {
 			username = JSON.parse(Object.keys(req.body)[0]).username;
 			fname = JSON.parse(Object.keys(req.body)[0]).fname;
-			type = JSON.parse(Object.keys(req.body)[0]).type;
 		}
 	
 		if (username == undefined || fname == undefined) {

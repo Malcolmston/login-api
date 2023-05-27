@@ -1,3 +1,4 @@
+import {postData, appendAlert} from '../helper.js'
 
   
   const form1 = document.querySelector('#userTest1')
