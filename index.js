@@ -665,10 +665,10 @@ function timeFormat (date){
 	
 			if (allIcons == null) {
 			} else {
-				res.json([
+				res.status(200).json([
 					{
 						valid: true,
-	
+						
 						id: id,
 						firstName: firstName || "",
 						lastName: lastName || "",
@@ -682,8 +682,11 @@ function timeFormat (date){
 				]);
 			}
 		} else if (del) {
+			res.status(400).json([{valid: false, message: "this account my have been deleted"}])
 		} else {
+			res.status(400).json([{valid: false,  message: "this account dose not exsist"}])
 		}
+		
 	});
 	
 	app.get("/user_admin/:username/", async (req, res) => {
@@ -884,6 +887,152 @@ function timeFormat (date){
 
 	}
 	});
+
+	app.post("/admin/admin/login", async (req, res) => {
+		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
+	
+
+			if (username == undefined || password == undefined) {
+				username = JSON.parse(Object.keys(req.body)[0]).username;
+				password = JSON.parse(Object.keys(req.body)[0]).password;
+				type = JSON.parse(Object.keys(req.body)[0]).type;
+			}
+
+	
+		if (username == undefined || password == undefined) {
+			res.json([
+				{
+					valid: false,
+					username: "you must input peramaters for this to work",
+				},
+			]);
+	
+			return;
+		}
+	
+		let bool = await Admin.validate(username, password);
+	
+		let del = await Admin.isDeleted(username, "admin");
+	
+		if (type == "json") {
+		if (bool) {
+			res.json([
+				{
+					valid: true,
+					message: "you have logged in",
+				},
+			]);
+		} else {
+			//if( bool && ! )
+			if (del) {
+				res.json([
+					{
+						valid: false,
+						message: "this account has been removed",
+					},
+				]);
+			} else {
+				res.json([
+					{
+						valid: false,
+						message: "this account does not exist",
+					},
+				]);
+			}
+		}
+	}else{
+		if (bool) {
+			var all = await Admin.getAll()
+			var array = []
+			req.session.username = username;
+			req.session.loged_in = true;
+
+
+			all.forEach(function(item){
+				
+				item['icon'] = "";
+				 
+
+
+				item = item.toJSON()
+
+				if(item.firstName == "" || item.firstName == null){
+					item.firstName = "none was given"
+				}
+
+				if(item.lastName == "" || item.lastName == null){
+					item.lastName = "none was given"
+				}
+
+				if(item.email == "" || item.email == null){
+					item.email = "none was given"
+				}
+
+
+				if(item.createdAt == item.updatedAt ){
+					item.updatedAt = "there have been no updates"
+
+					item.createdAt = timeFormat( item.createdAt )
+				}else{
+					item.createdAt = timeFormat( item.createdAt )
+					item.updatedAt = timeFormat( item.updatedAt )
+				}				
+				
+				if(item.deletedAt == "" || item.deletedAt == null ){
+					item.deletedAt = "none was given"//"this account has not been deleted"
+				}else{
+					item.deletedAt = timeFormat( item.deletedAt )
+				}
+				
+				array.push( item )
+
+		
+			})
+
+			
+			array.forEach(function(item){
+				let a = allIcons.filter( x => x.toJSON().id == item.iconId  )
+			    item['icon'] = a.map(x => x.toJSON().file )[0] 
+
+
+				if(item.createdAt == item.updatedAt ){
+					item.updatedAt = "there have been no updates"
+				}		
+			})
+
+			
+			
+			res.status(200).render("adminPage", {
+				images: allIcons,
+				items: array,
+				username: req.session.username,
+			});
+		} else {
+			//if( bool && ! )
+			if (del) {
+				req.session.loged_in = false;
+				res.status(404).render("homePage", {
+					error: {
+						message: "this account has been removed",
+					},
+					username: req.session.username,
+					loged_in: req.session.loged_in,
+				});
+			} else {
+				req.session.loged_in = false;
+				res.status(401).render("homePage", {
+					error: {
+						message: "this account does not exist or the password was incorect",
+					},
+					username: req.session.username,
+					loged_in: req.session.loged_in,
+				});
+			}
+		}
+
+	}
+	});
+	
 	
 	app.post("/admin/fname", async (req, res) => {
 		var { username, fname, type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
@@ -1059,7 +1208,7 @@ function timeFormat (date){
 			res.json([
 				{
 					valid: false,
-					username: "you must input peramaters for this to work",
+					message: "you must input peramaters for this to work",
 				},
 			]);
 	
@@ -1122,7 +1271,7 @@ function timeFormat (date){
 			res.json([
 				{
 					valid: false,
-					username: "you must input peramaters for this to work",
+					message: "you must input peramaters for this to work",
 				},
 			]);
 	

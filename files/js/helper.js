@@ -23,21 +23,50 @@
     return response.json(); // parses JSON response into native JavaScript objects
   }
 
+/**
+  * this function fetes data using a get method. 
+  * @param {String} url the url to fetch from
+  * @returns {Promise<JSON>} onse resolved it will fetch the response data
+  * @see  thanks too https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch for the following code
+  */
+async function getData(url = "") {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: "GET", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
+      "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: "follow", // manual, *follow, error
+    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+  });
+  return response.json(); // parses JSON response into native JavaScript objects
+}
+
+
+
   //https://getbootstrap.com/docs/5.3/components/alerts/ for the message popups
 const appendAlert = (message, type, location) => {
-  const wrapper = document.createElement('div')
-  wrapper.innerHTML = 
-    `<div class="alert alert-${type} alert-dismissible" role="alert">
-      <div>${message}</div>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>`
+  return new Promise((resolve, reject) => {
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = 
+      `<div class="alert alert-${type} alert-dismissible" role="alert">
+        <div>${message}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`
+    
   
+      location.append(wrapper)
+  
+    setTimeout(() => {
+      wrapper.remove()
+      resolve(true)
+    }, 4000)
+  })
 
-    location.append(wrapper)
-
-  setTimeout(() => {
-    wrapper.remove()
-  }, 4000)
 }
 
 
@@ -69,4 +98,4 @@ id.addEventListener("click",function(e){
 }
 
 
-export {postData, appendAlert, findParent};
+export {postData, getData, appendAlert, findParent};
