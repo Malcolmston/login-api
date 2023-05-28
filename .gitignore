@@ -9,3 +9,6 @@ node_modules/*
 
 *.json
 views/test.ejs
+
+# any image file
+images/*
