@@ -16,9 +16,7 @@ const icons = document.querySelectorAll(".icon")
 
 function selectItem(){
     let items = Array.from( document.querySelectorAll(".carousel-item") )
-    return items.map( (x,count) => x.classList.contains("active") ? {item: x, index: count} : false ).filter(x=>x)[0].index
-
-    
+    return items.map( (x,count) => x.classList.contains("active") ? {item: x, index: count} : false ).filter(x=>x)[0].index 
 }
 
 async function changeFname(e){
