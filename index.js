@@ -146,7 +146,8 @@ function timeFormat (date){
 			}
 		}
 	});
-	
+
+
 	app.post("/signup", async (req, res) => {
 		var { username, password, type } = req.body;
 	
@@ -683,6 +684,46 @@ function timeFormat (date){
 			}
 		} else if (del) {
 			res.status(400).json([{valid: false, message: "this account my have been deleted"}])
+		} else {
+			res.status(400).json([{valid: false,  message: "this account dose not exsist"}])
+		}
+		
+	});
+
+	app.get("/user/deleted/:username", async (req, res) => {
+		let { username } = req.params;
+	
+		let bool = await Basic.account(username, true);
+	
+		let del = await Basic.isDeleted(username);
+	
+		if (bool && del) {
+			let allIcons = await Basic.getAccount(username, true);
+	
+
+			let { id, firstName, lastName, email, iconid, type, createdAt, updatedAt } =
+				allIcons;
+	
+			if (allIcons == null) {
+			} else {
+				res.status(200).json([
+					{
+						valid: true,
+						
+						id: id,
+						firstName: firstName || "",
+						lastName: lastName || "",
+						email: email || "",
+						username: username || "",
+						icon: iconid || 0,
+						type: type || "",
+						createdAt: createdAt.toString() || "",
+						updatedAt: updatedAt.toString() || "",
+					},
+				]);
+			}
+		} else if (!del) {
+			res.status(400).json([{valid: false, message: "this account has not been deleted"}])
 		} else {
 			res.status(400).json([{valid: false,  message: "this account dose not exsist"}])
 		}
@@ -1342,7 +1383,7 @@ function timeFormat (date){
 				res.json([
 					{
 						valid: true,
-						message: "this account has been softly removed",
+						message: "this account has been restored",
 					},
 				]);
 			}
