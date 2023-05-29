@@ -136,6 +136,20 @@ class Account {
 		});
 	}
 
+	Del_Account(username, type) {
+		return new Promise(async function (resolve) {
+			let res = await Users.findOne({
+				where: {
+					username: username,
+					type: type, //"basic"
+				},
+				paranoid: false,
+			} );
+
+			resolve(res);
+		});
+	}
+
 	get Name() {
 		//https://stackoverflow.com/questions/9719570/generate-random-password-string-with-requirements-in-javascript
 		return new Array(10)
@@ -320,13 +334,25 @@ class Basic_Account extends Account {
 	 * @param {String} username is the users username
 	 * @returns {promises} returns true if the account exists, otherwise it returns false
 	 */
-	async account(username) {
-		let res = await Users.findOne({
+	async account(username, del=false) {
+		let res;
+		
+		if( !del ){
+		res = await Users.findOne({
 			where: {
 				username: username,
 				type: "basic",
 			},
 		});
+	}else {
+		res = await Users.findOne({
+			where: {
+				username: username,
+				type: "basic",
+			},
+			paranoid: false
+		});
+	}
 
 		if (res == null) {
 			return false;
@@ -436,8 +462,9 @@ class Basic_Account extends Account {
 		return d;
 	}
 
-	async getAccount(username) {
-		let a = (await this.Account(username, "basic")).toJSON();
+	async getAccount(username, del = false) {
+
+		let a = (del ? (await this.Del_Account(username, "basic")) : (await this.Account(username, "basic"))).toJSON();
 
 		return a;
 	}
@@ -718,7 +745,7 @@ class Admin_Account extends Account {
 		let c1 = await this.findBy(username, "basic");
 		let c2 = await this.validate(Yusername, Ypassword);
 
-		if (!c1 && !c2) {
+		if (!c1 && c2) {
 			let r = await Users.restore({
 				where: {
 					username: username,
