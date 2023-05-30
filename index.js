@@ -235,6 +235,11 @@ function timeFormat(date) {
 		}
 	});
 
+	app.post("/logout", async (req, res) => {
+		req.session.destroy();
+
+		return res.redirect('/')
+	})
 
 	app.post("/signup", async (req, res) => {
 		var { username, password, type } = req.body;
@@ -956,7 +961,6 @@ function timeFormat(date) {
 	});
 
 
-
 	app.post("/admin/login", async (req, res) => {
 		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 
@@ -1013,9 +1017,10 @@ function timeFormat(date) {
 			
 			if (bool) {
 				var array = await getUserInfo()
+				
+				req.session.username = username;
+				req.session.loged_in = true;
 
-				
-				
 				let dat = {
 					images: allIcons,
 					items: array,
