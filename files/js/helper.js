@@ -47,6 +47,25 @@ async function getData(url = "") {
 }
 
 
+async function getText(url = "") {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: "GET", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
+      "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: "follow", // manual, *follow, error
+    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+  });
+
+  console.log( response )
+  return response.text(); // parses JSON response into native JavaScript objects
+}
+
 
   //https://getbootstrap.com/docs/5.3/components/alerts/ for the message popups
 const appendAlert = (message, type, location) => {
@@ -97,5 +116,165 @@ id.addEventListener("click",function(e){
      }
 }
 
+function run(ids, fnames, lnames, emails, usernames, types, createdAts, updatedAts, deletedAts, icons){
+  const alertPlaceholder = document.querySelector(".alertPlaceholder")
+  
+  
+  if( [...ids].length == 0){
+     return;  
+  }
+  console.log({ids, fnames, lnames, emails, usernames, types, createdAts, updatedAts, deletedAts, icons})
+  
+  
+  
+  function selectItem(){
+      let items = Array.from( document.querySelectorAll(".carousel-item") )
+      return items.map( (x,count) => x.classList.contains("active") ? {item: x, index: count} : false ).filter(x=>x)[0].index 
+  }
+  
+  async function changeFname(e){
+      let username, fname, type;
+  
+      for (const child of e.target.parentElement.children ) {
+          if(child.className == "username"){ username = child.innerText } 
+          //if(child.className == "fname"){ fname = child.innerText }
+          if(child.className == "type"){ type = child.innerText  }
+  
+        }
+  
+        fname = prompt("first name") 
+  
+        if( fname == "" || fname.trim() == "" || fname == null || fname == undefined ){
+          appendAlert( "you must put a first name", "warning", alertPlaceholder)
+          return;
+        }
+        let info = (await postData('/admin/fname', {username, fname, type}))[0]
+      
+      if( info.valid ){
+           appendAlert(info.message,"success", alertPlaceholder)
+      }else{
+           appendAlert( info.message, "danger", alertPlaceholder)
+      }
+  }
+  
+  async function changeLname(e){
+      let username, lname, type;
+  
+      for (const child of e.target.parentElement.children ) {
+          if(child.className == "username"){ username = child.innerText } 
+       //   if(child.className == "lname"){ lname = child.innerText }
+          if(child.className == "type"){ type = child.innerText  }
+  
+        }
+  
+        lname = prompt("Last name") 
+  
+        if( lname == "" || lname.trim() == "" || lname == null || lname == undefined ){
+          appendAlert( "you must put a last name", "warning", alertPlaceholder)
+          return;
+        }
+  
+        let info = (await postData('/admin/lname', {username, lname, type}))[0]
+      
+      if( info.valid ){
+           appendAlert(info.message,"success", alertPlaceholder)
+      }else{
+           appendAlert( info.message, "danger", alertPlaceholder)
+      }
+  }
+  
+  async function changeUsername(e){
+      let username, new_username;
+  
+      for (const child of e.target.parentElement.children ) {
+          if(child.className == "username"){ username = child.innerText } 
+        }
+  
+        new_username = prompt("Enter a new username")
+        if( new_username == undefined || new_username == null || new_username.length == 0 || new_username.trim().length == 0){ 
+          appendAlert( "you must put a new username", "warning", alertPlaceholder)
+          return
+      }
+  
+        let info = (await postData('/admin/username', {username, new_username}))[0]
+      
+      if( info.valid ){
+           appendAlert(info.message,"success", alertPlaceholder)
+      }else{
+           appendAlert( info.message, "danger", alertPlaceholder)
+      }
+  }
+  
+  async function changeIcon(e){
+  
+  
+      let alertPlaceholder_Icon = document.querySelector(".alertIcon")
+  
+  
+  let myModal = new bootstrap.Modal('#Icon')
+  let modalToggle = document.querySelector('#Icon'); 
+  
+  
+  let submitButton = document.querySelector('#Submit')
+  
+  
+  
+  //active
+  
+  let username, ImageNumber;
+  
+      for (const child of findParent(e.target, "TR").children ) {
+          if(child.className == "username"){ username = child.innerText } 
+        }
+  
+        
+  
+        myModal.show(modalToggle)
+  
+  
+        submitButton.addEventListener('click', async () => {
+          ImageNumber = selectItem()
+  
+          
+          let info = (await postData('/aplyIcon', { username,  ImageNumber: ImageNumber+1, type: "json"}))[0]
+      
+          if( info.valid ){
+              return appendAlert(info.message,"success", alertPlaceholder_Icon)
+          }else{
+              return appendAlert( info.message, "danger", alertPlaceholder_Icon)
+          }
+  
+      })
+  
+     
+  }
+  
+  
+  
+  fnames.forEach(function(fname){
+      fname.addEventListener("click",changeFname)
+  })
+  
+  
+  lnames.forEach(function(lname){
+      lname.addEventListener("click",changeLname)
+  })
+  
+  
+  usernames.forEach(function(username){
+      username.addEventListener("click",changeUsername)
+  })
+  
+  icons.forEach(function(icon){
+      icon.addEventListener("click",changeIcon)
+  })
+  
+  
+  
+  
+  }
+  
+  
+  
 
-export {postData, getData, appendAlert, findParent};
+export {postData, getData,getText, appendAlert, findParent, run};

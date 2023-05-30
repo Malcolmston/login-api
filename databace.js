@@ -391,7 +391,7 @@ class Basic_Account extends Account {
 
 		if (bool === null) return false;
 
-		const img = await Icons.findByPk(id);
+		let img = await Icons.findByPk(id);
 
 		return await img.addUsers([bool]);
 	}
@@ -401,7 +401,9 @@ class Basic_Account extends Account {
 
 		if (bool === null) return false;
 
-		return await bool.getIcons();
+		let img = await Icons.findByPk(bool.iconId);
+
+		return img.toJSON()
 	}
 
 	async create(username, password) {
