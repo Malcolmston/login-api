@@ -1,4 +1,4 @@
-import {postData} from 'helper.js'
+import {postData} from '../js/helper.js'
 
 
 
@@ -44,15 +44,7 @@ const appendAlert = (message, type, location = alertPlaceholder) => {
 
  
 
-/**
-* this function gets all element that have the disabled class and takes any input inside it and make it disabled.
-* @param {HTMLFormElement} form the form that is selected
-*/
-dissabled.forEach(function(form){
-  Array.from(form.elements).forEach(element => {
-    element.disabled = true  
-  })
-})
+
 
 
 
@@ -71,7 +63,15 @@ const dissabled = document.querySelectorAll(".disabled")
 
 
 
-
+/**
+* this function gets all element that have the disabled class and takes any input inside it and make it disabled.
+* @param {HTMLFormElement} form the form that is selected
+*/
+dissabled.forEach(function(form){
+  Array.from(form.elements).forEach(element => {
+    element.disabled = true  
+  })
+})
 
 
 
@@ -133,13 +133,3 @@ fromThing.addEventListener('submit', event => {
      
      
 }, false)
-
-
-
-
-
-
-
-
-
-
