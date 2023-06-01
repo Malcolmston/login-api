@@ -44,9 +44,6 @@
       <button class="nav-link" id="pills-restore-tab" data-bs-toggle="pill" data-bs-target="#pills-restore"
         type="button" role="tab" aria-controls="pills-restore" aria-selected="false">Restore User</button>
     </li>
-
-
-
   </ul>
 
 
@@ -100,6 +97,35 @@
     </div>
 
   </div>
+
+  <script>
+       const tabs = [...document.querySelectorAll('.nav-link')].map( x => x.getAttribute("data-bs-target").replace("#", "") )
+
+    function set_location(name){
+    localStorage.setItem("tab", name);
+}
+
+function get_location() {
+    return localStorage.getItem("tab");
+}
+
+  
+const links = document.querySelectorAll('.nav-link')
+links.forEach( tabEl => {
+  tabEl.addEventListener('shown.bs.tab', event => {
+    set_location( event.target.getAttribute("data-bs-target").replace("#", "") )
+
+})
+})
+
+
+
+  if( get_location() ){
+    [...document.querySelectorAll('.nav-link')].filter( x => x.getAttribute("data-bs-target").replace("#", "")  == get_location() )[0].click()
+  }
+
+
+  </script>
 
 
 </body>
