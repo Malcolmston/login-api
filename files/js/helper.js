@@ -62,7 +62,6 @@ async function getText(url = "") {
     referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
   });
 
-  console.log( response )
   return response.text(); // parses JSON response into native JavaScript objects
 }
 
@@ -123,7 +122,6 @@ function run(ids, fnames, lnames, emails, usernames, types, createdAts, updatedA
   if( [...ids].length == 0){
      return;  
   }
-  console.log({ids, fnames, lnames, emails, usernames, types, createdAts, updatedAts, deletedAts, icons})
   
   
   
