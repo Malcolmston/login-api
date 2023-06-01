@@ -18,7 +18,6 @@ socket.on('send Table Error', (message) => {
 socket.on('send Table', (info) => {  
 
     getText( "../ejsPages/admin/table.ejs").then(function( data ) {
- console.log( data )
 
     let html = ejs.render(data, {items: info}, {delimiter: '?'})
   
@@ -38,7 +37,6 @@ socket.on('send Table', (info) => {
   run(ids, fnames, lnames, emails, usernames, types, createdAts, updatedAts, deletedAts, icons)
   
   
-  console.log( html )
 })
 
 
