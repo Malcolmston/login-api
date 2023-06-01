@@ -99,7 +99,36 @@
       </div>
     
 
-
+      <script>
+        const tabs = [...document.querySelectorAll('.nav-link')].map( x => x.getAttribute("data-bs-target").replace("#", "") )
+ 
+     function set_location(name){
+     localStorage.setItem("tab", name);
+ }
+ 
+ function get_location() {
+     return localStorage.getItem("tab");
+ }
+ 
+   
+ const links = document.querySelectorAll('.nav-link')
+ links.forEach( tabEl => {
+   tabEl.addEventListener('shown.bs.tab', event => {
+     set_location( event.target.getAttribute("data-bs-target").replace("#", "") )
+ 
+ })
+ })
+ 
+ 
+ 
+   if( get_location() ){
+     [...document.querySelectorAll('.nav-link')].filter( x => x.getAttribute("data-bs-target").replace("#", "")  == get_location() )[0].click()
+   }
+ 
+ 
+   </script>
+ 
+ 
 
 	  <!-- https://getbootstrap.com/docs/5.3/components/navs-tabs/#accessibility for pills-->
 
