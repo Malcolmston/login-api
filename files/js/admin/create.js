@@ -1,15 +1,7 @@
 
-const noForms = document.querySelectorAll("form")
 const db = document.querySelector("#accountType")
 const username = document.querySelector("#password")
 
-
-noForms.forEach(function(form){
-  form.addEventListener("submit", event => {
-    event.preventDefault()
-    event.stopPropagation()
-                        })
-})
 
 
 db.addEventListener("change", e => {
@@ -17,6 +9,7 @@ db.addEventListener("change", e => {
     username.setAttribute("pattern", "[a-zA-Z0-9(\W|_)]{6,20}$")
     document.getElementById("valises").classList.replace("hide", "show")
   }else{
+    username.removeAttribute("pattern")
     document.getElementById("valises").classList.replace("show", "hide")
   }
 })
@@ -46,6 +39,7 @@ regExp: /\W|_/,
 function change(t) {
 let r = t.value
 
+
 if( parts["uppercase"].regExp.test( r) ) {
 document.querySelector(".uppercase").classList.replace('false', "true")
 }else{
@@ -74,11 +68,19 @@ document.querySelector(".length").classList.replace('false', "true")
 document.querySelector(".length").classList.replace('true', "false") 
 }
 
-
-if( a.test(r) ){
-document.querySelector("#submit").disabled = false
-}else {
-document.querySelector("#submit").disabled = true
+if( db.value == "admin"){
+  if( a.test(r) ){
+    document.querySelector("#submit").disabled = false
+    }else {
+    document.querySelector("#submit").disabled = true
+    }
+}else if( db.value == "basic"){
+  if( r.length >= 1 ){
+    document.querySelector("#submit").disabled = false
+    }else {
+    document.querySelector("#submit").disabled = true
+    }
 }
+
 
 }
