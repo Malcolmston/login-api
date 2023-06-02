@@ -518,6 +518,8 @@ class Admin_Account extends Account {
 		}
 
 		let res = await this.Account(username, "admin");
+
+		if(res === null) return false
 		let a = await this.password_simi(password, res.password);
 
 		if (a) {
