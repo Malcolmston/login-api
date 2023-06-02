@@ -138,11 +138,12 @@ function timeFormat(date) {
 	}
 
 	app.get("/", (req, res) => {
-		let { username, loged_in } = req.session;
+		let { username, loged_in, type} = req.session;
 		res.render("homePage", {
 			error: {
 				message: "",
 			},
+			type: type,
 			username: username,
 			loged_in: loged_in,
 		});
@@ -205,6 +206,7 @@ function timeFormat(date) {
 			if (bool) {
 				req.session.username = username;
 				req.session.loged_in = true;
+				req.session.type = "basic"
 
 				res.status(200).render("home", {
 					images: allIcons,
@@ -1020,7 +1022,7 @@ function timeFormat(date) {
 				
 				req.session.username = username;
 				req.session.loged_in = true;
-
+				req.session.type = "admin"
 				let dat = {
 					images: allIcons,
 					items: array,
@@ -1648,13 +1650,16 @@ function timeFormat(date) {
 	});
 
 	app.post("/admin/create", async (req, res) => {
-		var { username, password, type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
+		var { username, password, account_type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
 
-		if (username == undefined || password == undefined || type == undefined) {
+
+		if (username == undefined || password == undefined || account_type == undefined) {
 			username = JSON.parse(Object.keys(req.body)[0]).username;
 			password = JSON.parse(Object.keys(req.body)[0]).password;
-			type = JSON.parse(Object.keys(req.body)[0]).type;
+			account_type = JSON.parse(Object.keys(req.body)[0]).type;
 		}
+
+		console.log( { username, password, account_type } )
 
 		if (username == undefined || password == undefined) {
 			res.json([
@@ -1670,9 +1675,9 @@ function timeFormat(date) {
 		let allIcons = await Admin.validate(username, password);
 		let b = await Basic.validate(username, password);
 
-		let reg = /[allIcons-zA-Z0-9!@#$%^&*]{6,16}$/;
+		let reg = /[a-zA-Z0-9!@#$%^&*]{6,16}$/;
 
-		if (!reg.test(password) && type == "admin") {
+		if (!reg.test(password) && account_type == "admin") {
 			res.json([
 				{
 					valid: false,
@@ -1684,7 +1689,7 @@ function timeFormat(date) {
 		}
 
 		if (!allIcons && !b) {
-			let del = await Admin.isDeleted(username, type);
+			let del = await Admin.isDeleted(username, account_type);
 
 			if (del) {
 				res.json([
@@ -1694,7 +1699,12 @@ function timeFormat(date) {
 					},
 				]);
 			} else {
-				let i = await Admin.create(username, password, type);
+				let i = await Admin.create(username, password, account_type);
+				let s;
+				
+				if( i !== null ){
+				 s = await Admin.name(username, fname, lname, account_type);
+				}
 
 				res.json([
 					{

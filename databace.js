@@ -403,6 +403,8 @@ class Basic_Account extends Account {
 
 		let img = await Icons.findByPk(bool.iconId);
 
+		if (img === null) return false;
+
 		return img.toJSON()
 	}
 
@@ -518,6 +520,8 @@ class Admin_Account extends Account {
 		}
 
 		let res = await this.Account(username, "admin");
+
+		if(res === null) return false
 		let a = await this.password_simi(password, res.password);
 
 		if (a) {
@@ -574,6 +578,7 @@ class Admin_Account extends Account {
 		} else {
 			return false;
 		}
+
 
 		let a = await bool.save();
 
