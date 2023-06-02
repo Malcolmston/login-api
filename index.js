@@ -1700,6 +1700,11 @@ function timeFormat(date) {
 				]);
 			} else {
 				let i = await Admin.create(username, password, account_type);
+				let s;
+				
+				if( i !== null ){
+				 s = await Admin.name(username, fname, lname, account_type);
+				}
 
 				res.json([
 					{
