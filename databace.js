@@ -403,6 +403,8 @@ class Basic_Account extends Account {
 
 		let img = await Icons.findByPk(bool.iconId);
 
+		if (img === null) return false;
+
 		return img.toJSON()
 	}
 
@@ -576,6 +578,7 @@ class Admin_Account extends Account {
 		} else {
 			return false;
 		}
+
 
 		let a = await bool.save();
 
