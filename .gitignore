@@ -12,3 +12,4 @@ views/test.ejs
 
 # any image file
 images/*
+.DS_Store
