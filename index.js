@@ -1,13 +1,5 @@
 // npm install sqlite3 bcrypt ejs express express-session sequelize path
 
-const {start, login, signup, logout, remove, renameUsername, renamePassword, aplyName, aplyIcon} = require('./BASIC/POST.js')
-const {findUser, findDeletedAccount} = require('./BASIC/GET.js')
-
-
-const  {adminLogin, applyFname, applyFname, applyLname, admin_changeUsername, soft_remove, hard_remove, restore, coustom_account_create} = require('./ADMIN/POST.js')
-const {findAdmin, adminLoginFind} = require('./ADMIN/GET.js')
-
-
 const parts = ({
 	Basic_Account,
 	Admin_Account,
@@ -42,8 +34,8 @@ const io = require('socket.io')(server);
 
 
 
-(async function () {
-	const Admin = new Admin_Account();
+
+const Admin = new Admin_Account();
 const Basic = new Basic_Account();
 const Icons = new AppIcons();
 
@@ -59,6 +51,11 @@ function timeFormat(date) {
 }
 
 
+
+
+
+
+(async function () {
 	Array.prototype.last = function(){
 		return this[this.length-1]
 	}
@@ -141,32 +138,45 @@ function timeFormat(date) {
 	}
 
 	app.get("/", (req, res) => {
-		let { username, loged_in } = req.session;
+		let { username, loged_in, type} = req.session;
 		res.render("homePage", {
 			error: {
 				message: "",
 			},
+			type: type,
 			username: username,
 			loged_in: loged_in,
 		});
 	});
 
-	app.post("/login", login);
-
-	app.post("/logout", logout)
-
-	app.post("/signup", signup);
-
-	app.post("/remove", remove);
-
-	app.post("/renameUsername",renameUsername);
-
-	app.post("/renamePassword", renamePassword);
+	app.post("/login", async (req, res) => {
+		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 
 
-	app.post("/aplyName", aplyName);
+		if (username == undefined || password == undefined) {
+			username = JSON.parse(Object.keys(req.body)[0]).username;
+			password = JSON.parse(Object.keys(req.body)[0]).password;
+			type = JSON.parse(Object.keys(req.body)[0]).type;
+		}
 
-	app.post("/aplyIcon",aplyIcon);
+
+		if (username == undefined || password == undefined) {
+			res.json([
+				{
+					valid: false,
+					message: "you must input peramaters for this to work",
+				},
+			]);
+
+			return;
+		}
+
+		let bool = await Basic.validate(username, password);
+
+		let del = await Basic.isDeleted(username);
+
+		if (type == "json") {
+			if (bool) {
 
 				res.json([
 					{
@@ -196,6 +206,7 @@ function timeFormat(date) {
 			if (bool) {
 				req.session.username = username;
 				req.session.loged_in = true;
+				req.session.type = "basic"
 
 				res.status(200).render("home", {
 					images: allIcons,
@@ -735,11 +746,138 @@ function timeFormat(date) {
 	});
 
 	//Request URL: http://localhost:3000/user/34/books/8989
-	app.get("/user/:username", findUser);
+	app.get("/user/:username", async (req, res) => {
+		let { username } = req.params;
 
-	app.get("/user/deleted/:username", findDeletedAccount);
+		let bool = await Basic.account(username);
 
-	app.get("/user_admin/:username/", findAdmin);
+		let del = await Basic.isDeleted(username);
+
+		if (bool) {
+			let allIcons = await Basic.getAccount(username);
+
+			let { id, firstName, lastName, email, iconid, type, createdAt, updatedAt } =
+				allIcons;
+
+			if (allIcons == null) {
+			} else {
+				res.status(200).json([
+					{
+						valid: true,
+
+						id: id,
+						firstName: firstName || "",
+						lastName: lastName || "",
+						email: email || "",
+						username: username || "",
+						icon: iconid || 0,
+						type: type || "",
+						createdAt: createdAt.toString() || "",
+						updatedAt: updatedAt.toString() || "",
+					},
+				]);
+			}
+		} else if (del) {
+			res.status(400).json([{ valid: false, message: "this account my have been deleted" }])
+		} else {
+			res.status(400).json([{ valid: false, message: "this account dose not exsist" }])
+		}
+
+	});
+
+	app.get("/user/deleted/:username", async (req, res) => {
+		let { username } = req.params;
+
+		let bool = await Basic.account(username, true);
+
+		let del = await Basic.isDeleted(username);
+
+		if (bool && del) {
+			let allIcons = await Basic.getAccount(username, true);
+
+
+			let { id, firstName, lastName, email, iconid, type, createdAt, updatedAt } =
+				allIcons;
+
+			if (allIcons == null) {
+			} else {
+				res.status(200).json([
+					{
+						valid: true,
+
+						id: id,
+						firstName: firstName || "",
+						lastName: lastName || "",
+						email: email || "",
+						username: username || "",
+						icon: iconid || 0,
+						type: type || "",
+						createdAt: createdAt.toString() || "",
+						updatedAt: updatedAt.toString() || "",
+					},
+				]);
+			}
+		} else if (!del) {
+			res.status(400).json([{ valid: false, message: "this account has not been deleted" }])
+		} else {
+			res.status(400).json([{ valid: false, message: "this account dose not exsist" }])
+		}
+
+	});
+
+	app.get("/user_admin/:username/", async (req, res) => {
+		let { username } = req.params;
+
+		let bool = await Admin.account(username);
+
+		let del = await Admin.isDeleted(username, "admin");
+
+		if (bool) {
+			let all = await Admin.getAll();
+
+			if (all == null) {
+			} else {
+				let arr = [];
+				all.forEach((allIcons, i) => {
+					let {
+						id,
+						firstName,
+						lastName,
+						email,
+						username,
+						iconid,
+						type,
+						createdAt,
+						updatedAt,
+						deletedAt,
+					} = allIcons;
+
+					arr.push({
+						userId: 1,
+						id: id,
+						valid: true,
+
+						firstName: firstName == null ? "" : firstName,
+						lastName: lastName == null ? "" : lastName,
+						email: email == null ? "" : email,
+						username: username == null ? "" : username,
+
+						icon: iconid || "",
+
+						type: type || "",
+
+						createdAt: createdAt ? createdAt.toString() : "",
+						updatedAt: updatedAt ? updatedAt.toString() : "",
+						deletetAt: deletedAt ? deletedAt.toString() : "",
+					});
+				});
+
+				res.json(arr);
+			}
+		} else if (del) {
+		} else {
+		}
+	});
 
 	app.get("/user_admin_raw/:username/", async (req, res) => {
 		let { username } = req.params;
@@ -824,10 +962,9 @@ function timeFormat(date) {
 		}
 	});
 
-	app.get("/admin/login", adminLoginFind)
-	
 
-	app.post("/admin/login", adminLogin);
+	app.post("/admin/login", async (req, res) => {
+		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 
 
 		if (username == undefined || password == undefined) {
@@ -885,7 +1022,7 @@ function timeFormat(date) {
 				
 				req.session.username = username;
 				req.session.loged_in = true;
-
+				req.session.type = "admin"
 				let dat = {
 					images: allIcons,
 					items: array,
@@ -1042,7 +1179,7 @@ function timeFormat(date) {
 
 
 	});
-*/
+
 	/*
 	app.post("/admin/admin/login", async (req, res) => {
 		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
@@ -1190,19 +1327,39 @@ function timeFormat(date) {
 	});
 	*/
 
-	app.post("/admin/fname", applyFname);
+	app.post("/admin/fname", async (req, res) => {
+		var { username, fname, type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
 
-	app.post("/admin/lname", applyLname);
+		if (username == undefined || fname == undefined || type == undefined) {
+			username = JSON.parse(Object.keys(req.body)[0]).username;
+			fname = JSON.parse(Object.keys(req.body)[0]).fname;
+		}
 
-	app.post("/admin/username", admin_changeUsername);
+		if (username == undefined || fname == undefined) {
+			res.json([
+				{
+					valid: false,
+					username: "you must input peramaters for this to work",
+				},
+			]);
 
-	app.post("/admin/soft/remove", soft_remove);
+			return;
+		}
 
-	app.post("/admin/hard/remove", hard_remove);
+		let bool = await Basic.account(username);
 
-	app.post("/admin/restore", restore);
+		if (bool) {
+			let x = await Admin.name(username, fname, false, type);
 
-	app.post("/admin/create", coustom_account_create);
+			if (!x) {
+				res.json([
+					{
+						valid: false,
+						message: `something went wrong with the account ${username}`,
+					},
+				]);
+			} else {
+				let all = await Admin.getAll();
 
 				res.json([
 					{
@@ -1493,13 +1650,16 @@ function timeFormat(date) {
 	});
 
 	app.post("/admin/create", async (req, res) => {
-		var { username, password, type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
+		var { username, password, account_type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
 
-		if (username == undefined || password == undefined || type == undefined) {
+
+		if (username == undefined || password == undefined || account_type == undefined) {
 			username = JSON.parse(Object.keys(req.body)[0]).username;
 			password = JSON.parse(Object.keys(req.body)[0]).password;
-			type = JSON.parse(Object.keys(req.body)[0]).type;
+			account_type = JSON.parse(Object.keys(req.body)[0]).type;
 		}
+
+		console.log( { username, password, account_type } )
 
 		if (username == undefined || password == undefined) {
 			res.json([
@@ -1515,9 +1675,9 @@ function timeFormat(date) {
 		let allIcons = await Admin.validate(username, password);
 		let b = await Basic.validate(username, password);
 
-		let reg = /[allIcons-zA-Z0-9!@#$%^&*]{6,16}$/;
+		let reg = /[a-zA-Z0-9!@#$%^&*]{6,16}$/;
 
-		if (!reg.test(password) && type == "admin") {
+		if (!reg.test(password) && account_type == "admin") {
 			res.json([
 				{
 					valid: false,
@@ -1529,7 +1689,7 @@ function timeFormat(date) {
 		}
 
 		if (!allIcons && !b) {
-			let del = await Admin.isDeleted(username, type);
+			let del = await Admin.isDeleted(username, account_type);
 
 			if (del) {
 				res.json([
@@ -1539,7 +1699,12 @@ function timeFormat(date) {
 					},
 				]);
 			} else {
-				let i = await Admin.create(username, password, type);
+				let i = await Admin.create(username, password, account_type);
+				let s;
+				
+				if( i !== null ){
+				 s = await Admin.name(username, fname, lname, account_type);
+				}
 
 				res.json([
 					{
@@ -1584,6 +1749,53 @@ function timeFormat(date) {
 	  
 		
 	});
+	/*
+	app.post("/admin/restore", async (req, res) => {
+		var { username, you_username, you_password } = JSON.parse(Object.keys(req.body)[0])
+	
+	
+		if (username == undefined || you_username == undefined || you_password == undefined) {
+			res.json([{
+				valid: false,
+				message: "you must input peramaters for this to work"
+			}])
+	
+			return;
+		}
+	
+		let bool = await Admin.account(you_username)
+		let del = await Admin.isDeleted(you_username, "basic")
+	
+		if (bool) {
+			let i = await Admin.restore(username, you_username, you_password)
+	
+	
+			if (!i) {
+				res.json([{
+					valid: false,
+					message: "This account was unable to be restored"
+				}])
+			} else if (i) {
+				res.json([{
+					valid: true,
+					message: "This account has been successfully restored"
+				}])
+			} else if (!del) {
+				res.json([{
+					valid: false,
+					message: `the account has not been restored`
+	
+				}])
+			} else {
+				res.json([{
+					valid: false,
+					message: "This account was unable to be restored"
+				}])
+			}
+		}
+	
+	})
+	*/
 
 	server.listen(3000, function() {
 		console.log(`Listening on port ${3000}`);
