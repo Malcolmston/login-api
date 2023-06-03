@@ -1,3 +1,4 @@
+// npm install sqlite3 bcrypt ejs express express-session sequelize
 
 /**
  * this handles the innital app loading
@@ -669,4 +670,3 @@ async function aplyIcon (req, res) {
 }
 
 
-module.exports = {start, login, signup, logout, remove, renameUsername, renamePassword, aplyName, aplyIcon}
