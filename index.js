@@ -139,13 +139,19 @@ function timeFormat(date) {
 
 	app.get("/", (req, res) => {
 		let { username, loged_in, type} = req.session;
+
+		console.log({
+			error: { message: "" },
+			type,
+			username,
+			loged_in
+		});
+		
 		res.render("homePage", {
-			error: {
-				message: "",
-			},
-			type: type,
-			username: username,
-			loged_in: loged_in,
+			error: { message: "" },
+			type,
+			username,
+			loged_in
 		});
 	});
 
@@ -1060,6 +1066,72 @@ function timeFormat(date) {
 		}
 	});
 
+	app.get("/admin/login", async (req, res) => {
+		var { username, loged_in, type } = req.session; //|| //JSON.parse(Object.keys(req.body)[0])
+
+
+		
+			if (loged_in && type === 'admin') {
+				var array = await getUserInfo()
+				
+				let dat = {
+					images: allIcons,
+					items: array,
+					username: req.session.username,
+				}
+
+			
+				res.status(200).render("adminPage", dat);
+
+				res.end()
+		
+			} else {
+				//if( bool && ! )
+				if (del) {
+					req.session.loged_in = false;
+					res.status(400).render("homePage", {
+						error: {
+							message: "you must log in",
+						},
+						username: req.session.username,
+						loged_in: req.session.loged_in,
+					});
+				
+			}
+
+		}
+	});
+
+	app.get("/login", async (req, res) => {
+		var { username, loged_in, type } = req.session; //|| //JSON.parse(Object.keys(req.body)[0])
+
+
+		
+			if (loged_in && type === 'basic') {
+				
+				res.status(200).render("home", {
+					images: allIcons,
+					username: username,
+				});
+		
+			} else {
+				//if( bool && ! )
+				if (del) {
+					req.session.loged_in = false;
+					res.status(400).render("homePage", {
+						error: {
+							message: "you must log in",
+						},
+						username: req.session.username,
+						loged_in: req.session.loged_in,
+					});
+				
+			}
+
+		}
+	});
+
+
 	app.post("/admin/user/login", async (req, res) => {
 		var { username, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 
@@ -1483,6 +1555,7 @@ function timeFormat(date) {
 		var { your_username, your_password, other_username } =
 			req.body || JSON.parse(Object.keys(req.body)[0]);
 
+			console.log( your_username, your_password, other_username )
 		if (
 			your_username == undefined ||
 			your_password == undefined ||

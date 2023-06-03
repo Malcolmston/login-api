@@ -25,13 +25,15 @@
 	<body>
 		<h1>You are alredy loged in</h1>
 
-		<% if( type == "basc"){ %>
+
+
+		<% if( type == "basic"){ %>
 			<a href="/login">Home page</a>
 		<% } %>
 		
 		<% if( type == "admin"){ %>
 			<a href="/admin/login">Admin page</a>
-			<% } %>
+		<% } %>
 
 	</body>
 <% } else if(username && !loged_in){ %>
