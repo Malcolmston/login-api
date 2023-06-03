@@ -562,53 +562,6 @@ function timeFormat(date) {
 	  
 		
 	});
-	/*
-	app.post("/admin/restore", async (req, res) => {
-		var { username, you_username, you_password } = JSON.parse(Object.keys(req.body)[0])
-	
-	
-		if (username == undefined || you_username == undefined || you_password == undefined) {
-			res.json([{
-				valid: false,
-				message: "you must input peramaters for this to work"
-			}])
-	
-			return;
-		}
-	
-		let bool = await Admin.account(you_username)
-		let del = await Admin.isDeleted(you_username, "basic")
-	
-		if (bool) {
-			let i = await Admin.restore(username, you_username, you_password)
-	
-	
-			if (!i) {
-				res.json([{
-					valid: false,
-					message: "This account was unable to be restored"
-				}])
-			} else if (i) {
-				res.json([{
-					valid: true,
-					message: "This account has been successfully restored"
-				}])
-			} else if (!del) {
-				res.json([{
-					valid: false,
-					message: `the account has not been restored`
-	
-				}])
-			} else {
-				res.json([{
-					valid: false,
-					message: "This account was unable to be restored"
-				}])
-			}
-		}
-	
-	})
-	*/
 
 	server.listen(3000, function() {
 		console.log(`Listening on port ${3000}`);
