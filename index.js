@@ -13,11 +13,17 @@ Array.prototype.remove = function(elem) {
 const {
 	Basic_Account,
 	Admin_Account,
+	Bsiness_Account,
 	AppIcons,
 
-	Buisness
-} = require("./databace.js"));
+	Room,
+	Message_Controller,
 
+	Buisness
+} = require("./databace.js");
+
+
+const stats = []
 
 const fs = require("fs");
 
@@ -47,6 +53,16 @@ app.use("/images", express.static("images"));
 app.use("/files", express.static("files"));
 app.use("/ejsPages", express.static("ejsPages"));
 
+//app.use("/chat", express.static("chat"));
+
+
+// creates a .css that is converted from a .stylus file
+app.use(stylus({
+    src: publicDir,
+    use: [nib()],
+    import: ['nib']
+  }));
+app.use(express.static(publicDir));
 
 
 
@@ -63,9 +79,12 @@ const Basic = new Basic_Account();
 const Icons = new AppIcons();
 
 
+const Rooms = new Room();
+const Message = new Message_Controller();
+
 const Buisnes = new Bsiness_Account()
 const Bsiness_basic = new Basic_Account( Buisness );
-const Bsiness_admin = new Basic_Account( Buisness );
+const Bsiness_admin = new Admin_Account( Buisness );
 
 
 function timeFormat(date) {
@@ -161,22 +180,68 @@ async function run() {
 	
 	}
 
+	async function getUserInfoBIZ(){
+		var all = await Bsiness_admin.getAll()
+		var array = []
 	
-	app.get("/", (req, res) => {
-		let { username, loged_in, type} = req.session;
-		res.render("homePage", {
-			error: {
-				message: "",
-			},
-			type: type,
-			username: username,
-			loged_in: loged_in,
-		});
-	});
+		all.forEach(function (item) {
+	
+			item['icon'] = "";
+	
+	
+	
+			item = item.toJSON()
+	
+			if (item.firstName == "" || item.firstName == null) {
+				item.firstName = "none was given"
+			}
+	
+			if (item.lastName == "" || item.lastName == null) {
+				item.lastName = "none was given"
+			}
+	
+			if (item.email == "" || item.email == null) {
+				item.email = "none was given"
+			}
+	
+	
+			if (item.createdAt == item.updatedAt) {
+				item.updatedAt = "there have been no updates"
+	
+				item.createdAt = timeFormat(item.createdAt)
+			} else {
+				item.createdAt = timeFormat(item.createdAt)
+				item.updatedAt = timeFormat(item.updatedAt)
+			}
+	
+			if (item.deletedAt == "" || item.deletedAt == null) {
+				item.deletedAt = "none was given"//"this account has not been deleted"
+			} else {
+				item.deletedAt = timeFormat(item.deletedAt)
+			}
+	
+			array.push(item)
+	
+	
+		})
 
-	app.post("/buisness/login",  async (req, res) => {
+	
+	
+		array.forEach(async function (item) {
+	
+			if (item.createdAt == item.updatedAt) {
+				item.updatedAt = "there have been no updates"
+			}
+
+		})
+	
+		
+		return array
+	
+	}
+
+	async function login(type_choise, {req, res} ){
 		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
-
 
 		if (username == undefined || password == undefined) {
 			username = JSON.parse(Object.keys(req.body)[0]).username;
@@ -195,67 +260,320 @@ async function run() {
 			return;
 		}
 
-		let bool = await Bsiness_basic.validate(username, password);
+		let bool;
+		let del;
 
-		let del = await Bsiness_basic.isDeleted(username);
+		switch(type_choise){
+			case "basic":
+				bool = await Basic.validate(username, password);
+				del = await Basic.isDeleted(username);
+
+				if (type == "json") {
+					if (bool) {
+		
+						res.json([
+							{
+								valid: true,
+								message: "you have logged in",
+							},
+						]);
+					} else {
+						//if( bool && ! )
+						if (del) {
+							res.json([
+								{
+									valid: false,
+									message: "this account has been removed",
+								},
+							]);
+						} else {
+							res.json([
+								{
+									valid: false,
+									message: "this account does not exist or the password was incorect",
+								},
+							]);
+						}
+					}
+				} else {
+					if (bool) {
+						req.session.username = username;
+						req.session.loged_in = true;
+						req.session.type = "basic"
+		
+		
+						let users = await Message.getUsers()
+				let groups = await Message.getGroups();
+		
+				downloaded = {normal: (await Message.getRoomsandChats(username)), group: (await Message.getGroupandChats(username)) }
+		
+				stats.push(username);
+		
+		
+						res.status(200).render("home", {
+							images: allIcons,
+							username: req.session.username,
+		
+							users: JSON.stringify(users.map(x => x.username).filter( x => x !== username )),
+							groups:  JSON.stringify(groups.map( x => x.name )),
+							downloaded: JSON.stringify(downloaded),
+							stats
+						});
+					} else {
+						//if( bool && ! )
+						if (del) {
+							req.session.loged_in = false;
+							res.status(404).render("homePage", {
+								error: {
+									message: "this account has been removed",
+								},
+								username: req.session.username,
+								loged_in: req.session.loged_in,
+							});
+						} else {
+							req.session.loged_in = false;
+							res.status(401).render("homePage", {
+								error: {
+									message: "this account does not exist or the password was incorect",
+								},
+								username: req.session.username,
+								loged_in: req.session.loged_in,
+							});
+						}
+					}
+				}
+				break;
+			case "admin": 
+				bool = await Admin.validate(username, password);
+				 del = await Admin.isDeleted(username, "admin");
+				
+				 if (type == "json") {
+					if (bool) {
+						res.json([
+							{
+								valid: true,
+								message: "you have logged in",
+							},
+						]);
+					} else {
+						//if( bool && ! )
+						if (del) {
+							res.json([
+								{
+									valid: false,
+									message: "this account has been removed",
+								},
+							]);
+						} else {
+							res.json([
+								{
+									valid: false,
+									message: "this account does not exist",
+								},
+							]);
+						}
+					}
+				} else {
+					
+					if (bool) {
+						var array = await getUserInfo()
+						
+						req.session.username = username;
+						req.session.loged_in = true;
+						req.session.type = "admin"
+		
+						let users = await Message.getUsers()
+						let groups = await Message.getGroups();
+				
+						downloaded = {normal: (await Message.getRoomsandChats(username)), group: (await Message.getGroupandChats(username)) }
+				
+						stats.push(username);
+				
+						res.status(200).render("adminPage", {
+							images: allIcons,
+							items: array,
+							username: req.session.username,
+		
+							users: JSON.stringify(users.map(x => x.username).filter( x => x !== username )),
+									groups:  JSON.stringify(groups.map( x => x.name )),
+									downloaded: JSON.stringify(downloaded),
+									stats
+						});
+		
+						res.end()
+				
+					} else {
+						//if( bool && ! )
+						if (del) {
+							req.session.loged_in = false;
+							res.status(404).render("homePage", {
+								error: {
+									message: "this account has been removed",
+								},
+								username: req.session.username,
+								loged_in: req.session.loged_in,
+							});
+						} else {
+							req.session.loged_in = false;
+							res.status(401).render("homePage", {
+								error: {
+									message: "this account does not exist or the password was incorect",
+								},
+								username: req.session.username,
+								loged_in: req.session.loged_in,
+							});
+						}
+					}
+		
+				}
+
+				 break;
+			case "business basic":
+				 bool = await Bsiness_basic.validate(username, password);
+
+				 del = await Bsiness_basic.isDeleted(username);
+		
+				if (type == "json") {
+					if (bool) {
+
+						res.json([
+							{
+								valid: true,
+								message: "you have logged in",
+							},
+						]);
+					} else {
+						//if( bool && ! )
+						if (del) {
+							res.json([
+								{
+									valid: false,
+									message: "this account has been removed",
+								},
+							]);
+						} else {
+							res.json([
+								{
+									valid: false,
+									message: "this account does not exist or the password was incorect",
+								},
+							]);
+						}
+					}
+				} else {
+					if (bool) {
+						req.session.username = username;
+						req.session.loged_in = true;
+						req.session.type = "buisness + basic"
+					
+						req.session.company = (await Bsiness_basic.getAccount(username, "basic")).name
+
+
+						res.status(200).redirect("/business");
+					} else {
+						//if( bool && ! )
+						if (del) {
+							res.status(404).render("homePage", {
+								error: {
+									message: "this account has been removed",
+								},
+								username: req.session.username,
+								loged_in: req.session.loged_in,
+							});
+						} else {
+							res.status(401).render("homePage", {
+								error: {
+									message: "this account does not exist or the password was incorect",
+								},
+								username: req.session.username,
+								loged_in: req.session.loged_in,
+							});
+						}
+					}
+				}
+			break;
+			case "business admin":
+				 bool = await Bsiness_admin.validate(username, password);
+
+				 del = await Bsiness_admin.isDeleted(username);
+	
+				if (type == "json") {
+					if (bool) {
+
+						res.json([
+							{
+								valid: true,
+								message: "you have logged in",
+							},
+						]);
+					} else {
+						//if( bool && ! )
+						if (del) {
+							res.json([
+								{
+									valid: false,
+									message: "this account has been removed",
+								},
+							]);
+						} else {
+							res.json([
+								{
+									valid: false,
+									message: "this account does not exist or the password was incorect",
+								},
+							]);
+						}
+					}
+				} else {
+					if (bool) {
+						req.session.username = username;
+						req.session.loged_in = true;
+						req.session.type = "buisness + admin"
+
+						req.session.company = (await Bsiness_basic.getAccount(username, "admin")).name//.toJSON();
+
+						res.status(200).redirect("/business/admin");
+					} else {
+						//if( bool && ! )
+						if (del) {
+							res.status(404).render("homePage", {
+								error: {
+									message: "this account has been removed",
+								},
+								username: req.session.username,
+								loged_in: req.session.loged_in,
+							});
+						} else {
+							res.status(401).render("homePage", {
+								error: {
+									message: "this account does not exist or the password was incorect",
+								},
+								username: req.session.username,
+								loged_in: req.session.loged_in,
+							});
+						}
+					}
+				}
+				break;
+		}
+	}
+	
 
 	
-		if (type == "json") {
-			if (bool) {
+	app.get("/", (req, res) => {
+		let { username, loged_in, type} = req.session;
+		res.render("homePage", {
+			error: {
+				message: "",
+			},
+			type: type,
+			username: username,
+			loged_in: loged_in,
+		});
+	});
 
-				res.json([
-					{
-						valid: true,
-						message: "you have logged in",
-					},
-				]);
-			} else {
-				//if( bool && ! )
-				if (del) {
-					res.json([
-						{
-							valid: false,
-							message: "this account has been removed",
-						},
-					]);
-				} else {
-					res.json([
-						{
-							valid: false,
-							message: "this account does not exist or the password was incorect",
-						},
-					]);
-				}
-			}
-		} else {
-			if (bool) {
-				req.session.username = username;
-				req.session.loged_in = true;
-				req.session.type = "buisness + basic"
-
-				res.status(200).redirect("/business");
-			} else {
-				//if( bool && ! )
-				if (del) {
-					res.status(404).render("homePage", {
-						error: {
-							message: "this account has been removed",
-						},
-						username: req.session.username,
-						loged_in: req.session.loged_in,
-					});
-				} else {
-					res.status(401).render("homePage", {
-						error: {
-							message: "this account does not exist or the password was incorect",
-						},
-						username: req.session.username,
-						loged_in: req.session.loged_in,
-					});
-				}
-			}
-		}
-		
+	app.post("/buisness/login",  async (req, res) => {
+		await login("business basic", {req, res} )
 	})
 
 	app.post("/buisness/renameUsername", async (req, res) => {
@@ -513,33 +831,57 @@ async function run() {
 	});
 
 
-
 	app.get("/business",async (req, res) => {
 		const {username, loged_in, type} = req.session
 
 		let items = await Buisnes.get_users("basic")
 
+/*
+		let users = await Message.getUsers()
+		let groups = await Message.getGroups();
 
+		downloaded = {normal: (await Message.getRoomsandChats(username)), group: (await Message.getGroupandChats(username)) }
+
+		stats.push(username);
+*/
 		if( loged_in && type == "buisness + basic"){
+			let users = await Message.getUsers(Buisness)
+			let groups = await Message.getGroups();
+	
+			downloaded = {normal: (await Message.get_Buissness_Rooms_Chats(username)), group: (await Message.get_Buissness_Groups_Chats(username)) }
+	
+
+			stats.push(username);
+
+			
+
 			res.status(200).render("business_home", { 
 				username: username,
-				items 
+				items,
+
+				users: JSON.stringify(users.map(x => x.username).filter( x => x !== username )),
+				groups:  groups.length == 0 ? "[]" : JSON.stringify(groups.map( x => x.name )),
+				downloaded: JSON.stringify(downloaded),
+				stats
 			});
+
 		}
 
 	
 	})
 
+	app.post("/buisness/admin/login",  async (req, res) => {
+		await login("business admin", {req, res} )
+	})
+
+	app.post("/business/admin/create", async (req, res) => {
+		var { username, password, account_type, fname, lname, email, type} = req.body; //|| JSON.parse(Object.keys(req.body)[0])
 
 
-	app.post("/buisness/login",  async (req, res) => {
-		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
-
-
-		if (username == undefined || password == undefined) {
+		if (username == undefined || password == undefined || account_type == undefined) {
 			username = JSON.parse(Object.keys(req.body)[0]).username;
 			password = JSON.parse(Object.keys(req.body)[0]).password;
-			type = JSON.parse(Object.keys(req.body)[0]).type;
+			account_type = JSON.parse(Object.keys(req.body)[0]).type;
 		}
 
 		if (username == undefined || password == undefined) {
@@ -553,70 +895,100 @@ async function run() {
 			return;
 		}
 
-		let bool = await Bsiness_basic.validate(username, password);
+		let allIcons = await Bsiness_admin.validate(username, password);
+		let b = await Bsiness_basic.validate(username, password);
 
-		let del = await Bsiness_basic.isDeleted(username);
+		let reg = /[a-zA-Z0-9!@#$%^&*]{6,16}$/;
 
-	
-		if (type == "json") {
-			if (bool) {
+		if( type == "json") {
+		if (!reg.test(password) && account_type == "admin") {
+			res.json([
+				{
+					valid: false,
+					message: "the given password dose not match the given values",
+				},
+			]);
+
+			return;
+		}
+		
+		if (!allIcons && !b) {
+			let del = await Bsiness_admin.isDeleted(username, account_type);
+
+			if (del) {
+				res.json([
+					{
+						valid: false,
+						message: "this account has been removed",
+					},
+				]);
+			} else {
+				let i =  await Buisnes.add_member(account_type, req.session.company, username, password,fname, lname, email)
+				let s;
+				
+				if( i !== null ){
+				 s = await Bsiness_admin.name(username, fname, lname, account_type);
+				}
 
 				res.json([
 					{
 						valid: true,
-						message: "you have logged in",
+						message: "this account has been secsesfull created",
 					},
 				]);
-			} else {
-				//if( bool && ! )
-				if (del) {
-					res.json([
-						{
-							valid: false,
-							message: "this account has been removed",
-						},
-					]);
-				} else {
-					res.json([
-						{
-							valid: false,
-							message: "this account does not exist or the password was incorect",
-						},
-					]);
-				}
 			}
 		} else {
-			if (bool) {
-				req.session.username = username;
-				req.session.loged_in = true;
-				req.session.type = "buisness + basic"
-
-				res.status(200).redirect("/business");
-			} else {
-				//if( bool && ! )
-				if (del) {
-					res.status(404).render("homePage", {
-						error: {
-							message: "this account has been removed",
-						},
-						username: req.session.username,
-						loged_in: req.session.loged_in,
-					});
-				} else {
-					res.status(401).render("homePage", {
-						error: {
-							message: "this account does not exist or the password was incorect",
-						},
-						username: req.session.username,
-						loged_in: req.session.loged_in,
-					});
-				}
-			}
+			res.json([
+				{
+					valid: false,
+					message: "this account already exists",
+				},
+			]);
+		}
+	}else{
+		if (!reg.test(password) && account_type == "admin") {
+			res.status(405).redirect("/business/admin");
+			return;
 		}
 		
-	})
+		if (!allIcons && !b) {
+			let del = await Bsiness_admin.isDeleted(username, account_type);
+
+			if (del) {
+				res.status(409).redirect("/business/admin");
+			} else {
+				let i =  await Buisnes.add_member(account_type, req.session.company, username, password,fname, lname, email)
+				let s;
+				
+				if( i !== null ){
+				 s = await Bsiness_admin.name(username, fname, lname, account_type);
+				}
+
+				res.status(200).redirect("/business/admin");
+			}
+		} else {
+			res.status(406).redirect("/business/admin");	
+		}
+	}
+	});
 
 	
+
+	app.get("/business/admin",async (req, res) => {
+		const {username, loged_in, type, company} = req.session
+
+		let items = await Buisnes.get_users("")
+
+
+		if( loged_in && type == "buisness + admin"){
+			res.status(200).render("business_admin", { 
+				username: username,
+				items,
+			});
+		}
+
+	
+	})
 
 
 
