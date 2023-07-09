@@ -13,8 +13,8 @@ Array.prototype.remove = function(elem) {
 const {
 	Basic_Account,
 	Admin_Account,
-	Bsiness_Account,
 	AppIcons,
+<<<<<<< HEAD
 
 	Room,
 	Message_Controller,
@@ -24,7 +24,9 @@ const {
 
 
 const stats = []
-
+=======
+} = require("./databace.js"));
+>>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 
 const fs = require("fs");
 
@@ -67,8 +69,6 @@ app.use(express.static(publicDir));
 
 
 
-
-
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
@@ -82,6 +82,7 @@ const Basic = new Basic_Account();
 const Icons = new AppIcons();
 
 
+<<<<<<< HEAD
 const Rooms = new Room();
 const Message = new Message_Controller();
 
@@ -90,6 +91,8 @@ const Bsiness_basic = new Basic_Account( Buisness );
 const Bsiness_admin = new Admin_Account( Buisness );
 
 
+=======
+>>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 function timeFormat(date) {
 	if (typeof date == "object") {
 		date = new Date(date)
@@ -183,6 +186,7 @@ async function run() {
 	
 	}
 
+<<<<<<< HEAD
 	async function getUserInfoBIZ(){
 		var all = await Bsiness_admin.getAll()
 		var array = []
@@ -227,6 +231,10 @@ async function run() {
 	
 	
 		})
+=======
+	app.get("/", (req, res) => {
+		let { username, loged_in, type} = req.session;
+>>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 
 	
 	
@@ -243,6 +251,7 @@ async function run() {
 	
 	}
 
+<<<<<<< HEAD
 	async function login(type_choise, {req, res} ){
 		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 
@@ -892,6 +901,18 @@ async function run() {
 			password = JSON.parse(Object.keys(req.body)[0]).password;
 			account_type = JSON.parse(Object.keys(req.body)[0]).type;
 		}
+=======
+	app.post("/login", async (req, res) => {
+		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
+
+
+		if (username == undefined || password == undefined) {
+			username = JSON.parse(Object.keys(req.body)[0]).username;
+			password = JSON.parse(Object.keys(req.body)[0]).password;
+			type = JSON.parse(Object.keys(req.body)[0]).type;
+		}
+
+>>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 
 		if (username == undefined || password == undefined) {
 			res.json([
@@ -902,6 +923,7 @@ async function run() {
 			]);
 
 			return;
+<<<<<<< HEAD
 		}
 
 		let allIcons = await Bsiness_admin.validate(username, password);
@@ -994,6 +1016,8 @@ async function run() {
 				username: username,
 				items,
 			});
+=======
+>>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 		}
 
 	
