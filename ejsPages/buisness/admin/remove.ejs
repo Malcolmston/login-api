@@ -1,0 +1,81 @@
+
+<div class="hstack gap-2">
+    <div class="p-2" aria-disabled="false" >
+          <div class="p-3 m-1 border-1 bd-example">
+   <form class="row g-2 needs-validation needs-feedback" novalidate id="userTest1">
+    <div id="frmph"></div>
+  
+    <div class="col-mb-3">
+      <label for="validationDefault01" class="form-label">Username</label>
+      <input type="text" class="form-control" id="validUsername1"  required>
+      
+      <div class="invalid-feedback">
+        Please enter a Username.
+      </div>
+      
+    </div>
+    <div class="col-mb-3">
+      <label for="validationDefault02" class="form-label">Password</label>
+      <input type="password" class="form-control" id="validPassword1" required>
+      
+       <div class="invalid-feedback">
+        Please enter a Password.
+      </div>
+    </div>
+    
+     <button class="btn btn-primary" type="submit">Check form   <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> </button>
+  </form>
+    </div>
+    </div>
+    
+    <div class="vr"></div>
+    
+     <div class="p-2">
+    <div class="p-3 m-1 border-1 bd-example" aria-disabled="true">
+      <form class="row g-2 needs-validation disabled" novalidate id="userPet1" dissable>
+
+        <div id="frmt"></div>
+  
+       <label for="new_username" class="form-label">Username</label>
+        <input type="text" class="form-control" aria-label="Text input with checkbox" required id="text1" name="new_username">
+      
+      
+      
+     <button class="btn btn-primary" type="submit">Check form   <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg> </button>
+  </form>
+  
+  
+    </div>
+    </div>
+    
+    
+    </div>
+  
+
+
+    <div class="modal fade" id="Delete" tabindex="-1" aria-labelledby="Delete" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Delete account</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alertProt" id="aleyTim"></div>
+
+              <button type="button" class="btn btn-warning" id="softRemove">Soft remove</button>
+              <button type="button" class="btn btn-danger" id="hardRemove">Permanently remove</button>
+              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+<script src="../../files/remove.js" type="module"></script>
+
