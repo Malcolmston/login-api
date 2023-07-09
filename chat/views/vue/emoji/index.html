@@ -1,0 +1,73 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+
+
+<div id="app">
+
+  <div class="container px-4 text-center">
+    <div class="row">
+        <div class="col-12">
+          <div class="chat-box-tray">
+            <i class="material-icons" data-bs-toggle="modal" href="#exampleModalToggle" role="button" >sentiment_very_satisfied</i>
+            <input type="text" placeholder="Type your message here..." id="box">
+            <i class="material-icons mic">mic</i>
+            <i class="material-icons send">send</i>
+          </div>
+        </div>
+      </div>
+      
+          <div class="col">
+            <div class="p-3 border bg-light">
+            <nav class="nav justify-content-center">
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-1-tab" data-bs-toggle="tab" data-bs-target="#nav-1" type="button" role="tab" aria-controls="nav-1" aria-selected="true">😀</button>
+          <button class="nav-link" id="nav-2-tab" data-bs-toggle="tab" data-bs-target="#nav-2" type="button" role="tab" aria-controls="nav-2" aria-selected="false">💐</button>
+          <button class="nav-link" id="nav-3-tab" data-bs-toggle="tab" data-bs-target="#nav-3" type="button" role="tab" aria-controls="nav-3" aria-selected="false">🧑‍🤝‍🧑</button>
+          <button class="nav-link" id="nav-4-tab" data-bs-toggle="tab" data-bs-target="#nav-4" type="button" role="tab" aria-controls="nav-4" aria-selected="false">🍒</button>
+          <button class="nav-link" id="nav-5-tab" data-bs-toggle="tab" data-bs-target="#nav-5" type="button" role="tab" aria-controls="nav-5" aria-selected="false">✈️</button>
+          <button class="nav-link" id="nav-6-tab" data-bs-toggle="tab" data-bs-target="#nav-6" type="button" role="tab" aria-controls="nav-6" aria-selected="false">🎉</button>
+          <button class="nav-link" id="nav-7-tab" data-bs-toggle="tab" data-bs-target="#nav-7" type="button" role="tab" aria-controls="nav-7" aria-selected="false">📱</button>
+          <button class="nav-link" id="nav-8-tab" data-bs-toggle="tab" data-bs-target="#nav-8" type="button" role="tab" aria-controls="nav-8" aria-selected="false">❤️</button>
+          <button class="nav-link" id="nav-9-tab" data-bs-toggle="tab" data-bs-target="#nav-9" type="button" role="tab" aria-controls="nav-9" aria-selected="false">🏁</button>
+      
+        </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab" tabindex="0">
+          <emoji group="Smileys and emotions" amount=all Bind="#box"></emoji>
+        </div>
+        <div class="tab-pane fade" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab" tabindex="0">
+          <emoji group="People" amount=all Bind="#box"></emoji>
+        </div>
+        <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab" tabindex="0">
+          <emoji group="Animals and nature" amount=all Bind="#box"></emoji>
+        </div>
+        <div class="tab-pane fade" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab" tabindex="0">
+          <emoji group="Food and drink" amount=all Bind="#box"></emoji>
+        </div>
+        <div class="tab-pane fade" id="nav-5" role="tabpanel" aria-labelledby="nav-5-tab" tabindex="0">
+          <emoji group="Travel and places" amount=all Bind="#box"></emoji>
+        </div>
+        <div class="tab-pane fade" id="nav-6" role="tabpanel" aria-labelledby="nav-6-tab" tabindex="0">
+          <emoji group="Activities and events" amount=all Bind="#box"></emoji>
+        </div>
+        <div class="tab-pane fade" id="nav-7" role="tabpanel" aria-labelledby="nav-7-tab" tabindex="0">
+          <emoji group="Objects" amount=all Bind="#box"></emoji>
+        </div>
+        <div class="tab-pane fade" id="nav-8" role="tabpanel" aria-labelledby="nav-8-tab" tabindex="0">
+          <emoji group="Symbols" amount=all Bind="#box"></emoji>
+        </div>
+           <div class="tab-pane fade" id="nav-9" role="tabpanel" aria-labelledby="nav-8-tab" tabindex="0">
+          <emoji group="Flags" amount=all Bind="#box"></emoji>
+        </div>
+      </div>
+  </div>
+  </div>
+  </div>
+</div>
+
+<script src="../vue/emoji/script.js" type="text/javascript"></script>
+
+
+<script type="text/x-template" id="emoji-component">
+  <span v-html="emoji" @click="emojiClick"></span>
+</script>
