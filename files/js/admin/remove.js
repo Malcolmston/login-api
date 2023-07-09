@@ -125,7 +125,7 @@ async function checkLogin(event) {
 async function soft(event){    
     console.log( data )
 
-    let info = (await postData("/admin/soft/remove", data))[0]
+    let info = (await postData("/business/admin/soft/remove", data))[0]
     data = {}
 
     if( info.valid ){
@@ -137,7 +137,7 @@ async function soft(event){
 }
 
 async function hard(event){
-    let info = (await postData("/admin/hard/remove", data))[0]
+    let info = (await postData("/business/admin/hard/remove", data))[0]
     data = {}
 
     if( info.valid ){

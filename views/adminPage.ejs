@@ -31,6 +31,12 @@
       <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
         type="button" role="tab" aria-controls="pills-home" aria-selected="true">Home</button>
     </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="pills-chat-tab" data-bs-toggle="pill" data-bs-target="#pills-chat" type="button" role="tab" aria-controls="pills-chat" aria-selected="false">Chat</button>
+    </li>
+  
+
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="pills-user-tab" data-bs-toggle="pill" data-bs-target="#pills-user" type="button"
         role="tab" aria-controls="pills-user" aria-selected="false">User</button>
@@ -106,6 +112,9 @@
       <%- include('../ejsPages/admin/create.ejs'); %>
     </div>
 
+      <div class="tab-pane fade" id="pills-chat" role="tabpanel" aria-labelledby="pills-chat-tab" tabindex="0">
+    <%- include('../chat/views/message.ejs', {type: 'basic'}) %>
+  </div>
 
   </div>
 

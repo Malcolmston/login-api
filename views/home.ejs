@@ -1,127 +1,156 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
-    <link href="files/css/svg.css" rel="stylesheet" rel="stylesheet" >
-	  
-	  <title>Login API</title>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-  </head>
-  <body>
 
-    <!-- 
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+  <link href="files/css/svg.css" rel="stylesheet" rel="stylesheet">
+
+  <title>Login API</title>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+
+  <!-- 
       https://getbootstrap.com/docs/5.3/components/alerts/
       for the svg path 
     -->
-    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-      <symbol id="check-circle-fill" viewBox="0 0 16 16">
-        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-      </symbol>
-      <symbol id="info-fill" viewBox="0 0 16 16">
-        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-      </symbol>
-      <symbol id="exclamation-triangle-fill" viewBox="0 0 16 16">
-        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-      </symbol>
-    </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="check-circle-fill" viewBox="0 0 16 16">
+      <path
+        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+    </symbol>
+    <symbol id="info-fill" viewBox="0 0 16 16">
+      <path
+        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+    </symbol>
+    <symbol id="exclamation-triangle-fill" viewBox="0 0 16 16">
+      <path
+        d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+    </symbol>
+  </svg>
 
 
-    <ul class="nav nav-pills mb-5" id="pills-tab" role="tablist">
+  <ul class="nav nav-pills mb-5" id="pills-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
+        type="button" role="tab" aria-controls="pills-home" aria-selected="true">Home</button>
+    </li>
+
+    
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Home</button>
+        <button class="nav-link" id="pills-chat-tab" data-bs-toggle="pill" data-bs-target="#pills-chat" type="button" role="tab" aria-controls="pills-chat" aria-selected="false">Chat</button>
       </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-icon-tab" data-bs-toggle="pill" data-bs-target="#pills-icon" type="button" role="tab" aria-controls="pills-icon" aria-selected="false">get an Icon</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-name-tab" data-bs-toggle="pill" data-bs-target="#pills-name" type="button" role="tab" aria-controls="pills-name" aria-selected="false">Naming</button>
-      </li>
+    
 
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-usename-tab" data-bs-toggle="pill" data-bs-target="#pills-username" type="button" role="tab" aria-controls="pills-usename" aria-selected="false">Reset your usename</button>
-      </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="pills-icon-tab" data-bs-toggle="pill" data-bs-target="#pills-icon" type="button"
+        role="tab" aria-controls="pills-icon" aria-selected="false">get an Icon</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="pills-name-tab" data-bs-toggle="pill" data-bs-target="#pills-name" type="button"
+        role="tab" aria-controls="pills-name" aria-selected="false">Naming</button>
+    </li>
 
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-password-tab" data-bs-toggle="pill" data-bs-target="#pills-password" type="button" role="tab" aria-controls="pills-password" aria-selected="false">Reset your password</button>
-      </li>
-  
-    </ul>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="pills-usename-tab" data-bs-toggle="pill" data-bs-target="#pills-username"
+        type="button" role="tab" aria-controls="pills-usename" aria-selected="false">Reset your usename</button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="pills-password-tab" data-bs-toggle="pill" data-bs-target="#pills-password"
+        type="button" role="tab" aria-controls="pills-password" aria-selected="false">Reset your password</button>
+    </li>
+
+  </ul>
 
 
-    <div class="tab-content" id="pills-tabContent">
-      <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
-        <form action="/logout" method="post">
-          <input type="submit" value="logout"/>
-        </form>
+  <div class="tab-content" id="pills-tabContent">
+
+    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab"
+      tabindex="0">
+      <form action="/logout" method="post">
+        <input type="submit" value="logout" />
+      </form>
+    </div>
+
+    <div class="tab-pane fade" id="pills-icon" role="tabpanel" aria-labelledby="pills-icon-tab" tabindex="0">
+      <%- include('../ejsPages/icon'); %>
       </div>
-
-      <div class="tab-pane fade" id="pills-icon" role="tabpanel" aria-labelledby="pills-icon-tab" tabindex="0">
-        <%- include('../ejsPages/icon'); %>
-        </div>
-      </div>
-      
-        <div class="tab-pane fade" id="pills-name" role="tabpanel" aria-labelledby="pills-name-tab" tabindex="0">
-          <%- include('../ejsPages/name'); %>
-        </div>
-
-        <div class="hstack gap-2 tab-pane fade" id="pills-username" role="tabpanel" aria-labelledby="pills-usename-tab" tabindex="0">
-          <%- include('../ejsPages/re-username'); %>
-        </div>
-
-        <div class="tab-pane fade" id="pills-password" role="tabpanel" aria-labelledby="pills-password-tab" tabindex="0">
-          <%- include('../ejsPages/re-password'); %>
-        </div>
-    
-    
-    
-    </div>
-    </div>
-    
-    
-    
-    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
-  <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-body">
-  Are you sure you want to change your password?
-    <div class="mt-2 pt-2 border-top">
-      <button type="button" class="btn btn-primary btn-sm" onclick="sendPassowrd(text)">Do it</button>
-      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No thanks</button>
-    </div>
   </div>
+
+
+  <div class="tab-pane fade" id="pills-name" role="tabpanel" aria-labelledby="pills-name-tab" tabindex="0">
+    <%- include('../ejsPages/name'); %>
   </div>
-</div>
 
+  <div class="hstack gap-2 tab-pane fade" id="pills-username" role="tabpanel" aria-labelledby="pills-usename-tab"
+    tabindex="0">
+    <%- include('../ejsPages/re-username'); %>
+  </div>
 
-        </div>
+  <div class="tab-pane fade" id="pills-password" role="tabpanel" aria-labelledby="pills-password-tab" tabindex="0">
+    <%- include('../ejsPages/re-password'); %>
+  </div>
 
-      </div>
-    
-    
-    </div>
-    
-     
  
+ 
+  
+       <div class="tab-pane fade" id="pills-chat" role="tabpanel" aria-labelledby="pills-chat-tab" tabindex="0">
+    <%- include('../chat/views/message', {type: 'basic'}) %>
+  </div>  
 
+
+
+
+</div>
+  </div>
+
+
+
+  <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-body">
+        Are you sure you want to change your password?
+        <div class="mt-2 pt-2 border-top">
+          <button type="button" class="btn btn-primary btn-sm" onclick="sendPassowrd(text)">Do it</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No thanks</button>
+        </div>
       </div>
-    
+    </div>
+  </div>
+
+
+  </div>
+
+  </div>
+
+
+  </div>
 
 
 
-	  <!-- https://getbootstrap.com/docs/5.3/components/navs-tabs/#accessibility for pills-->
+
+  </div>
+
+
+
+
+  <!-- https://getbootstrap.com/docs/5.3/components/navs-tabs/#accessibility for pills-->
 
   <!-- https://getbootstrap.com/docs/5.3/components/carousel/ for the  carousel-->
 
-        
-	  </body>
+
+</body>
 
 
-	
-	 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-  
-  </body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+</body>
+
 </html>
-
-	

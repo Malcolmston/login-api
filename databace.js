@@ -1,10 +1,79 @@
+
+   //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+const groupBy = (items, key) => items.reduce(
+    (result, item) => ({
+      ...result,
+      [item[key]]: [
+        ...(result[item[key]] || []),
+        item,
+      ],
+    }), 
+    {},
+);
+
+/**
+ * 
+ * @param {*} inputArr 
+ * @returns 
+ * @see https://stackoverflow.com/questions/9960908/permutations-in-javascript
+ */
+const permutator = (inputArr) => {
+    let result = [];
+  
+    const permute = (arr, m = []) => {
+      if (arr.length === 0) {
+        result.push(m)
+      } else {
+        for (let i = 0; i < arr.length; i++) {
+          let curr = arr.slice();
+          let next = curr.splice(i, 1);
+          permute(curr.slice(), m.concat(next))
+       }
+     }
+   }
+  
+   permute(inputArr)
+  
+   return result;
+  }
+
+Array.prototype.arrSim = function (arr) {
+    let array1 = this
+    let array2 = arr 
+    //return permutator(array1).filter( x =>  x.every( (currentValue, index) => currentValue == arr[index] ) )
+
+    return this.every( (currentValue, index) => currentValue == arr[index] )
+}
+
+Array.prototype.arrSim2 = function (arr) {
+    return !(permutator(this).filter( x => x.arrSim(arr) )).isEmpty()
+}
+
+Array.prototype.isEmpty = function () {
+    return this.length === 0
+}
+
+
+async function covert({UserId, roomId}, db = Users){
+    let user = await db.findByPk(UserId, {raw: true})
+    let room = await Rooms.findByPk(roomId, {raw: true})
+
+    return {user: user.username, room: room.room}
+
+
+   }
+
+
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
 
 const sqlite3 = require("sqlite3");
-const { Sequelize, DataTypes, Op, QueryTypes, where } = require("sequelize");
+const { Sequelize, DataTypes, Op, QueryTypes, where, Model } = require("sequelize");
+const { use } = require("bcrypt/promises");
+
+
 
 const db = new sqlite3.Database("uses.sqlite");
 //https://github.com/sequelize/sequelize/issues/10304
@@ -15,6 +84,9 @@ const sequelize = new Sequelize("uses", "", "", {
 	standardConformingStrings: true,
 	logging: false,
 });
+
+const queryInterface = sequelize.getQueryInterface();
+
 
 const Icons = sequelize.define("icons", {
 	id: {
@@ -42,8 +114,7 @@ const Icons = sequelize.define("icons", {
 	},
 });
 
-const Users = sequelize.define(
-	"Users",
+const Users = sequelize.define("Users",
 	{
 		id: {
 			type: Sequelize.INTEGER,
@@ -90,10 +161,10 @@ const Users = sequelize.define(
 	{
 		timestamps: true,
 
-		deletedAt: "deletedAt",
-		paranoid: true,
-	}
-);
+	deletedAt: "deletedAt",
+	paranoid: true,
+})
+
 
 Icons.hasMany(Users);
 Users.belongsTo(Icons);
@@ -123,7 +194,7 @@ class Account {
 		});
 	}
 
-	Account(username, type) {
+	Account(username, type, Database) {
 		return new Promise(async function (resolve) {
 			let res = await Users.findOne({
 				where: {
@@ -131,14 +202,11 @@ class Account {
 					type: type, //"basic"
 				},
 			});
-
-			resolve(res);
-		});
 	}
 
-	Del_Account(username, type) {
+	Del_Account(username, type, Database) {
 		return new Promise(async function (resolve) {
-			let res = await Users.findOne({
+			let res = await Database.findOne({
 				where: {
 					username: username,
 					type: type, //"basic"
@@ -188,6 +256,10 @@ class Account {
 			});
 		});
 	}
+
+	generateId (len) {
+		return crypto.randomBytes(len).toString('hex');
+	  }
 }
 
 
@@ -334,21 +406,21 @@ class Basic_Account extends Account {
 	 * @param {String} username is the users username
 	 * @returns {promises} returns true if the account exists, otherwise it returns false
 	 */
-	async account(username, del=false) {
+	async account(username, type = "basic", del=false) {
 		let res;
 		
 		if( !del ){
 		res = await Users.findOne({
 			where: {
 				username: username,
-				type: "basic",
+				type,
 			},
 		});
 	}else {
 		res = await Users.findOne({
 			where: {
 				username: username,
-				type: "basic",
+				type,
 			},
 			paranoid: false
 		});
@@ -397,7 +469,7 @@ class Basic_Account extends Account {
 	}
 
 	async get_icon(username) {
-		let bool = await this.Account(username, "basic");
+		let bool = await this.Account(username, "basic", this.Database);
 
 		if (bool === null) return false;
 
@@ -466,11 +538,31 @@ class Basic_Account extends Account {
 		return d;
 	}
 
-	async getAccount(username, del = false) {
+	async getAccount(username, type = "basic", del=false) {
+		let res;
+		
+		if( !del ){
+		res = await this.Database.findOne({
+			where: {
+				username: username,
+				type,
+			},
+		});
+	}else {
+		res = await this.Database.findOne({
+			where: {
+				username: username,
+				type,
+			},
+			paranoid: false
+		});
+	}
 
-		let a = (del ? (await this.Del_Account(username, "basic")) : (await this.Account(username, "basic"))).toJSON();
-
-		return a;
+		if (res == null) {
+			return false;
+		} else {
+			return res.toJSON();
+		}
 	}
 }
 
@@ -519,7 +611,9 @@ class Admin_Account extends Account {
 			return false;
 		}
 
-		let res = await this.Account(username, "admin");
+		let res = await this.Account(username, "admin", this.Database );
+
+		
 
 		if(res === null) return false
 		let a = await this.password_simi(password, res.password);
@@ -558,7 +652,7 @@ class Admin_Account extends Account {
 	 * @returns {promises} or false if no parermeters are given
 	 */
 	async name(username, fname = false, lname = false, type = "admin") {
-		let bool = await this.Account(username, type);
+		let bool = await this.Account(username, type, this.Database);
 
 		if (bool === null) return false;
 
@@ -591,7 +685,7 @@ class Admin_Account extends Account {
 	 * @returns {promises}
 	 */
 	async icon(username, id) {
-		let bool = await this.Account(username, "admin");
+		let bool = await this.Account(username, "admin", this.Database);
 
 		if (bool === null) return false;
 
@@ -601,7 +695,7 @@ class Admin_Account extends Account {
 	}
 	//https://sequelize.org/docs/v6/core-concepts/assocs/#foohasonebar
 	async get_icon(username) {
-		let bool = await this.Account(username, "admin");
+		let bool = await this.Account(username, "admin", this.Database );
 
 		if (bool === null) return false;
 
@@ -609,7 +703,7 @@ class Admin_Account extends Account {
 	}
 
 	async apply_icon(username, type) {
-		let bool = await this.Account(username, type);
+		let bool = await this.Account(username, type, this.Database );
 
 		if (bool === null) return false;
 
@@ -790,44 +884,669 @@ class Admin_Account extends Account {
 	}
 
 	async getAll() {
-		let all = await Users.findAll({ paranoid: false });
+		let all = await this.Database.findAll({ paranoid: false });
 
 		return all;
 	}
 }
 
+
+
+
+class Bsiness_Account extends Account {
+		constructor(name) {
+			super()
+		this.name = name
+	}
+
+
+	async add_member(type, username, pwd, firstName, lastName, email){
+		let password = await this.password_hide(pwd);
+
+		let a = await Buisness.create({ 
+			name: this.name ,type, username, password, firstName, lastName, email
+		})
+		let b = await Users.create({ type: "buisness"});
+
+		await a.addUsers([b])
+
+	}
+
+	async get_users(type) {
+		return (await Buisness.findAll({ where: {
+			type: {
+				[Op.is]: type
+			}
+
+		 } })).map(x => x.toJSON());
+	}
+
+	
+}
+
+
+
+class Room extends Account {
+	constructor(){
+		super()
+	}
+
+	async  getGroupbyName(name){
+		return await Rooms.findOne({where: {name}, raw: true})
+	  }	  
+  
+	async getUser(username, databace = Users) {
+		if(!databace) databace = Users
+	  let type = await this.getAccountType(username, databace)
+	  let p = await this.Account(username, type, databace)
+  
+	  return p.toJSON()
+	}
+	/**
+   * this function gets a room by the room code. 
+   * @param {String} code should be a string that is the room code you are looking for
+   * @returns {Sequelize} returns an object that is an repesentation of the found SQL in JSON format. 
+   */
+  async get_RoombyCode( code ){
+	return (await Rooms.findOne({where: {room: code}}))
+  }
+  
+  async validate_RoombyCode( code ){
+	return (await Rooms.findOne({where: {room: code}})) == undefined
+  }
+  
+  async  getRoombyUser(...users){
+	let p = users.map( async user => await Users.findOne({
+	  where:{username:user.username},
+	  include: [{
+		model: Rooms,
+		/*
+		where: {
+		  name: {
+			[Op.is]: null
+		  }
+		},
+		*/
+		raw: true
+	  }],
+	})
+	)
+	//p = await Promise.all ((await Promise.all(p)).map(async user => await covert({UserId: user['rooms.User_Room.UserId'], roomId: user['rooms.User_Room.roomId'] }) ))
+	//p = groupBy(p, "room")
+	
+	p = await Promise.all((await Promise.all(p)).map( x => x.toJSON().rooms ).flat().map( async x => await covert(x.User_Room) ))
+	p = Object.entries(groupBy(p, "room"))
+	p = p.map( x => x[1] )
+	p = p.filter( x => users.map(x => x.username).arrSim2(x.map(x => x.user  ))  ).flat()
+	
+	var user_arr = p.flatMap(x => x.user )
+	var room = [...new Set(p.flatMap(x => x.room ))][0]
+	
+	return {users: user_arr, room}  
+	}
+
+	async  getRoomby_Buissness_User(...users){
+		let userArr = users.map( async user => await Buisness.findOne({
+			where:{
+				username: user.username,
+			},
+			raw: true
+		}))
+		let userIds = (await Promise.all(userArr) )
+
+		let p = userIds.map( async user => await Users.findOne({
+		  where:{
+			id: user.id,
+			type: 'buisness'
+		},
+		  include: [{
+			model: Rooms,
+			/*
+			where: {
+			  name: {
+				[Op.is]: null
+			  }
+			},
+			*/
+			raw: true
+		  }],
+		})
+		)
+		//p = await Promise.all ((await Promise.all(p)).map(async user => await covert({UserId: user['rooms.User_Room.UserId'], roomId: user['rooms.User_Room.roomId'] }) ))
+		//p = groupBy(p, "room")
+		
+
+
+		p = await Promise.all((await Promise.all(p)).map( x => x.toJSON().rooms ).flat().map( async x => await covert(x.User_Room, Buisness) ))
+		p = Object.entries(groupBy(p, "room"))
+		p = p.map( x => x[1] )
+		p = p.filter( x => users.map(x => x.username).arrSim2(x.map(x => x.user  ))  ).flat()
+		
+		var user_arr = p.flatMap(x => x.user )
+		var room = [...new Set(p.flatMap(x => x.room ))][0]
+		
+		return {users: user_arr, room}  
+		}
+
+  
+  async createRoom(...args) {
+	
+	let name, show_name = null;
+  if( args.length > 2 ){
+	show_name = this.generateId(15)
+	name = args.map(x => x.username).join()
+  }
+  if( (await this.getRoombyUser(...args)).room !== undefined ) return;
+  
+	  let r = this.generateId(10)
+  		let t = await Rooms.create({
+		  room:r,
+		 "show-name": show_name,
+		  name
+	 })  
+	  
+	
+		  let a = this
+		 args.forEach(async function(user){
+		  let rt = await a.getUser(user.username, false) 
+
+
+
+		  await t.addUser(rt.id)
+		})
+  
+	
+		
+		 return r
+   }
+  
+   async create_Business_Room(...args) {
+	
+	let name, show_name = null;
+
+	if( args.length > 2 ){
+		show_name = this.generateId(15)
+		name = args.map(x => x.username).join()
+	  }
+
+if( (await this.getRoomby_Buissness_User(...args)).room !== undefined ) return;
+  
+	  let r = this.generateId(13)
+  		let t = await Rooms.create({
+		  room:r,
+		 "show-name": show_name,
+		  name
+	 })  
+	  
+	
+		  let a = this
+		 args.forEach(async function(user){
+		  let rt = await a.getUser(user.username, Buisness) 
+
+
+
+		  await t.addUser(rt.id)
+		})
+  
+	
+		
+		 return r
+   }
+
+
+
+   async getGroupbyMembers(...users) {
+	let p = users.map( async user => await Users.findOne({
+	  where:{username:user.username},
+	  include: [{
+		model: Rooms,
+		where: {
+		  name: {
+			[Op.ne]: null
+		  }
+		},
+		raw: true
+	  }],
+	}) )
+	//p = await Promise.all ((await Promise.all(p)).map(async user => await covert({UserId: user['rooms.User_Room.UserId'], roomId: user['rooms.User_Room.roomId'] }) ))
+	//p = groupBy(p, "room")
+	p = await Promise.all((await Promise.all(p)).map( x => x.toJSON().rooms ).flat().map( async x => await covert(x.User_Room) ))
+	p = Object.entries(groupBy(p, "room"))
+	p = p.map( x => x[1] )
+	p = p.filter( x => users.map(x => x.username).arrSim2(x.map(x => x.user  ))  ).flat()
+	
+	var user_arr = p.flatMap(x => x.user )
+	var room = [...new Set(p.flatMap(x => x.room ))][0]
+	
+	return {users: user_arr, room}  
+  }
+  
+  async getGroups(){
+	return await Rooms.findAll({where: {
+	  name:{
+	  [Op.ne]: null
+	  }
+	}})
+  }
+  
+  }
+  
+class Message_Controller extends Room {
+	constructor() {
+		super()
+	}
+  
+	async  messageResponce(messageId){
+	  let a = await Message.findByPk(messageId, {
+		raw: true
+	  })
+	
+	  if( a === null ) return;
+	
+	
+	
+	   let reply = (await Message.findOne({
+		where:{
+		id: a.link,
+	  }, 
+	  raw: true
+	}))
+	
+	   let c = await Message.findAll({
+		where: {
+		  link: a.link,
+		  userId: a.UserId
+		},
+		raw: true
+	  })
+	
+	
+	return {
+	  responses: c.map(a => a.message),
+	  message: reply.message,
+	}
+	//{sent: b.message, message: a.message}
+	
+	return {sent: b, message: a.message}//{sent, message:  a.message}
+	
+	}
+	
+	async  getRoomsandChats(user){
+	  let pos = 0
+	  let arr = (await Users.findAll({
+		where: {username: user},
+		include: [{
+		  model: Rooms,
+		  where: {
+			name: {
+			[Op.is]: null
+			}
+		  },
+		  raw: true
+		}],
+	  }
+	  )).map( x => x.toJSON())
+	
+	  
+	  arr = (await Promise.all( 
+		arr.map( async x => (await Promise.all(x.rooms.map( async x => (await covert(x.User_Room)) ) ))
+	  ))).flat().filter( x => x.user == user ).map(x => x.room )
+	  
+	  arr = [...new Set(arr)]
+	
+	  let all = (await Message.findAll({
+		attributes: { 
+		  exclude: ['UserId', "roomId", "deletedAt", "updatedAt"]
+		},
+		include: [{
+		  model: Rooms,
+		  raw: true,
+		  where: {
+			room: {[Op.or]: arr }
+		  }
+		}, {
+		  model: Users,
+		  raw: true
+		}],
+		raw: true
+	  })).map( async x =>{ 
+		if( pos == x.link && x.link != null ){
+		  pos = 0;
+		  return;
+		}
+		if(x.link != null){ pos =  x.link}
+	
+		let t =  {
+		  id: x.id, 
+		  name:  x['User.username'], 
+		  message: (x.link != null ?  await messageResponce(x.id) : x.message), 
+		  room: x['room.room'], 
+		  time: x['room.createdAt'], 
+		  place: x['User.username'] == user ? "right" : "left",
+		  link: x.link
+		} 
+	
+	
+		return t
+		})
+	
+	return (await Promise.all(all)).filter(x => x != undefined )
+	}
+
+	async  get_Buissness_Rooms_Chats(user){
+
+		let pos = 0
+
+		let id = (await Buisness.findOne({
+			where:{
+				username: user,
+			},
+			raw: true
+		})).id
+
+
+		let arr = (await Users.findAll({
+		  where: {id},
+		  include: [{
+			model: Rooms,
+			where: {
+			  name: {
+			  [Op.is]: null
+			  }
+			},
+			raw: true
+		  }],
+		}
+		))
+		
+		arr = arr.map( x => x.toJSON())
+	  
+		
+		arr = (await Promise.all( 
+		  arr.map( async x => (await Promise.all(x.rooms.map( async x => (await covert(x.User_Room, Buisness)) ) ))
+		))).flat().filter( x => x.user == user ).map(x => x.room )
+		
+		arr = [...new Set(arr)]
+	  
+				
+
+
+		let all = (await Message.findAll({
+		  attributes: { 
+			exclude: ['UserId', "roomId", "deletedAt", "updatedAt"]
+		  },
+		  include: [{
+			model: Rooms,
+			raw: true,
+			where: {
+			  room: {[Op.or]: arr }
+			}
+		  }, {
+			model: Users,
+			raw: true
+		  }],
+		  raw: true
+		}))
+
+		if( all.length === 0) return [];
+		
+		all = all.map( async x =>{ 
+		  if( pos == x.link && x.link != null ){
+			pos = 0;
+			return;
+		  }
+		  if(x.link != null){ pos =  x.link}
+	  
+		  let t =  {
+			id: x.id, 
+			name:  x['User.username'], 
+			message: (x.link != null ?  await this.messageResponce(x.id) : x.message), 
+			room: x['room.room'], 
+			time: x['room.createdAt'], 
+			place: x['User.username'] == user ? "right" : "left",
+			link: x.link
+		  } 
+	  
+	  
+		  return t
+		  })
+	  
+	  return (await Promise.all(all)).filter(x => x != undefined )
+	  }
+
+	
+	async getGroupandChats(user) {
+	  let pos = 0
+	  let arr = (await Users.findAll({
+		where: {username: user},
+		include: [{
+		  model: Rooms,
+		  where: {
+			name: {
+			[Op.ne]: null
+			}
+		  },
+		  raw: true
+		}],
+	  }
+	  )).map( x => x.toJSON())
+	
+	  
+	  arr = (await Promise.all( 
+		arr.map( async x => (await Promise.all(x.rooms.map( async x => (await covert(x.User_Room)) ) ))
+	  ))).flat().filter( x => x.user == user ).map(x => x.room )
+	  
+	  arr = [...new Set(arr)]
+	
+	  let all = (await Message.findAll({
+		attributes: { 
+		  exclude: ['UserId', "roomId", "deletedAt", "updatedAt"]
+		},
+		include: [{
+		  model: Rooms,
+		  raw: true,
+		  where: {
+			room: {[Op.or]: arr }
+		  }
+		}, {
+		  model: Users,
+		  raw: true
+		}],
+		raw: true
+	  })).map( async x =>{ 
+		if( pos == x.link && x.link != null ){
+		  pos = 0;
+		  return;
+		}
+		if(x.link != null){ pos =  x.link}
+	
+		let t =  {
+		  id: x.id, 
+		  name:  x['User.username'], 
+		  message: (x.link != null ?  await messageResponce(x.id) : x.message), 
+		  room: x['room.room'], 
+		  time: x['room.createdAt'], 
+		  place: x['User.username'] == user ? "right" : "left",
+		  link: x.link
+		} 
+	
+	
+		return t
+		})
+	
+	return (await Promise.all(all)).filter(x => x != undefined )
+	}
+
+	async get_Buissness_Groups_Chats(user){
+		let pos = 0
+
+		let id = (await Buisness.findOne({
+			where:{
+				username: user,
+			},
+			raw: true
+		})).id
+
+
+
+		let arr = (await Users.findAll({
+		  where: {id},
+		  include: [{
+			model: Rooms,
+			where: {
+			  name: {
+			  [Op.ne]: null
+			  }
+			},
+			raw: true
+		  }],
+		}
+		)).map( x => x.toJSON())
+	  
+		
+		arr = (await Promise.all( 
+		  arr.map( async x => (await Promise.all(x.rooms.map( async x => (await covert(x.User_Room)) ) ))
+		))).flat().filter( x => x.user == user ).map(x => x.room )
+		
+		arr = [...new Set(arr)]
+	  
+		let all = (await Message.findAll({
+		  attributes: { 
+			exclude: ['UserId', "roomId", "deletedAt", "updatedAt"]
+		  },
+		  include: [{
+			model: Rooms,
+			raw: true,
+			where: {
+			  room: {[Op.or]: arr }
+			}
+		  }, {
+			model: Users,
+			raw: true
+		  }],
+		  raw: true
+		}))
+		
+		if( all.length === 0) return [];
+
+		console.log( all )
+
+		all = all.map( async x =>{ 
+		  if( pos == x.link && x.link != null ){
+			pos = 0;
+			return;
+		  }
+		  if(x.link != null){ pos =  x.link}
+	  
+		  let t =  {
+			id: x.id, 
+			name:  x['User.username'], 
+			message: (x.link != null ?  await messageResponce(x.id) : x.message), 
+			room: x['room.room'], 
+			time: x['room.createdAt'], 
+			place: x['User.username'] == user ? "right" : "left",
+			link: x.link
+		  } 
+	  
+	  
+		  return t
+		  })
+	  
+	  return (await Promise.all(all)).filter(x => x != undefined )
+
+		
+	  }
+
+  
+	async chat(room, {message, user}) {
+	  if( (await this.validate_RoombyCode(room) ) ) return;
+	  let a = await this.getUser(user)
+	
+	  let foo = await (await this.get_RoombyCode(room) ).createMessage({ message });
+	
+	  foo.setUser(a.id);
+	
+	
+	
+	return {message, user}
+	
+	}
+	
+	async editMessage({id, new_message}) {
+	let r = await Message.update({ message: new_message }, { where: {id}})
+	
+	return r 
+	}
+	
+	async deleteMessage({id,name,place,room,time, message}) {
+	  let r = await Message.destroy( { where: {id}})
+	
+	return r 
+	}
+
+	async getUsers(databace = Users){
+		return (await databace.findAll({
+			where: {
+				type: {
+					[Op.ne]: "buisness"
+				}
+			}
+		}))
+	}
+	
+	
+  }
+
+
+
+const user_Array = [
+	{username: 'a', password: "a"},
+	{username: 'b', password: "b"},
+	{username: 'c', password: "c"},
+	{username: 'd', password: "d"}
+  ];
+  
+
 (async function () {
 	await sequelize.sync({ force: false });
 
-	/*
-	//let user1 = await a.create("a", "a")
-	let user2 = await a.create("b", "b")
+	const dat = new Bsiness_Account("buisnessAA")
 
-	//let icon1 = await c.addFile('3')
-	let icon2 = await c.addAll()//.addFile('7')
+	let Bsines = new Basic_Account(Buisness);
 
 
-	//await user1.setIcon(icon1);
-	//await user2.setIcon(icon2);
-	*/
+//await aaa.addBuisness( aaa.id )
+/*
+console.log( await dat.add_member("basic", "a", "a", "a", "a", "a@gmail.com") );
+
+console.log( await dat.add_member("basic", "b", "b", "a", "a", "a@gmail.com") );
+*/
 
 	let a = new Basic_Account();
 	let b = new Admin_Account();
 
 	let c = new AppIcons();
-
-	await c.addAll();
 /*
+	await c.addAll();
+
 	a.create("a", "a").then(() => {
 		b.create("Malcolm", "MalcolmStoneAdmin22$", "admin").then(() => {
 			b.name("Malcolm", "Malcolm", "Stone").then(console.log);
 		});
 	});
 	*/
+
 })();
 
-module.exports = {
+module.exports = {	
+	Account,
 	Basic_Account,
 	Admin_Account,
 	AppIcons,
+
+	Buisness
+	
 };
+
+
+

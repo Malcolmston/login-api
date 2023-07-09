@@ -116,7 +116,7 @@ id.addEventListener("click",function(e){
      }
 }
 
-function run(ids, fnames, lnames, emails, usernames, types, createdAts, updatedAts, deletedAts, icons){
+function run(ids, fnames, lnames, emails, usernames, types, createdAts, updatedAts, deletedAts, icons = null) {
   const alertPlaceholder = document.querySelector(".alertPlaceholder")
   
   
@@ -265,9 +265,11 @@ function run(ids, fnames, lnames, emails, usernames, types, createdAts, updatedA
       username.addEventListener("click",changeUsername)
   })
   
+  if( icons !== null ) {
   icons.forEach(function(icon){
       icon.addEventListener("click",changeIcon)
   })
+  }
   
   
   
