@@ -3,8 +3,12 @@
 const parts = ({
 	Basic_Account,
 	Admin_Account,
+	Bsiness_Account,
 	AppIcons,
+
+	Buisness
 } = require("./databace.js"));
+
 
 const fs = require("fs");
 
@@ -29,6 +33,8 @@ app.use("/files", express.static("files"));
 app.use("/ejsPages", express.static("ejsPages"));
 
 
+
+
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
@@ -38,6 +44,11 @@ const io = require('socket.io')(server);
 const Admin = new Admin_Account();
 const Basic = new Basic_Account();
 const Icons = new AppIcons();
+
+
+const Buisnes = new Bsiness_Account()
+const Bsiness_basic = new Basic_Account( Buisness );
+const Bsiness_admin = new Basic_Account( Buisness );
 
 
 function timeFormat(date) {
@@ -137,6 +148,7 @@ function timeFormat(date) {
 	
 	}
 
+	
 	app.get("/", (req, res) => {
 		let { username, loged_in, type} = req.session;
 
@@ -154,6 +166,453 @@ function timeFormat(date) {
 			loged_in
 		});
 	});
+
+	app.post("/buisness/login",  async (req, res) => {
+		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
+
+
+		if (username == undefined || password == undefined) {
+			username = JSON.parse(Object.keys(req.body)[0]).username;
+			password = JSON.parse(Object.keys(req.body)[0]).password;
+			type = JSON.parse(Object.keys(req.body)[0]).type;
+		}
+
+		if (username == undefined || password == undefined) {
+			res.json([
+				{
+					valid: false,
+					message: "you must input peramaters for this to work",
+				},
+			]);
+
+			return;
+		}
+
+		let bool = await Bsiness_basic.validate(username, password);
+
+		let del = await Bsiness_basic.isDeleted(username);
+
+	
+		if (type == "json") {
+			if (bool) {
+
+				res.json([
+					{
+						valid: true,
+						message: "you have logged in",
+					},
+				]);
+			} else {
+				//if( bool && ! )
+				if (del) {
+					res.json([
+						{
+							valid: false,
+							message: "this account has been removed",
+						},
+					]);
+				} else {
+					res.json([
+						{
+							valid: false,
+							message: "this account does not exist or the password was incorect",
+						},
+					]);
+				}
+			}
+		} else {
+			if (bool) {
+				req.session.username = username;
+				req.session.loged_in = true;
+				req.session.type = "buisness + basic"
+
+				res.status(200).redirect("/business");
+			} else {
+				//if( bool && ! )
+				if (del) {
+					res.status(404).render("homePage", {
+						error: {
+							message: "this account has been removed",
+						},
+						username: req.session.username,
+						loged_in: req.session.loged_in,
+					});
+				} else {
+					res.status(401).render("homePage", {
+						error: {
+							message: "this account does not exist or the password was incorect",
+						},
+						username: req.session.username,
+						loged_in: req.session.loged_in,
+					});
+				}
+			}
+		}
+		
+	})
+
+	app.post("/buisness/renameUsername", async (req, res) => {
+		var { username, new_username, type } = req.body; // || JSON.parse(Object.keys(req.body)[0])
+
+		console.log( {username, new_username, type })
+		if (username == undefined || new_username == undefined) {
+			username = JSON.parse(Object.keys(req.body)[0]).username;
+			new_username = JSON.parse(Object.keys(req.body)[0]).new_username;
+			type = JSON.parse(Object.keys(req.body)[0]).type;
+		}
+
+		if (username == undefined || new_username == undefined) {
+			res.json([
+				{
+					valid: false,
+					username: "you must input peramaters for this to work",
+				},
+			]);
+
+			return;
+		}
+
+
+
+		let bool = await Bsiness_basic.account(new_username);
+
+		let del = await Bsiness_basic.isDeleted(username);
+
+		if (type == "json") {
+			if (username.trim() == new_username.trim()) {
+				res.json([
+					{
+						valid: false,
+						message: "you can not set your username to your current username",
+					},
+				]);
+
+				return;
+			}
+
+			if (!bool) {
+				res.json([
+					{
+						valid: false,
+						message: "an account with that username alredy exists.",
+					},
+				]);
+			} else if (del) {
+				res.json([
+					{
+						valid: false,
+						message: "this account has been removed",
+					},
+				]);
+			} else {
+				let ans = await Bsiness_basic.update_username(username, new_username);
+
+				if (!ans) {
+					res.json([
+						{
+							valid: false,
+							message: "this account was unable to be changed, try again later",
+						},
+					]);
+				} else {
+					res.json([
+						{
+							valid: true,
+							message: `your account was named from ${username} to ${new_username}`,
+						},
+					]);
+				}
+			}
+		} else {
+
+			if (username.trim() == new_username.trim()) {
+				res.status(400).redirect("/business")
+				return;
+			}
+
+			if (!bool) {
+				let x = await Bsiness_basic.update_username(username, new_username);
+
+		
+
+				if (x) {
+					req.session.username = new_username
+					let items = await Buisnes.get_users("basic")
+				res.status(200).redirect("/business")
+				} else {
+					res.status(403).redirect("/business")
+				}
+			} else {
+				res.status(403).redirect("/business")
+			}
+
+		}
+	});
+
+	app.post("/buisness/renamePassword", async (req, res) => {
+		var { username, new_password, type } = req.body; // || JSON.parse(Object.keys(req.body)[0])
+
+		if (username == undefined || new_password == undefined) {
+			username = JSON.parse(Object.keys(req.body)[0]).username;
+			new_password = JSON.parse(Object.keys(req.body)[0]).new_password;
+		}
+
+		if (username == undefined || new_password == undefined) {
+			res.json([
+				{
+					valid: false,
+					message: "you must input peramaters for this to work",
+				},
+			]);
+
+			return;
+		}
+
+		let bool = await Bsiness_basic.account(username);
+
+		let del = await Bsiness_basic.isDeleted(username);
+
+		if (type == "json") {
+
+			if (!bool) {
+				let ans = await Bsiness_basic.update_password(username, new_password);
+
+				if (!ans) {
+					res.json([
+						{
+							valid: false,
+							message: "this account was unable to be changed, try again later",
+						},
+					]);
+				} else {
+					res.json([
+						{
+							valid: true,
+							message: "your accounts password has been changed",
+						},
+					]);
+				}
+			} else if (del) {
+				res.json([
+					{
+						valid: false,
+						message: "the account you are trying to rename has been deleted",
+					},
+				]);
+			} else {
+				res.json([
+					{
+						valid: false,
+						message: "the account you are trying to rename dose not exist",
+					},
+				]);
+			}
+
+		} else {
+			if (!bool) {
+				let x = await Bsiness_basic.update_password(username, new_password);
+
+
+				
+				if (x) {
+				res.status(200).redirect("/business")
+				} else {
+					res.status(403).redirect("/business")
+				}
+			} else {
+				res.status(403).redirect("/business")
+			}
+
+		}
+	});
+
+	app.post("/buisness/aplyName", async (req, res) => {
+		var { username, fname, lname, type } = req.body; //|| JSON.parse(Object.keys(req.body)[0])
+
+		if (username == undefined) {
+			username = JSON.parse(Object.keys(req.body)[0]).username;
+			fname = JSON.parse(Object.keys(req.body)[0]).fname;
+			lname = JSON.parse(Object.keys(req.body)[0]).lname;
+			type = JSON.parse(Object.keys(req.body)[0]).type;
+		}
+
+		if (username == undefined) {
+			res.json([
+				{
+					valid: false,
+					username: "you must input peramaters for this to work",
+				},
+			]);
+
+			return;
+		}
+
+		let bool = await Bsiness_basic.account(username);
+
+		let del = await Bsiness_basic.isDeleted(username);
+
+		if (type == "json") {
+			if (bool) {
+				let x = Bsiness_basic.name(username, fname, lname);
+
+				if (!x) {
+					res.json([
+						{
+							valid: false,
+							message: `something went wrong with the account ${username}`,
+						},
+					]);
+				} else {
+					res.json([
+						{
+							valid: true,
+							message: `the account ${username} now has the name ${fname} ${lname} applyed to it.`,
+						},
+					]);
+				}
+			} else {
+				if (del) {
+					res.json([
+						{
+							valid: false,
+							message: `the account you are trying to rename has been deleted`,
+						},
+					]);
+				} else if (!bool) {
+					res.json([
+						{
+							valid: false,
+							message: `the account you are trying to rename dose not exist`,
+						},
+					]);
+				}
+			}
+		} else {
+			let items = await Buisnes.get_users("basic")
+
+			if (bool) {
+				let x = Bsiness_basic.name(username, fname, lname);
+				
+
+				if (!x) {
+				res.status(400).redirect("/business")
+				} else {
+				res.status(200).redirect("/business")
+			}
+			} else {
+				res.status(400).redirect("/business")
+			}
+		}
+	});
+
+
+
+	app.get("/business",async (req, res) => {
+		const {username, loged_in, type} = req.session
+
+		let items = await Buisnes.get_users("basic")
+
+
+		if( loged_in && type == "buisness + basic"){
+			res.status(200).render("business_home", { 
+				username: username,
+				items 
+			});
+		}
+
+	
+	})
+
+
+
+	app.post("/buisness/login",  async (req, res) => {
+		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
+
+
+		if (username == undefined || password == undefined) {
+			username = JSON.parse(Object.keys(req.body)[0]).username;
+			password = JSON.parse(Object.keys(req.body)[0]).password;
+			type = JSON.parse(Object.keys(req.body)[0]).type;
+		}
+
+		if (username == undefined || password == undefined) {
+			res.json([
+				{
+					valid: false,
+					message: "you must input peramaters for this to work",
+				},
+			]);
+
+			return;
+		}
+
+		let bool = await Bsiness_basic.validate(username, password);
+
+		let del = await Bsiness_basic.isDeleted(username);
+
+	
+		if (type == "json") {
+			if (bool) {
+
+				res.json([
+					{
+						valid: true,
+						message: "you have logged in",
+					},
+				]);
+			} else {
+				//if( bool && ! )
+				if (del) {
+					res.json([
+						{
+							valid: false,
+							message: "this account has been removed",
+						},
+					]);
+				} else {
+					res.json([
+						{
+							valid: false,
+							message: "this account does not exist or the password was incorect",
+						},
+					]);
+				}
+			}
+		} else {
+			if (bool) {
+				req.session.username = username;
+				req.session.loged_in = true;
+				req.session.type = "buisness + basic"
+
+				res.status(200).redirect("/business");
+			} else {
+				//if( bool && ! )
+				if (del) {
+					res.status(404).render("homePage", {
+						error: {
+							message: "this account has been removed",
+						},
+						username: req.session.username,
+						loged_in: req.session.loged_in,
+					});
+				} else {
+					res.status(401).render("homePage", {
+						error: {
+							message: "this account does not exist or the password was incorect",
+						},
+						username: req.session.username,
+						loged_in: req.session.loged_in,
+					});
+				}
+			}
+		}
+		
+	})
+
+	
+
+
+
 
 	app.post("/login", async (req, res) => {
 		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
