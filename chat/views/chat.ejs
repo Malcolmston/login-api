@@ -1,0 +1,166 @@
+<html lang="en" class="">
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css">
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="test.css" />
+</head>
+
+<body data-new-gr-c-s-check-loaded="9.64.0" data-gr-ext-installed="">
+    <%- include("./views/emoji-keybored.vue") %>
+
+    <div class="box">
+        <div class="menu">
+
+        </div>
+
+        <div class="vstack">
+
+            <div class="chat vstack gap-3">
+                <span class="chatting">Chat with</span>
+
+            </div>
+
+            <div class="bar vstack">
+                <textarea placeholder="enter you message:"></textarea>
+                <button type="button" class="btn btn-light send">Send</button>
+            </div>
+
+        </div>
+
+
+        <script src="../help.js" type="text/javascript"></script>
+        <script>
+            //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+            const groupBy = (items, key) => items.reduce(
+                (result, item) => ({
+                    ...result,
+                    [item[key]]: [
+                        ...(result[item[key]] || []),
+                        item,
+                    ],
+                }),
+                {},
+            );
+
+
+
+            const username = "<%= username %>"
+            const arr = `<%- users %>`
+
+            const online = ` <%= stats %> `
+
+            var data = `<%- downloaded %>`
+
+            data = groupBy(JSON.parse(data), "room")
+
+
+            function loadData(curr_room) {
+                for (let i in data) {
+                    data[i].map(x => {
+                        let { id, name, place, room, time, message } = x
+
+                        if (room !== curr_room || curr_room == undefined) return;
+
+                        if (place == "right") {
+                            messageRight(time, message)
+                        } else {
+                            messageLeft(time, message)
+                        }
+                    })
+                }
+            }
+
+            window.onload = function () {
+                setPills(JSON.parse(arr), online)
+
+                window.setTimeout(function () {
+                    tabs = $(".tab");
+
+                
+                    
+                    if( JSON.parse(arr).length > 0 ) {
+                    let name = tabs.first().find(".name").text()
+
+                    setSender(tabs.first().find(".name").text())
+
+
+
+                    // loadChat(name)
+
+                    changeRoom([name, username])
+
+                    }
+
+                    for (var obj of tabs) {
+                        $(obj).on("click", (e) => {
+                            let last = getSender()
+                            let name = $(e.currentTarget).find(".name").text()
+
+                            setSender(name)
+
+                            let arr = [...$(".text")].map(x => {
+                                return {
+                                    time: $(x).parent().first().find(".time").html(),
+                                    place: ($(x).parent().parent()).attr("class").split(/\s+/).includes("right") ? "right" : "left",
+                                    message: $(x).text()
+                                }
+                            }).map(x => JSON.stringify(x))
+
+                            saveChats(last, JSON.stringify(arr))
+                            clearChat()
+
+                            loadChat(name)
+
+                            changeRoom([name, username])
+
+                        })
+                    }
+                }, 100)
+            }
+
+          
+            
+            socket.on("changeRoom", room => {
+                socket.room_code = room
+                loadData(room)
+
+            })
+
+            socket.on("users", users => {
+                console.log(users)
+
+                clearPills()
+                setPills(JSON.parse(arr), users)
+            })
+
+            
+            sendChat.click(() => {
+                send(username)
+
+            })
+
+            socket.on("message", async (message, user) => {
+
+                var opt = {
+                    body: `${user} has sent you a new message`,
+                    vibrate: [200, 100, 200],
+                }
+
+                let permission = await Notification.requestPermission();
+
+                new Notification(`you have a new message`, opt);
+
+
+            })
+
+
+
+            socket.on("message", receive)
+        </script>
+    </div>
+</body>

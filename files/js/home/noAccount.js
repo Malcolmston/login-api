@@ -96,6 +96,46 @@ document.querySelector("#submit").disabled = true
 
 }
 
+function change1(t) {
+    let r = t.value
+    
+    if( parts["uppercase"].regExp.test( r) ) {
+    document.querySelector(".uppercase1").classList.replace('false', "true")
+    }else{
+    document.querySelector(".uppercase1").classList.replace('true', "false") 
+    }
+    
+    
+    if( parts["letters"].regExp.test( r ) ) {
+    
+    document.querySelector(".letters1").classList.replace('false', "true")
+    }else{
+    document.querySelector(".letters1").classList.replace('true', "false") 
+    }
+    
+    if( parts["symble"].regExp.test( r ) ) {
+    
+    document.querySelector(".symble1").classList.replace('false', "true")
+    }else{
+    document.querySelector(".symble1").classList.replace('true', "false") 
+    }
+    
+    
+    if( r.length >= 6 && r.length <= 20) {
+    document.querySelector(".length1").classList.replace('false', "true")
+    }else{
+    document.querySelector(".length1").classList.replace('true', "false") 
+    }
+    
+    
+    if( a.test(r) ){
+    document.querySelector("#submit1").disabled = false
+    }else {
+    document.querySelector("#submit1").disabled = true
+    }
+    
+    }
+
 
 //document.querySelector(".admin_login > [type='password']").addEventListener("keyup", change, false)
 

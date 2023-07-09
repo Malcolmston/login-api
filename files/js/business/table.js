@@ -1,14 +1,14 @@
-import { run, appendAlert, getText} from '../helper.js'
+import { run, appendAlert, getText} from '../../js/helper.js'
 
 const socket = io();
 const alertPlaceholder = document.querySelector(".alertPlaceholder")
 document.getElementById("clickButton").addEventListener("click", () => {
-  socket.emit('send Table')
+  socket.emit('business send Table')
 })
     
 window.onload = () => {
-    socket.emit('table reload' )
-  socket.emit('send Table' )
+    socket.emit('business table reload' )
+  socket.emit('business send Table' )
 }
 
 socket.on('send Table Error', (message) => {
@@ -18,7 +18,6 @@ socket.on('send Table Error', (message) => {
 socket.on('send Table', (info) => {  
 
     getText( "../ejsPages/admin/table.ejs").then(function( data ) {
-
     let html = ejs.render(data, {items: info}, {delimiter: '?'})
   
     document.getElementById("table").innerHTML = html 
@@ -32,12 +31,10 @@ socket.on('send Table', (info) => {
   var createdAts = document.querySelectorAll(".createdAt")
   var updatedAts = document.querySelectorAll(".updatedAt")
   var deletedAts = document.querySelectorAll(".deletedAt")
-  var icons = document.querySelectorAll(".icon")
   
-  run(ids, fnames, lnames, emails, usernames, types, createdAts, updatedAts, deletedAts, icons)
+  run(ids, fnames, lnames, emails, usernames, types, createdAts, updatedAts, deletedAts)
   
-  
-})
+  })
 
 
 })

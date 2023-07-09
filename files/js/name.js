@@ -2,7 +2,7 @@ const allnameForms = [...document.querySelectorAll('[action="/aplyName"]')].leng
 
 const nameDP = document.querySelector(".name")
 
-
+console.log( )
 
 nameDP.addEventListener("change",function(){
     allnameForms.forEach(function (form) {

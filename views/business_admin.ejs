@@ -20,8 +20,8 @@
     crossorigin="anonymous"></script>
   <script src="/socket.io/socket.io.js"></script>
 
-  <script src="../files/js/admin/table.js" type="module"></script>
-
+  <script src="../files/js/business/table.js" type="module"></script>
+  
 </head>
 
 <body>
@@ -31,12 +31,6 @@
       <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
         type="button" role="tab" aria-controls="pills-home" aria-selected="true">Home</button>
     </li>
-
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="pills-chat-tab" data-bs-toggle="pill" data-bs-target="#pills-chat" type="button" role="tab" aria-controls="pills-chat" aria-selected="false">Chat</button>
-    </li>
-  
-
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="pills-user-tab" data-bs-toggle="pill" data-bs-target="#pills-user" type="button"
         role="tab" aria-controls="pills-user" aria-selected="false">User</button>
@@ -78,43 +72,20 @@
 
       <div id="table"> </div>
 
-      <div class="modal fade" id="Icon" tabindex="-1" aria-labelledby="Icon" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="exampleModalLabel">New Icon</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <div class="alertIcon"></div>
-              <%- include('../ejsPages/admin/carousel.ejs'); %>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" id="Submit">Set icon</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
     </div>
 
     <div class="tab-pane fade" id="pills-remove" role="tabpanel" aria-labelledby="pills-remove-tab" tabindex="0">
-      <%- include('../ejsPages/admin/remove.ejs'); %>
+      <%- include('../ejsPages/buisness/admin/remove'); %>
     </div>
 
     <div class="tab-pane fade" id="pills-restore" role="tabpanel" aria-labelledby="pills-restore-tab" tabindex="0">
-      <%- include('../ejsPages/admin/restore.ejs'); %>
+      <%- include('../ejsPages/buisness/admin/restore'); %>
     </div>
 
     <div class="tab-pane fade" id="pills-create" role="tabpanel" aria-labelledby="pills-create-tab" tabindex="0">
-      <%- include('../ejsPages/admin/create.ejs'); %>
+      <%- include('../ejsPages/buisness/admin/create'); %>
     </div>
 
-      <div class="tab-pane fade" id="pills-chat" role="tabpanel" aria-labelledby="pills-chat-tab" tabindex="0">
-    <%- include('../chat/views/message.ejs', {type: 'basic'}) %>
-  </div>
 
   </div>
 

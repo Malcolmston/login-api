@@ -1,0 +1,1467 @@
+<html lang="en" class="">
+
+<head>
+  <title>Chat App</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../../test.css" />
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+
+
+  <script src="../scripts/message.js" type="text/javascript"></script>
+  <script src="../scripts/chat.js" type="text/javascript"></script>
+  <script src="../scripts/emoji.js" type="text/javascript"></script>
+
+
+
+ 
+
+<% if( type == "basic" || type == "admin" ){ %>
+  <script>
+    const appendAlert = (message, type, location) => {
+  return new Promise((resolve, reject) => {
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = 
+      `<div class="alert alert-${type} alert-dismissible" role="alert">
+        <div>${message}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`
+    
+  
+      location.append(wrapper)
+  
+    setTimeout(() => {
+      wrapper.remove()
+      resolve(true)
+    }, 4000)
+  })
+
+}
+
+
+    const socket = io()
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+    const groupBy = (items, key) => items.reduce(
+      (result, item) => ({
+        ...result,
+        [item[key]]: [
+          ...(result[item[key]] || []),
+          item,
+        ],
+      }),
+      {},
+    );
+
+    function Prompt(message) {
+      return new Promise((resolve, reject) => {
+        var p = window.prompt(message)
+
+        while (!p || p.trim().length == 0 || p.length == 0) {
+          p = window.prompt(message)
+
+          if (p || p.trim().length !== 0 || p.length !== 0) {
+            resolve(p)
+          }
+        }
+
+        resolve(p)
+      })
+
+    }
+
+
+    const username_you = "<%= username %>"
+    const arr = `<%- users %>`
+    const groups = `<%- groups %>`
+
+    const online = ` <%- stats %> `
+
+    var data = JSON.parse(`<%- downloaded %>`)
+    //normal
+    normal_data = groupBy(data.normal, "room")
+    group_data = groupBy(data.group, "room")
+
+
+    function loadData(curr_room, data) {
+      for (let i in data) {
+        data[i].map(x => {
+          let { id, name, place, room, time, message } = x
+
+          if (room !== curr_room || curr_room == undefined) return;
+
+          if (typeof message === 'string') {
+
+            if (place == "right") {
+              messageRight({ id, name, place, room, time, message })
+            } else if (place == "left") {
+              messageLeft({ id, name, place, room, time, message })
+            } else {
+
+            }
+          } else {
+            if (place == "right") {
+              respondRight(message)
+            } else if (place == "left") {
+              respondLeft(message)
+            } else {
+
+            }
+
+
+          }
+        })
+      }
+    }
+
+
+    function reloadMessage(){
+      socket.emit("redo", true);
+    }
+  
+    
+    window.addEventListener("load", function(){
+   
+
+      window.setTimeout(function() {
+        $(".dot").hide()
+
+
+    
+        let withChat = $(".text:nth-of-type(1) > h6").first().text()
+
+        $(".you > h6").text(username_you)
+
+        changeRoom([username_you, withChat])
+
+
+        setSender(withChat)
+
+
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+          .forEach(tooltip => {
+            new bootstrap.Tooltip(tooltip)
+          })
+
+        // dotPlace({online, username, dot})
+        /*
+        if(online.includes(username) && !dot.hasClass("active") ){
+            dot.removeClass("inactive")
+            dot.addClass("active")
+        
+            dot.attr("data-bs-tooltip","active" )
+           }else{
+            dot.removeClass("active")
+            dot.addClass("inactive")
+        
+            dot.attr("data-bs-tooltip", "inactive" )
+           }
+        */
+
+        $(".input-wrapper > input").on("keyup", function (e) {
+
+          if ($(".search").val().length == 0 || $(".search").val().trim().length == 0) {
+            $(".pills > *").each(function () {
+              $(this).show()
+              $(this).parent().find("hr").show()
+            })
+          } else {
+
+            ([...$(".pills > *:not(hr)")]).forEach(x => {
+              if ($(x).find("h6").text() != $(".search").val()) {
+                $(x).hide()
+                $(x).parent().find("hr").hide()
+              }
+            })
+          }
+        })
+
+        $(".send").on("click", element => {
+         send($(element.target).parent().find("input").val(), username_you)
+        })
+
+        $(".friend-drawer--onhover").on("click", element => {
+           withChat = $(element.target).find("h6").text() ||  $(element.target).parent().find("h6").text()
+
+
+
+      changeRoomBIS([username_you, withChat])
+      clearMassages();
+
+      setSender(withChat)
+
+
+        })
+
+        $(".mic").on("mousedown", toggleBtn)
+        $(".mic").on("mouseup", toggleBtn)
+
+
+  
+
+  }, 100)
+   
+})
+
+socket.on("redo", data_obj => {
+  data = data_obj;
+  normal_data = groupBy(data.normal, "room");
+    group_data = groupBy(data.group, "room");
+
+    console.log( data, normal_data, group_data)
+})
+
+socket.on("changeGroup", room => {
+      loadData(room, group_data)
+
+      $(".menu-left").each(function (element) {
+        $(this).on("click", (e) => {
+          $(".list-group").each(function () {
+            $(this).remove();
+          });
+
+          let css = {
+            width: "fit-content",
+
+            "border-radius": "30px",
+            border: "0.2px solid black",
+            left: "140px",
+            "line-height": "2px",
+            height: "20px",
+            "font-size": "20px",
+          };
+
+          let arr = [
+            $('<li class="list-group-item">copy</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">respond</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">delete</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+              }),
+            $('<li class="list-group-item">edit</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+            /*
+            .click(function () {
+              active = true;
+              $(this).parent().remove();
+                    })
+       */
+          ];
+          var html = $('<ol class="list-group list-group-numbered"> </ol>').css({
+            "margin-left": "-100px",
+          });
+
+          $(html).append(arr);
+
+          $(e.delegateTarget).append($(html));
+
+          arr.map(x => $(x).on("click", async function () {
+            let t = $(this).parentsUntil(".row .no-gutters").parent().first()
+            let message = $(this).parentsUntil(".row .no-gutters").parent().first().children().children().find(".text")
+            let found = Object.entries(normal_data).map(x => x[1].find(x => x.id == Number(t.attr("id")) && x.message == message.text())).flat().filter(x => x != undefined)
+
+
+            if ($(this).text() == "edit") {
+              let text = (await Prompt("new message"))
+              //  let obj = {id: Number( t.attr("id") ),name: t.attr("name"),place: t.attr("place"),room: t.attr("room"), time: t.attr("time"), message: message.text(), new_message: text }
+              found["new_message"] = text
+
+              if (!found || found.length == 0 || typeof found != "object" || found.length >= 2) {
+
+              } else {
+                socket.emit("editMessage", found)
+              }
+
+
+            }
+
+            if ($(this).text() == "delete") {
+              socket.emit("deletMessage", found)
+            }
+
+            if ($(this).text() == "respond") {
+
+            }
+
+          }))
+          /*
+          $(e.delegateTarget).animate({
+            transform:'rotate(90deg)'
+          })
+          */
+        });
+      });
+
+      $(".menu-right").each(function (element) {
+        $(this).on("click", (e) => {
+          $(".list-group").each(function () {
+            $(this).remove();
+          });
+
+          let css = {
+            width: "fit-content",
+            "border-radius": "30px",
+            border: "0.2px solid black",
+
+            "line-height": "2px",
+            height: "20px",
+            "font-size": "20px",
+          };
+
+          let arr = [
+            $('<li class="list-group-item">copy</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">respond</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">delete</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">edit</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              })
+          ];
+
+          var html = $('<ol class="list-group list-group-numbered"> </ol>').css({
+            "margin-left": "-76px",
+            "position": "static",
+            left: "76px",
+          });
+
+          html.append(arr);
+
+          $(e.delegateTarget).append(html);
+
+        });
+      });
+
+    })
+
+    socket.on("changeRoom", room => {
+      loadData(room, normal_data)
+
+      $(".menu-left").each(function (element) {
+        $(this).on("click", (e) => {
+          $(".list-group").each(function () {
+            $(this).remove();
+          });
+
+          let css = {
+            width: "fit-content",
+
+            "border-radius": "30px",
+            border: "0.2px solid black",
+            left: "140px",
+            "line-height": "2px",
+            height: "20px",
+            "font-size": "20px",
+          };
+
+          let arr = [
+            $('<li class="list-group-item">copy</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">respond</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">delete</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+              }),
+            $('<li class="list-group-item">edit</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+            /*
+            .click(function () {
+              active = true;
+              $(this).parent().remove();
+                    })
+       */
+          ];
+          var html = $('<ol class="list-group list-group-numbered"> </ol>').css({
+            "margin-left": "-100px",
+          });
+
+          $(html).append(arr);
+
+          $(e.delegateTarget).append($(html));
+
+          arr.map(x => $(x).on("click", async function () {
+            let t = $(this).parentsUntil(".row .no-gutters").parent().first()
+            let message = $(this).parentsUntil(".row .no-gutters").parent().first().children().children().find(".text")
+            let found = Object.entries(normal_data).map(x => x[1].find(x => x.id == Number(t.attr("id")) && x.message == message.text())).flat().filter(x => x != undefined)
+
+
+            if ($(this).text() == "edit") {
+              let text = (await Prompt("new message"))
+              //  let obj = {id: Number( t.attr("id") ),name: t.attr("name"),place: t.attr("place"),room: t.attr("room"), time: t.attr("time"), message: message.text(), new_message: text }
+              found["new_message"] = text
+
+              if (!found || found.length == 0 || typeof found != "object" || found.length >= 2) {
+
+              } else {
+                socket.emit("editMessage", found)
+              }
+
+
+            }
+
+            if ($(this).text() == "delete") {
+              socket.emit("deletMessage", found)
+            }
+
+            if ($(this).text() == "respond") {
+
+            }
+
+          }))
+          /*
+          $(e.delegateTarget).animate({
+            transform:'rotate(90deg)'
+          })
+          */
+        });
+      });
+
+      $(".menu-right").each(function (element) {
+        $(this).on("click", (e) => {
+          $(".list-group").each(function () {
+            $(this).remove();
+          });
+
+          let css = {
+            width: "fit-content",
+            "border-radius": "30px",
+            border: "0.2px solid black",
+
+            "line-height": "2px",
+            height: "20px",
+            "font-size": "20px",
+          };
+
+          let arr = [
+            $('<li class="list-group-item">copy</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">respond</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">delete</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">edit</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              })
+          ];
+
+          var html = $('<ol class="list-group list-group-numbered"> </ol>').css({
+            "margin-left": "-76px",
+            "position": "static",
+            left: "76px",
+          });
+
+          html.append(arr);
+
+          $(e.delegateTarget).append(html);
+
+        });
+      });
+
+    })
+
+    socket.on("users", users => {
+      clearPills()
+      JSON.parse(arr).map(x => setPills(x))
+    })
+
+    socket.on("groups", users => {
+      clearPills('.rooms')
+      JSON.parse(groups).map(x => setPills(x, ".rooms"))
+
+    })
+
+    socket.on("message", receive)
+     
+    socket.on("primary", (message) => {
+      appendAlert(message, "primary", $('.alerts')[0])
+    })
+    socket.on("success", (message) => {
+      appendAlert(message, "success", $('.alerts')[0])
+    })
+    socket.on("warning", (message) => {
+      appendAlert(message, "warning", $('.alerts')[0])
+    })
+    socket.on("danger", (message) => {
+      appendAlert(message, "danger", $('.alerts')[0])
+    })
+
+
+
+
+
+  </script>
+<% } else if (type == "buissness basic" || type == "buissness admin") { %>
+  <script>
+    const appendAlert = (message, type, location) => {
+  return new Promise((resolve, reject) => {
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = 
+      `<div class="alert alert-${type} alert-dismissible" role="alert">
+        <div>${message}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`
+    
+  
+      location.append(wrapper)
+  
+    setTimeout(() => {
+      wrapper.remove()
+      resolve(true)
+    }, 4000)
+  })
+
+}
+
+
+    const socket = io()
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+    const groupBy = (items, key) => items.reduce(
+      (result, item) => ({
+        ...result,
+        [item[key]]: [
+          ...(result[item[key]] || []),
+          item,
+        ],
+      }),
+      {},
+    );
+
+    function Prompt(message) {
+      return new Promise((resolve, reject) => {
+        var p = window.prompt(message)
+
+        while (!p || p.trim().length == 0 || p.length == 0) {
+          p = window.prompt(message)
+
+          if (p || p.trim().length !== 0 || p.length !== 0) {
+            resolve(p)
+          }
+        }
+
+        resolve(p)
+      })
+
+    }
+
+
+    const username_you = "<%= username %>"
+    const arr = `<%- users %>`
+    const groups = `<%- groups %>`
+
+    const online = ` <%- stats %> `
+
+    var data = JSON.parse(`<%- downloaded %>`)
+    //normal
+    normal_data = groupBy(data.normal, "room")
+    group_data = groupBy(data.group, "room")
+
+
+    function loadData(curr_room, data) {
+      for (let i in data) {
+        data[i].map(x => {
+          let { id, name, place, room, time, message } = x
+
+          if (room !== curr_room || curr_room == undefined) return;
+
+          if (typeof message === 'string') {
+
+            if (place == "right") {
+              messageRight({ id, name, place, room, time, message })
+            } else if (place == "left") {
+              messageLeft({ id, name, place, room, time, message })
+            } else {
+
+            }
+          } else {
+            if (place == "right") {
+              respondRight(message)
+            } else if (place == "left") {
+              respondLeft(message)
+            } else {
+
+            }
+
+
+          }
+        })
+      }
+    }
+
+
+    function reloadMessage(){
+      socket.emit("redo", true);
+    }
+  
+    
+    window.addEventListener("load", function(){
+   
+
+      window.setTimeout(function() {
+        $(".dot").hide()
+
+
+    
+        let withChat = $(".text:nth-of-type(1) > h6").first().text()
+
+        $(".you > h6").text(username_you)
+
+        changeRoomBIS([username_you, withChat])
+
+
+        setSender(withChat)
+
+
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+          .forEach(tooltip => {
+            new bootstrap.Tooltip(tooltip)
+          })
+
+        // dotPlace({online, username, dot})
+        /*
+        if(online.includes(username) && !dot.hasClass("active") ){
+            dot.removeClass("inactive")
+            dot.addClass("active")
+        
+            dot.attr("data-bs-tooltip","active" )
+           }else{
+            dot.removeClass("active")
+            dot.addClass("inactive")
+        
+            dot.attr("data-bs-tooltip", "inactive" )
+           }
+        */
+
+        $(".input-wrapper > input").on("keyup", function (e) {
+
+          if ($(".search").val().length == 0 || $(".search").val().trim().length == 0) {
+            $(".pills > *").each(function () {
+              $(this).show()
+              $(this).parent().find("hr").show()
+            })
+          } else {
+
+            ([...$(".pills > *:not(hr)")]).forEach(x => {
+              if ($(x).find("h6").text() != $(".search").val()) {
+                $(x).hide()
+                $(x).parent().find("hr").hide()
+              }
+            })
+          }
+        })
+
+        $(".send").on("click", element => {
+         send($(element.target).parent().find("input").val(), username_you, 'business ')
+        })
+
+        $(".friend-drawer--onhover").on("click", element => {
+           withChat = $(element.target).find("h6").text() ||  $(element.target).parent().find("h6").text()
+
+
+
+           changeRoomBIS([username_you, withChat])
+      clearMassages();
+
+      setSender(withChat)
+
+
+        })
+
+        $(".mic").on("mousedown", toggleBtn)
+        $(".mic").on("mouseup", toggleBtn)
+
+
+  
+
+  }, 100)
+   
+})
+
+socket.on("redo", data_obj => {
+  data = data_obj;
+  normal_data = groupBy(data.normal, "room");
+    group_data = groupBy(data.group, "room");
+
+    console.log( data, normal_data, group_data)
+})
+
+socket.on("changeGroup", room => {
+      loadData(room, group_data)
+
+      $(".menu-left").each(function (element) {
+        $(this).on("click", (e) => {
+          $(".list-group").each(function () {
+            $(this).remove();
+          });
+
+          let css = {
+            width: "fit-content",
+
+            "border-radius": "30px",
+            border: "0.2px solid black",
+            left: "140px",
+            "line-height": "2px",
+            height: "20px",
+            "font-size": "20px",
+          };
+
+          let arr = [
+            $('<li class="list-group-item">copy</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">respond</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">delete</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+              }),
+            $('<li class="list-group-item">edit</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+            /*
+            .click(function () {
+              active = true;
+              $(this).parent().remove();
+                    })
+       */
+          ];
+          var html = $('<ol class="list-group list-group-numbered"> </ol>').css({
+            "margin-left": "-100px",
+          });
+
+          $(html).append(arr);
+
+          $(e.delegateTarget).append($(html));
+
+          arr.map(x => $(x).on("click", async function () {
+            let t = $(this).parentsUntil(".row .no-gutters").parent().first()
+            let message = $(this).parentsUntil(".row .no-gutters").parent().first().children().children().find(".text")
+            let found = Object.entries(normal_data).map(x => x[1].find(x => x.id == Number(t.attr("id")) && x.message == message.text())).flat().filter(x => x != undefined)
+
+
+            if ($(this).text() == "edit") {
+              let text = (await Prompt("new message"))
+              //  let obj = {id: Number( t.attr("id") ),name: t.attr("name"),place: t.attr("place"),room: t.attr("room"), time: t.attr("time"), message: message.text(), new_message: text }
+              found["new_message"] = text
+
+              if (!found || found.length == 0 || typeof found != "object" || found.length >= 2) {
+
+              } else {
+                socket.emit("editMessage", found)
+              }
+
+
+            }
+
+            if ($(this).text() == "delete") {
+              socket.emit("deletMessage", found)
+            }
+
+            if ($(this).text() == "respond") {
+
+            }
+
+          }))
+          /*
+          $(e.delegateTarget).animate({
+            transform:'rotate(90deg)'
+          })
+          */
+        });
+      });
+
+      $(".menu-right").each(function (element) {
+        $(this).on("click", (e) => {
+          $(".list-group").each(function () {
+            $(this).remove();
+          });
+
+          let css = {
+            width: "fit-content",
+            "border-radius": "30px",
+            border: "0.2px solid black",
+
+            "line-height": "2px",
+            height: "20px",
+            "font-size": "20px",
+          };
+
+          let arr = [
+            $('<li class="list-group-item">copy</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">respond</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">delete</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">edit</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              })
+          ];
+
+          var html = $('<ol class="list-group list-group-numbered"> </ol>').css({
+            "margin-left": "-76px",
+            "position": "static",
+            left: "76px",
+          });
+
+          html.append(arr);
+
+          $(e.delegateTarget).append(html);
+
+        });
+      });
+
+    })
+
+    socket.on("changeRoom", room => {
+      loadData(room, normal_data)
+
+      $(".menu-left").each(function (element) {
+        $(this).on("click", (e) => {
+          $(".list-group").each(function () {
+            $(this).remove();
+          });
+
+          let css = {
+            width: "fit-content",
+
+            "border-radius": "30px",
+            border: "0.2px solid black",
+            left: "140px",
+            "line-height": "2px",
+            height: "20px",
+            "font-size": "20px",
+          };
+
+          let arr = [
+            $('<li class="list-group-item">copy</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">respond</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">delete</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+              }),
+            $('<li class="list-group-item">edit</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+            /*
+            .click(function () {
+              active = true;
+              $(this).parent().remove();
+                    })
+       */
+          ];
+          var html = $('<ol class="list-group list-group-numbered"> </ol>').css({
+            "margin-left": "-100px",
+          });
+
+          $(html).append(arr);
+
+          $(e.delegateTarget).append($(html));
+
+          arr.map(x => $(x).on("click", async function () {
+            let t = $(this).parentsUntil(".row .no-gutters").parent().first()
+            let message = $(this).parentsUntil(".row .no-gutters").parent().first().children().children().find(".text")
+            let found = Object.entries(normal_data).map(x => x[1].find(x => x.id == Number(t.attr("id")) && x.message == message.text())).flat().filter(x => x != undefined)
+
+
+            if ($(this).text() == "edit") {
+              let text = (await Prompt("new message"))
+              //  let obj = {id: Number( t.attr("id") ),name: t.attr("name"),place: t.attr("place"),room: t.attr("room"), time: t.attr("time"), message: message.text(), new_message: text }
+              found["new_message"] = text
+
+              if (!found || found.length == 0 || typeof found != "object" || found.length >= 2) {
+
+              } else {
+                socket.emit("editMessage", found)
+              }
+
+
+            }
+
+            if ($(this).text() == "delete") {
+              socket.emit("deletMessage", found)
+            }
+
+            if ($(this).text() == "respond") {
+
+            }
+
+          }))
+          /*
+          $(e.delegateTarget).animate({
+            transform:'rotate(90deg)'
+          })
+          */
+        });
+      });
+
+      $(".menu-right").each(function (element) {
+        $(this).on("click", (e) => {
+          $(".list-group").each(function () {
+            $(this).remove();
+          });
+
+          let css = {
+            width: "fit-content",
+            "border-radius": "30px",
+            border: "0.2px solid black",
+
+            "line-height": "2px",
+            height: "20px",
+            "font-size": "20px",
+          };
+
+          let arr = [
+            $('<li class="list-group-item">copy</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">respond</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">delete</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              }),
+            $('<li class="list-group-item">edit</li>')
+              .css(css)
+              .hover(
+                function () {
+                  $(this).css("background-color", "#E6EE9C");
+                },
+                function () {
+                  $(this).css("background-color", "white");
+                }
+              )
+              .click(function () {
+                active = true;
+                $(this).parent().remove();
+                alert("removed");
+              })
+          ];
+
+          var html = $('<ol class="list-group list-group-numbered"> </ol>').css({
+            "margin-left": "-76px",
+            "position": "static",
+            left: "76px",
+          });
+
+          html.append(arr);
+
+          $(e.delegateTarget).append(html);
+
+        });
+      });
+
+    })
+
+    socket.on("users", users => {
+      clearPills()
+      JSON.parse(arr).map(x => setPills(x))
+    })
+
+    socket.on("groups", users => {
+      clearPills('.rooms')
+      JSON.parse(groups).map(x => setPills(x, ".rooms"))
+
+    })
+
+    socket.on("message", receive)
+     
+    socket.on("primary", (message) => {
+      appendAlert(message, "primary", $('.alerts')[0])
+    })
+    socket.on("success", (message) => {
+      appendAlert(message, "success", $('.alerts')[0])
+    })
+    socket.on("warning", (message) => {
+      appendAlert(message, "warning", $('.alerts')[0])
+    })
+    socket.on("danger", (message) => {
+      appendAlert(message, "danger", $('.alerts')[0])
+    })
+
+  </script>
+<% } %>
+
+</head>
+
+<div data-new-gr-c-s-check-loaded="9.64.0" data-gr-ext-installed="" class="chat">
+<di class="alerts"></di>
+  <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+    tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+
+          <%- include("./vue/emoji/index.html") %>
+
+        </div>
+        <div class="modal-footer">
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="row no-gutters">
+      <div class="col-md-4 border-right">
+        <div class="settings-tray">
+
+          <span class="settings-tray--right users">
+            <i class="material-icons" id="loadContacts">cached</i>
+          </span>
+        </div>
+
+
+        <nav>
+          <div class="nav nav-tabs nav-fill justify-content-center" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-1:1-tab" data-bs-toggle="tab" data-bs-target="#nav-1:1"
+              type="button" role="tab" aria-controls="nav-1:1" aria-selected="true">1:1</button>
+            <button class="nav-link" id="nav-groups-tab" data-bs-toggle="tab" data-bs-target="#nav-groups" type="button"
+              role="tab" aria-controls="nav-groups" aria-selected="false">groups</button>
+          </div>
+        </nav>
+
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade show active" id="nav-1:1" role="tabpanel" aria-labelledby="nav-1:1-tab"
+            tabindex="0">
+            <div class="search-box">
+              <div class="input-wrapper">
+                <i class="material-icons">search</i>
+                <input placeholder="Search here" type="text" class="search">
+              </div>
+            </div>
+
+            <span class="pills">
+            </span>
+          </div>
+          <div class="tab-pane fade" id="nav-groups" role="tabpanel" aria-labelledby="nav-groups-tab" tabindex="0">
+            <span class="rooms">
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="col-md-8">
+        <div class="settings-tray">
+          <div class="friend-drawer no-gutters friend-drawer--grey">
+
+            <div class="text you">
+              <h6></h6>
+
+              <p class="text-muted"></p>
+
+            </div>
+            <span class="settings-tray--right chat h">
+              <i class="material-icons" onclick="reloadMessage()">cached</i>
+            </span>
+
+
+            </span>
+          </div>
+        </div>
+        <div class="chat-panel">
+        </div>
+
+        <div class="row" style="position: sticky; bottom: -0px;">
+          <div class="col-12">
+            <div class="chat-box-tray">
+              <i class="material-icons" data-bs-toggle="modal" href="#exampleModalToggle"
+                role="button">sentiment_very_satisfied</i>
+              <input type="text" placeholder="Type your message here..." id="box">
+              <i class="material-icons mic">mic</i>
+              <i class="material-icons send">send</i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+
+
+
+</html>

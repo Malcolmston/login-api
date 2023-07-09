@@ -12,7 +12,9 @@
           <th>last update</th>
           <th>removed date</th>
   
-          <th>icon</th></tr>
+          <? if( items.hasOwnProperty("icon") ) { ?>
+          <th>icon</th>
+          <? } ?>
         </tr>
   
       <? for(let item of items){ ?>
@@ -27,9 +29,11 @@
           <th class="updatedAt"> <?= item.updatedAt ?> </th>  
           <th class="deletedAt"> <?= item.deletedAt ?> </th>
   
+          <? if( item.icon ) { ?>
           <th class="icon"> 
             <?- item.icon ?>
           </th>
+          <? } ?>
       </tr>
       <? } ?>
   

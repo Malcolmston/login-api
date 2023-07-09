@@ -1,4 +1,4 @@
-import {getData, postData, appendAlert} from '../helper.js'
+import {getData, postData, appendAlert} from '../../helper.js'
 
 
 const dissabled = document.querySelectorAll(".dissabled")

@@ -1,0 +1,82 @@
+<div class="hstack gap-2">
+    <form action="/business/admin/create" method="post" class="row g-3 needs-validation" novalidate>
+        <div class="col-md-4">
+          <label for="validationCustom01" class="form-label">First name</label>
+          <input type="text" class="form-control" id="fname"  name="fname">
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label for="validationCustom02" class="form-label">Last name</label>
+          <input type="text" class="form-control" id="lname" name="lname">
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label for="validationCustomUsername" class="form-label">Username</label>
+          <div class="input-group has-validation">
+            <span class="input-group-text" id="inputGroupPrepend">@</span>
+            <input type="text" class="form-control" id="username" aria-describedby="inputGroupPrepend" required name="username">
+            <div class="invalid-feedback">
+              Please choose a username.
+            </div>
+          </div>
+        </div>
+        
+          <div class="col-md-3">
+          <label for="validationCustom04" class="form-label">State accout type</label>
+          <select class="form-select" id="accountType" required name="account_type">
+            <option selected="" disabled="" value="">Choose...</option>
+            <option value="basic">basic</option>
+            <option value="admin">admin</option>
+          </select>
+          <div class="invalid-feedback">
+            Please select a valid state.
+          </div>
+        </div>
+        
+        
+        <div class="col-md-6">
+          <label for="validationCustom03" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" required onkeyup="change(this)" name="password">
+          
+          <div class="hide" id="valises">
+             <p id="uppercase"> must have 1 uppercase <span class="dot false uppercase"></span> </p> 
+    
+     <p id="letters"> must have at least 1 charicter a-z <span class="dot false letters"></span> </p> 
+     
+     <p id="symble">  must have at least 1 symble <span class="dot false symble"></span> </p> 
+    
+     <p id="length">  must be atlest 6 to 16 charicters <span class="dot false length"></span> </p> 
+          </div>
+          
+          <div class="invalid-feedback">
+            Please provide a valid password.
+          </div>
+        </div>
+      
+  
+        
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="invalidCheck" required>
+            <label class="form-check-label" for="invalidCheck">
+              Check this if you are sure you want to complet the action
+            </label>
+            <div class="invalid-feedback">
+              You must agree before submitting.
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <input class="btn btn-primary" type="submit" id="submit" value="Submit form"/>
+        </div>
+      </form>
+      
+     
+</div>
+
+
+<script src="../../files/js/admin/create.js" type="module"></script>
