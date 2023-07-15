@@ -13,8 +13,8 @@ Array.prototype.remove = function(elem) {
 const {
 	Basic_Account,
 	Admin_Account,
+	Bsiness_Account,
 	AppIcons,
-<<<<<<< HEAD
 
 	Room,
 	Message_Controller,
@@ -24,9 +24,6 @@ const {
 
 
 const stats = []
-=======
-} = require("./databace.js"));
->>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 
 const fs = require("fs");
 
@@ -82,7 +79,6 @@ const Basic = new Basic_Account();
 const Icons = new AppIcons();
 
 
-<<<<<<< HEAD
 const Rooms = new Room();
 const Message = new Message_Controller();
 
@@ -91,8 +87,6 @@ const Bsiness_basic = new Basic_Account( Buisness );
 const Bsiness_admin = new Admin_Account( Buisness );
 
 
-=======
->>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 function timeFormat(date) {
 	if (typeof date == "object") {
 		date = new Date(date)
@@ -186,13 +180,11 @@ async function run() {
 	
 	}
 
-<<<<<<< HEAD
 	async function getUserInfoBIZ(){
 		var all = await Bsiness_admin.getAll()
 		var array = []
 	
 		all.forEach(function (item) {
-	
 			item['icon'] = "";
 	
 	
@@ -231,10 +223,6 @@ async function run() {
 	
 	
 		})
-=======
-	app.get("/", (req, res) => {
-		let { username, loged_in, type} = req.session;
->>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 
 	
 	
@@ -251,7 +239,6 @@ async function run() {
 	
 	}
 
-<<<<<<< HEAD
 	async function login(type_choise, {req, res} ){
 		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 
@@ -275,7 +262,7 @@ async function run() {
 		let bool;
 		let del;
 
-		switch(type_choise){
+		switch(type_choise){		
 			case "basic":
 				bool = await Basic.validate(username, password);
 				del = await Basic.isDeleted(username);
@@ -478,7 +465,7 @@ async function run() {
 						req.session.loged_in = true;
 						req.session.type = "buisness + basic"
 					
-						req.session.company = (await Bsiness_basic.getAccount(username, "basic")).name
+						req.session.company = (await Bsiness_basic.getAccount(username, "basic")).bis_name
 
 
 						res.status(200).redirect("/business");
@@ -542,7 +529,7 @@ async function run() {
 						req.session.loged_in = true;
 						req.session.type = "buisness + admin"
 
-						req.session.company = (await Bsiness_basic.getAccount(username, "admin")).name//.toJSON();
+						req.session.company = (await Bsiness_basic.getAccount(username, "admin")).bis_name//.toJSON();
 
 						res.status(200).redirect("/business/admin");
 					} else {
@@ -574,19 +561,13 @@ async function run() {
 	
 	app.get("/", (req, res) => {
 		let { username, loged_in, type} = req.session;
-
-		console.log({
-			error: { message: "" },
-			type,
-			username,
-			loged_in
-		});
-		
 		res.render("homePage", {
-			error: { message: "" },
-			type,
-			username,
-			loged_in
+			error: {
+				message: "",
+			},
+			type: type,
+			username: username,
+			loged_in: loged_in,
 		});
 	});
 
@@ -850,7 +831,7 @@ async function run() {
 
 
 	app.get("/business",async (req, res) => {
-		const {username, loged_in, type} = req.session
+		const {username, loged_in, type, company} = req.session
 
 		let items = await Buisnes.get_users("basic")
 
@@ -863,10 +844,13 @@ async function run() {
 		stats.push(username);
 */
 		if( loged_in && type == "buisness + basic"){
-			let users = await Message.getUsers(Buisness)
+			let users = await Message.getUsers(Buisness, company)
 			let groups = await Message.getGroups();
 	
-			downloaded = {normal: (await Message.get_Buissness_Rooms_Chats(username)), group: (await Message.get_Buissness_Groups_Chats(username)) }
+			console.log( company )
+
+			
+			downloaded = {normal: (await Message.get_Buissness_Rooms_Chats(username, company)), group: (await Message.get_Buissness_Groups_Chats(username, company)) }
 	
 
 			stats.push(username);
@@ -901,18 +885,6 @@ async function run() {
 			password = JSON.parse(Object.keys(req.body)[0]).password;
 			account_type = JSON.parse(Object.keys(req.body)[0]).type;
 		}
-=======
-	app.post("/login", async (req, res) => {
-		var { username, password, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
-
-
-		if (username == undefined || password == undefined) {
-			username = JSON.parse(Object.keys(req.body)[0]).username;
-			password = JSON.parse(Object.keys(req.body)[0]).password;
-			type = JSON.parse(Object.keys(req.body)[0]).type;
-		}
-
->>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 
 		if (username == undefined || password == undefined) {
 			res.json([
@@ -923,7 +895,6 @@ async function run() {
 			]);
 
 			return;
-<<<<<<< HEAD
 		}
 
 		let allIcons = await Bsiness_admin.validate(username, password);
@@ -1008,17 +979,35 @@ async function run() {
 	app.get("/business/admin",async (req, res) => {
 		const {username, loged_in, type, company} = req.session
 
-		let items = await Buisnes.get_users("")
+		let items = await Buisnes.get_users("admin", company)
 
 
 		if( loged_in && type == "buisness + admin"){
+			let users = await Message.getUsers(Buisness, company)
+			let groups = await Message.getGroups();
+	
+
+			
+			downloaded = {normal: (await Message.get_Buissness_Rooms_Chats(username, company)), group: (await Message.get_Buissness_Groups_Chats(username, company)) }
+	
+
+			stats.push(username);
+
+			
+
 			res.status(200).render("business_admin", { 
 				username: username,
 				items,
+
+				users: JSON.stringify(users.map(x => x.username).filter( x => x !== username )),
+				groups:  groups.length == 0 ? "[]" : JSON.stringify(groups.map( x => x.name )),
+				downloaded: JSON.stringify(downloaded),
+				stats
 			});
-=======
->>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
+
 		}
+
+
 
 	
 	})
@@ -1779,72 +1768,6 @@ async function run() {
 		await login("admin",{req, res})
 	});
 
-	app.get("/admin/login", async (req, res) => {
-		var { username, loged_in, type } = req.session; //|| //JSON.parse(Object.keys(req.body)[0])
-
-
-		
-			if (loged_in && type === 'admin') {
-				var array = await getUserInfo()
-				
-				let dat = {
-					images: allIcons,
-					items: array,
-					username: req.session.username,
-				}
-
-			
-				res.status(200).render("adminPage", dat);
-
-				res.end()
-		
-			} else {
-				//if( bool && ! )
-				if (del) {
-					req.session.loged_in = false;
-					res.status(400).render("homePage", {
-						error: {
-							message: "you must log in",
-						},
-						username: req.session.username,
-						loged_in: req.session.loged_in,
-					});
-				
-			}
-
-		}
-	});
-
-	app.get("/login", async (req, res) => {
-		var { username, loged_in, type } = req.session; //|| //JSON.parse(Object.keys(req.body)[0])
-
-
-		
-			if (loged_in && type === 'basic') {
-				
-				res.status(200).render("home", {
-					images: allIcons,
-					username: username,
-				});
-		
-			} else {
-				//if( bool && ! )
-				if (del) {
-					req.session.loged_in = false;
-					res.status(400).render("homePage", {
-						error: {
-							message: "you must log in",
-						},
-						username: req.session.username,
-						loged_in: req.session.loged_in,
-					});
-				
-			}
-
-		}
-	});
-
-
 	app.post("/admin/user/login", async (req, res) => {
 		var { username, type } = req.body; //|| //JSON.parse(Object.keys(req.body)[0])
 
@@ -2268,7 +2191,6 @@ async function run() {
 		var { your_username, your_password, other_username } =
 			req.body || JSON.parse(Object.keys(req.body)[0]);
 
-			console.log( your_username, your_password, other_username )
 		if (
 			your_username == undefined ||
 			your_password == undefined ||
@@ -2645,7 +2567,7 @@ async function run() {
 		socket.on('message', async (obj) => {
 			if( ! socket.roomPlace ) return;
 	
-			downloaded = JSON.stringify((await Message.getRoomsandChats(username)))
+			downloaded = JSON.stringify((await Message.get_Buissness_Rooms_Chats(username)))
 	
 			let  {message, user}  = obj
 	
@@ -2671,11 +2593,11 @@ async function run() {
 			
 			
 			let valid_arr = (room_users.filter(async username => {
-				return await Bsiness_basic.account(username) || await Buisnes_admin.account(username)
+				return await Bsiness_basic.account(username) || await Bsiness_admin.account(username)
 			}))
 
 			let valid = (await Promise.all( (room_users.map(async username => {
-				if (!(await Bsiness_basic.account(username) || await Buisnes_admin.account(username))){
+				if (!(await Bsiness_basic.account(username) || await Bsiness_admin.account(username))){
 					return username
 				}else{
 					return false

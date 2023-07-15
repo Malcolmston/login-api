@@ -85,16 +85,9 @@ const sequelize = new Sequelize("uses", "", "", {
 	logging: false,
 });
 
-<<<<<<< HEAD
 const queryInterface = sequelize.getQueryInterface();
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> chat-app
-=======
->>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 const Icons = sequelize.define("icons", {
 	id: {
 		type: Sequelize.INTEGER,
@@ -145,18 +138,52 @@ const Users = sequelize.define("Users",
 			type: DataTypes.TEXT,
 			allowNull: true,
 			unique: false,
+
+			validate: {
+				isEmail: true
+			}
 		},
 
 		username: {
 			type: DataTypes.TEXT,
-			allowNull: false,
-			unique: true,
+			//allowNull: false,
+			//unique: false,
+
+			validate: {
+				isOff(value){
+					let type = this.getDataValue('type');
+
+					if( type != 'buisness' && (value == null) ){
+						throw new Error('Username can not be null');
+					}
+				},
+
+				async unique( value ){
+					let type = this.getDataValue('type');
+
+					let a = await Users.findOne({ where: { username: value } });
+
+					if( type != 'buisness' && a !== null ){
+						throw new Error('Username must be unique');
+					}
+				}
+
+			}
 		},
 
 		password: {
 			type: DataTypes.TEXT,
-			allowNull: false,
 			unique: false,
+
+			validate: {
+				isOff(value){
+					let type = this.getDataValue('type');
+
+					if( type != 'buisness' && (value == null) ){
+						throw new Error('Username can not be null');
+					}
+				}
+			}
 		},
 
 		type: {
@@ -168,18 +195,249 @@ const Users = sequelize.define("Users",
 	{
 		timestamps: true,
 
+		deletedAt: "deletedAt",
+		paranoid: true,
+	}
+);
+/*
+const Buisness = sequelize.define("buisness",{
+	id: {
+		type: Sequelize.INTEGER,
+		autoIncrement: true,
+		primaryKey: true,
+	},
+
+	bis_name: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: false,
+	},
+
+	firstName: {
+		type: DataTypes.TEXT,
+		allowNull: true,
+		unique: false,
+	},
+
+	lastName: {
+		type: DataTypes.TEXT,
+		allowNull: true,
+		unique: false,
+	},
+
+	email: {
+		type: DataTypes.TEXT,
+		allowNull: true,
+		unique: false,
+	},
+
+	username: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: true,
+	},
+
+	password: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: false,
+	},
+
+	type: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: false,
+	}, 
+},
+{
+	timestamps: true,
+
 	deletedAt: "deletedAt",
 	paranoid: true,
 })
+*/
+const Buisness = sequelize.define("buisness",{
+	id: {
+		type: Sequelize.INTEGER,
+		autoIncrement: true,
+		primaryKey: true,
+	},
+
+	firstName: {
+		type: DataTypes.TEXT,
+		allowNull: true,
+		unique: false,
+	},
+
+	lastName: {
+		type: DataTypes.TEXT,
+		allowNull: true,
+		unique: false,
+	},
+
+	email: {
+		type: DataTypes.TEXT,
+		allowNull: true,
+		unique: false,
+	},
+
+	username: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: true,
+	},
+
+	password: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: false,
+	},
+
+	type: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: false,
+	}, 
+},
+{
+	timestamps: true,
+
+	deletedAt: "deletedAt",
+	paranoid: true,
+})
+
+const Bis_names = sequelize.define("bis_names",{
+	id: {
+		type: Sequelize.INTEGER,
+		autoIncrement: true,
+		primaryKey: true,
+	},
+
+	name: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		unique: true,
+	},
+
+	
+},
+{
+	timestamps: true,
+
+	deletedAt: "deletedAt",
+	paranoid: true,
+})
+
+const Bis_nameusers = sequelize.define('Name_Users', {}, { timestamps: false });
+
+
+
+
+
+const Rooms = sequelize.define(
+	"rooms",
+	{
+		id: {
+			type: Sequelize.INTEGER,
+			autoIncrement: true,
+			primaryKey: true,
+		},
+
+
+		room: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+			unique: true,
+		},
+
+    "show-name": {
+      type: DataTypes.TEXT,
+			allowNull: true,
+			unique: true,
+    },
+    name: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+			unique: false,
+		},
+
+		
+	},
+	{
+		timestamps: true,
+
+		deletedAt: "deletedAt",
+		paranoid: true,
+	}
+);
+
+const Message = sequelize.define(
+	"message",
+	{
+		id: {
+			type: Sequelize.INTEGER,
+			autoIncrement: true,
+			primaryKey: true,
+		},
+
+
+		message: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+			unique: false,
+		},
+
+    link: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      unique: false,
+    }
+  
+		
+	},
+	{
+		timestamps: true,
+
+		deletedAt: "deletedAt",
+		paranoid: true,
+	}
+);
+
+const User_Room = sequelize.define('User_Room', {}, { timestamps: false });
+
+
+Users.belongsToMany(Rooms, { through: User_Room });
+Rooms.belongsToMany(Users, { through: User_Room });
+//User_Room.belongsTo(Buisness);
+
+Bis_names.belongsToMany(Buisness, { through: Bis_nameusers });
+Buisness.belongsToMany(Bis_names, { through: Bis_nameusers });
+
+
+Users.hasOne(Message);
+Message.belongsTo(Users);
+
+Rooms.hasOne(Message);
+Message.belongsTo(Rooms);
+
 
 
 Icons.hasMany(Users);
 Users.belongsTo(Icons);
 
+
+Buisness.hasMany(Users);
+Users.belongsTo(Buisness);
+
+
 Users.sync();
+Buisness.sync();
+
 
 class Account {
-	constructor() {}
+	constructor() {
+		
+	}
 	getFileBuffer(fullPath) {
 		let filepath = path.resolve(__dirname, fullPath);
 		let profilePicture = Buffer.from(fs.readFileSync(filepath));
@@ -201,9 +459,23 @@ class Account {
 		});
 	}
 
-	Account(username, type) {
-		return new Promise(async function (resolve) {
-			let res = await Users.findOne({
+	async getAccountType(username, Database = Users) {
+		let t = (await Database.findOne({
+			where: {
+				username: username,
+			},
+			raw: true,
+		}))
+
+		if( t == null ){
+			return;
+		};
+		return t.type;
+	
+	}
+
+	async Account(username, type, Database) {
+		return await Database.findOne({
 				where: {
 					username: username,
 					type: type, //"basic"
@@ -343,8 +615,10 @@ class AppIcons extends Account {
 }
 
 class Basic_Account extends Account {
-	constructor() {
+	constructor(Database = Users) {
 		super();
+
+		this.Database = Database
 	}
 
 	/**
@@ -353,7 +627,7 @@ class Basic_Account extends Account {
 	 * @returns {promises} true if the account is deleted otherwise it will return true
 	 */
 	async isDeleted(username) {
-		let pf = await Users.findOne({
+		let pf = await this.Database.findOne({
 			where: {
 				username: username,
 				type: "basic",
@@ -361,7 +635,7 @@ class Basic_Account extends Account {
 			paranoid: true,
 		});
 
-		let pt = await Users.findOne({
+		let pt = await this.Database.findOne({
 			where: {
 				username: username,
 				type: "basic",
@@ -395,7 +669,7 @@ class Basic_Account extends Account {
 			return false;
 		}
 
-		let res = await this.Account(username, "basic");
+		let res = await this.Account(username, "basic", this.Database);
 		if( res === null) return false;
 
 		let a = await this.password_simi(password, res.password);
@@ -417,14 +691,14 @@ class Basic_Account extends Account {
 		let res;
 		
 		if( !del ){
-		res = await Users.findOne({
+		res = await this.Database.findOne({
 			where: {
 				username: username,
 				type,
 			},
 		});
 	}else {
-		res = await Users.findOne({
+		res = await this.Database.findOne({
 			where: {
 				username: username,
 				type,
@@ -494,7 +768,7 @@ class Basic_Account extends Account {
 
 		let p = await this.password_hide(password);
 
-		let a = await Users.create({
+		let a = await this.Database.create({
 			username: username,
 			password: p,
 			type: "basic",
@@ -507,7 +781,7 @@ class Basic_Account extends Account {
 		let d = await this.validate(username, password);
 
 		if (d) {
-			let r = await Users.destroy({
+			let r = await this.Database.destroy({
 				where: { username: username, type: "basic" },
 			});
 
@@ -522,7 +796,7 @@ class Basic_Account extends Account {
 
 		if (bool) return false;
 
-		let d = await Users.update(
+		let d = await this.Database.update(
 			{ username: c },
 			{
 				where: { username: username, type: "basic" },
@@ -535,7 +809,7 @@ class Basic_Account extends Account {
 	async update_password(username, c) {
 		let e = await this.password_hide(c.toString());
 
-		let d = await Users.update(
+		let d = await this.Database.update(
 			{ password: e },
 			{
 				where: { username: username, type: "basic" },
@@ -574,8 +848,10 @@ class Basic_Account extends Account {
 }
 
 class Admin_Account extends Account {
-	constructor() {
+	constructor(database = Users) {
 		super();
+
+		this.Database = database
 	}
 
 	/**
@@ -584,7 +860,7 @@ class Admin_Account extends Account {
 	 * @returns {promises} true if the account is deleted otherwise it will return true
 	 */
 	async isDeleted(username, type = "admin") {
-		let pf = await Users.findOne({
+		let pf = await this.Database.findOne({
 			where: {
 				username: username,
 				type: type,
@@ -592,7 +868,7 @@ class Admin_Account extends Account {
 			paranoid: true,
 		});
 
-		let pt = await Users.findOne({
+		let pt = await this.Database.findOne({
 			where: {
 				username: username,
 				type: type,
@@ -637,7 +913,7 @@ class Admin_Account extends Account {
 	}
 
 	async account(username) {
-		let res = await Users.findOne({
+		let res = await this.Database.findOne({
 			where: {
 				username: username,
 				type: "admin",
@@ -758,7 +1034,7 @@ class Admin_Account extends Account {
 		let a = await this.password_simi(password, pwd);
 
 		if (a) {
-			let res = await Users.findOne({
+			let res = await this.Database.findOne({
 				where: {
 					username: username,
 					type: "admin",
@@ -777,7 +1053,7 @@ class Admin_Account extends Account {
 
 	// checks the Basic table by the username and user type
 	async findBy(username, type) {
-		let res = await Users.findOne({
+		let res = await this.Database.findOne({
 			where: {
 				username: username,
 				type: type,
@@ -800,7 +1076,7 @@ class Admin_Account extends Account {
 		let reg = /[a-zA-Z0-9(\W|_)]{6,20}$/;
 
 		if (reg.test(password) || type == "basic") {
-			let a = await Users.create({
+			let a = await this.Database.create({
 				username: username,
 				password: p,
 				type: type,
@@ -818,7 +1094,7 @@ class Admin_Account extends Account {
 			let i = await this.check(username, password);
 
 			if (i) {
-				let r = await Users.destroy({ where: { username: Busername } });
+				let r = await this.Database.destroy({ where: { username: Busername } });
 
 				return r;
 			} else {
@@ -835,7 +1111,7 @@ class Admin_Account extends Account {
 			let i = await this.check(username, password);
 
 			if (i) {
-				let r = await Users.destroy({
+				let r = await this.Database.destroy({
 					where: { username: Busername },
 					force: true,
 				});
@@ -854,7 +1130,7 @@ class Admin_Account extends Account {
 		let c2 = await this.validate(Yusername, Ypassword);
 
 		if (!c1 && c2) {
-			let r = await Users.restore({
+			let r = await this.Database.restore({
 				where: {
 					username: username,
 				},
@@ -867,7 +1143,7 @@ class Admin_Account extends Account {
 	}
 
 	async update_username(username, c) {
-		let d = await Users.update(
+		let d = await this.Database.update(
 			{ username: c },
 			{
 				where: { username: username },
@@ -880,7 +1156,7 @@ class Admin_Account extends Account {
 	async update_password(username, c) {
 		let e = await this.password_hide(c.toString());
 
-		let d = await Users.update(
+		let d = await this.Database.update(
 			{ password: e },
 			{
 				where: { username: username },
@@ -891,15 +1167,19 @@ class Admin_Account extends Account {
 	}
 
 	async getAll() {
-		let all = await Users.findAll({ paranoid: false });
+		let all = await this.Database.findAll({
+			where: {
+				type: {
+					[Op.ne]: "buisness"
+				}
+			}
+		},
+			{ paranoid: false }
+			);
 
 		return all;
 	}
 }
-
-<<<<<<< HEAD
-
-
 
 class Bsiness_Account extends Account {
 		constructor(name) {
@@ -907,33 +1187,73 @@ class Bsiness_Account extends Account {
 		this.name = name
 	}
 
+	async set_bis(bis_name){
+		this.name = bis_name
+		if( (await this.get_bis() ) === null  ||  (await this.get_bis() ) === undefined){
+			return (await this.get_bis() ) 
+		}
+		 return await Bis_names.create({ name: bis_name })
+	}
 
-	async add_member(type, username, pwd, firstName, lastName, email){
+	async get_bis (name) {
+		return  await Bis_names.findOne({
+			where: { name: this.name || name },
+		})
+	} 
+		
+		
+
+
+	async add_member(type, bis_name ,username, pwd, firstName, lastName, email){
+
 		let password = await this.password_hide(pwd);
 
 		let a = await Buisness.create({ 
-			name: this.name ,type, username, password, firstName, lastName, email
+			type, username, password, firstName, lastName, email
 		})
 		let b = await Users.create({ type: "buisness"});
 
+		let bis = await this.set_bis(bis_name)
 		await a.addUsers([b])
+
+		await bis.addBuisness(a)
 
 	}
 
-	async get_users(type) {
-		return (await Buisness.findAll({ where: {
+	async get_users(type, buisness) {
+		let bis = await this.get_bis(buisness)
+		//return 
+
+		
+		let acc =  (await Buisness.findAll({ where: {
 			type: {
 				[Op.is]: type
-			}
+			},
+		//	bis_name: buisness
 
-		 } })).map(x => x.toJSON());
+		 } })).map(async x => {
+			return await x.getBis_names({
+				where: {
+					id: bis.getDataValue('id')
+				},
+				include: [{
+					model: Buisness,
+					as: 'buisnesses',
+				}],
+
+				
+			})
+
+		 });
+
+		 acc =  (await Promise.all(acc)).flat().map( x => x.getDataValue("buisnesses") ).flat().map( x => x.toJSON() )
+		 
+		 return  acc 
 	}
 
 	
 }
 
-<<<<<<< HEAD
-=======
 
 
 class Room extends Account {
@@ -995,14 +1315,15 @@ class Room extends Account {
 	return {users: user_arr, room}  
 	}
 
-	async  getRoomby_Buissness_User(...users){
+	async  getRoomby_Buissness_User( ...users){
 		let userArr = users.map( async user => await Buisness.findOne({
 			where:{
 				username: user.username,
+				//bis_name: buisness
 			},
 			raw: true
 		}))
-		let userIds = (await Promise.all(userArr) )
+		let userIds = (await Promise.all(userArr) ).filter( x => x !== null)
 
 		let p = userIds.map( async user => await Users.findOne({
 		  where:{
@@ -1243,13 +1564,14 @@ class Message_Controller extends Room {
 	return (await Promise.all(all)).filter(x => x != undefined )
 	}
 
-	async  get_Buissness_Rooms_Chats(user){
+	async  get_Buissness_Rooms_Chats(user, buisness){
 
 		let pos = 0
 
 		let id = (await Buisness.findOne({
 			where:{
 				username: user,
+				bis_name: buisness
 			},
 			raw: true
 		})).id
@@ -1387,12 +1709,13 @@ class Message_Controller extends Room {
 	return (await Promise.all(all)).filter(x => x != undefined )
 	}
 
-	async get_Buissness_Groups_Chats(user){
+	async get_Buissness_Groups_Chats(user, buisness){
 		let pos = 0
 
 		let id = (await Buisness.findOne({
 			where:{
 				username: user,
+				bis_name: buisness
 			},
 			raw: true
 		})).id
@@ -1494,12 +1817,14 @@ class Message_Controller extends Room {
 	return r 
 	}
 
-	async getUsers(databace = Users){
+	async getUsers(databace = Users, company){
 		return (await databace.findAll({
 			where: {
+				bis_name: company,
 				type: {
 					[Op.ne]: "buisness"
-				}
+				},
+
 			}
 		}))
 	}
@@ -1517,31 +1842,73 @@ const user_Array = [
   ];
   
 
->>>>>>> chat-app
-=======
->>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
 (async function () {
 	await sequelize.sync({ force: false });
 
-	/*
-	//let user1 = await a.create("a", "a")
-	let user2 = await a.create("b", "b")
+	const thing = new Account()
+	const dat = new Bsiness_Account()
 
-	//let icon1 = await c.addFile('3')
-	let icon2 = await c.addAll()//.addFile('7')
+	let Bsines = new Basic_Account(Buisness);
+	
+/*
+	await Bis_names.create({
+		name: 'aaa'
+	})
+*/
 
+(await dat.get_users('basic','aaa') )
+//await aaa.addBuisness(users)
 
-	//await user1.setIcon(icon1);
-	//await user2.setIcon(icon2);
-	*/
+//await dat.add_member('admin', "aaa",  "Malcolm", "MalcolmStoneAdmin22$", "Malcolm", "stone", "mstone@gmail.com")
+
+//console.log( await dat.add_member("basic", "a", "a", "a", "a", "a@gmail.com") );
+
+//console.log( await dat.add_member("basic", "b", "b", "a", "a", "a@gmail.com") );
+
 
 	let a = new Basic_Account();
 	let b = new Admin_Account();
 
 	let c = new AppIcons();
 
-	await c.addAll();
-/*
+	let d = new Admin_Account(Buisness);
+
+	let e = new Room()
+
+
+	
+
+//console.log( await dat.add_member("basic", "c", "c", "c", "c", "c@gmail.com") );
+
+//console.log( await dat.add_member("basic", "b", "b", "a", "a", "a@gmail.com") );
+
+//let r =await e.create_Business_Room( user_Array[0], user_Array[1] )
+
+//console.log( await e.getRoomby_Buissness_User(user_Array[0], user_Array[1]) )
+
+//console.log( r )
+	
+
+//await c.addAll();
+	/*
+	
+	*/
+	
+	//let user = await a.create("a", "a")
+	//await a.create("b", "b")
+
+	//let room = await e.createRoom( user_Array[0], user_Array[1] )
+
+//	console.log( room )
+
+	//await c.addAll();
+	//let r =await createRoom( user_Array[0], user_Array[1] ) // await getRoombyUser(user_Array[0], user_Array[1])//await createRoom( user_Array[0], user_Array[2] )
+	//console.log( r )
+	
+
+	//await c.addAll();
+
+	/*
 	a.create("a", "a").then(() => {
 		b.create("Malcolm", "MalcolmStoneAdmin22$", "admin").then(() => {
 			b.name("Malcolm", "Malcolm", "Stone").then(console.log);
@@ -1555,7 +1922,13 @@ module.exports = {
 	Account,
 	Basic_Account,
 	Admin_Account,
+	Bsiness_Account,
 	AppIcons,
+
+	Room,
+	Message_Controller,
+
+	Buisness
 };
 
 
