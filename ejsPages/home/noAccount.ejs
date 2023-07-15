@@ -1,145 +1,5 @@
+
 <body>
-    <h1>Time to log in</h1>
-  
-    <!-- Button trigger modal login-->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#login">
-      login
-    </button>
-  
-    <!-- Button trigger modal signup-->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signup">
-      signup
-    </button>
-    
-      <!-- Button trigger modal signup-->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#admin">
-      admin login
-    </button>
-    
-    
-  
-    <!-- login Modal -->
-    <div class="modal fade" id="login" tabindex="-1" aria-labelledby="login" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Login <i class="fa-duotone fa-door-open" style="--fa-primary-opacity: 0.4; --fa-secondary-opacity: 1;"></i> </h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form action="/login" method="post" class='login'>
-  
-              <div class="input-group mb-3">
-                <span class="input-group-text" id="basic-addon1">@</span>
-                <input type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="username" placeholder="username:" required>
-              </div>
-  
-              <div class="input-group mb-3">
-                <span class="input-group-text" id="basic-addon1"> <i class="fa-solid fa-lock fa-sm"></i> </span>
-                <input type="password" class="form-control" aria-label="password" aria-describedby="basic-addon2" name="password" placeholder="password:" id="password" required>
-              </div>
-  
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="show" name='show' />
-  
-                <label id="psw">show your password</label>
-              </div>
-  
-              <input type="submit" value="login" class="btn btn-primary" />
-  
-            </form>
-  
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <!-- signup Modal -->
-    <div class="modal fade" id="signup" tabindex="-1" aria-labelledby="signup" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Sign up <i class="fa-duotone fa-users" style="--fa-primary-opacity: 0.4; --fa-secondary-opacity: 1;"></i> </h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form action="/signup" method="post" class='signup'>
-              <div class="input-group mb-3">
-                <span class="input-group-text" id="basic-addon1">@</span>
-                <input type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="username" placeholder="username:" required>
-              </div>
-  
-              <div class="input-group mb-3">
-                <span class="input-group-text" id="basic-addon1"> <i class="fa-solid fa-lock fa-sm"></i> </span>
-                <input type="password" class="form-control" aria-label="password" aria-describedby="basic-addon2" name="password" placeholder="password:" id="password" required>
-              </div>
-  
-              <input type="submit" value="sign up" class="btn btn-primary" />
-             
-          </form>
-  
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
-    </div>
-    </div>
-  
-    
-      <!-- admin Modal -->
-    <div class="modal fade" id="admin" tabindex="-1" aria-labelledby="admin" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Sign up <i class="fa-duotone fa-users" style="--fa-primary-opacity: 0.4; --fa-secondary-opacity: 1;"></i> </h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form action="/admin/login" method="post" class='admin_login'>
-              <div class="input-group mb-3">
-                <span class="input-group-text" id="basic-addon1">@</span>
-                <input type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" name="username" placeholder="username:" required>
-              </div>
-  
-              <div class="input-group mb-2">
-                <span class="input-group-text" id="basic-addon1"> <i class="fa-solid fa-lock fa-sm"></i> </span>
-                
-                 <input type="password" class="form-control" aria-label="password" aria-describedby="basic-addon2" name="password" placeholder="password:" id="password" required pattern="[a-zA-Z0-9(\W|_)]{6,20}$" onkeyup="change(this)"/>
-   </div>
-        <p id="uppercase"> must have 1 uppercase <span class="dot false uppercase"></span> </p> 
-  
-   <p id="letters"> must have at least 1 charicter a-z <span class="dot false letters"></span> </p> 
-   
-   <p id="symble">  must have at least 1 symble <span class="dot false symble"></span> </p> 
-  
-   <p id="length">  must be atlest 6 to 16 charicters <span class="dot false length"></span> </p> 
-  
-  
-  
-               <input type="submit" value="sign up" class="btn btn-primary" id="submit" disabled/>
-             
-          </form>
-  
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
-    </div>
-    </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    
-    
-  </body>
   <h1>Time to log in</h1>
 
 
@@ -410,7 +270,6 @@
         <button type="button" class="btn btn-primary">Save changes</button>
       </div>
     </div>
->>>>>>> chat-app
   </div>
   </div>
   
@@ -422,16 +281,110 @@
   
 </div>
 
-<<<<<<< HEAD
-=======
 
 </body>
->>>>>>> chat-app
-=======
-    
-    
-  </body>
->>>>>>> parent of a541e44... Merge remote-tracking branch 'origin/Business' into main
+
+<script>
+
+let a = /[a-zA-Z0-9(\W|_)]{6,20}$/
+
+let parts = {
+"uppercase": {
+regExp: (/[A-Z]/),
+},
+
+"letters": {
+regExp: /[a-z]/,
+},
+
+"symble": {
+regExp: /\W|_/,
+},
 
 
-  <script src="files/js/home/noAccount.js"></script>
+
+}
+
+
+function change(t) {
+let r = t.value
+
+if( parts["uppercase"].regExp.test( r) ) {
+document.querySelector(".uppercase").classList.replace('false', "true")
+}else{
+document.querySelector(".uppercase").classList.replace('true', "false") 
+}
+
+
+if( parts["letters"].regExp.test( r ) ) {
+
+document.querySelector(".letters").classList.replace('false', "true")
+}else{
+document.querySelector(".letters").classList.replace('true', "false") 
+}
+
+if( parts["symble"].regExp.test( r ) ) {
+
+document.querySelector(".symble").classList.replace('false', "true")
+}else{
+document.querySelector(".symble").classList.replace('true', "false") 
+}
+
+
+if( r.length >= 6 && r.length <= 20) {
+document.querySelector(".length").classList.replace('false', "true")
+}else{
+document.querySelector(".length").classList.replace('true', "false") 
+}
+
+
+if( a.test(r) ){
+document.querySelector("#submit").disabled = false
+}else {
+document.querySelector("#submit").disabled = true
+}
+
+}
+
+function change1(t) {
+    let r = t.value
+    
+    if( parts["uppercase"].regExp.test( r) ) {
+    document.querySelector(".uppercase1").classList.replace('false', "true")
+    }else{
+    document.querySelector(".uppercase1").classList.replace('true', "false") 
+    }
+    
+    
+    if( parts["letters"].regExp.test( r ) ) {
+    
+    document.querySelector(".letters1").classList.replace('false', "true")
+    }else{
+    document.querySelector(".letters1").classList.replace('true', "false") 
+    }
+    
+    if( parts["symble"].regExp.test( r ) ) {
+    
+    document.querySelector(".symble1").classList.replace('false', "true")
+    }else{
+    document.querySelector(".symble1").classList.replace('true', "false") 
+    }
+    
+    
+    if( r.length >= 6 && r.length <= 20) {
+    document.querySelector(".length1").classList.replace('false', "true")
+    }else{
+    document.querySelector(".length1").classList.replace('true', "false") 
+    }
+    
+    
+    if( a.test(r) ){
+    document.querySelector("#submit1").disabled = false
+    }else {
+    document.querySelector("#submit1").disabled = true
+    }
+    
+    }
+
+
+</script>
